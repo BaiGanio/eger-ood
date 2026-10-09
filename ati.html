@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>АвтоСервиз — SMS Напомняния</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+
+<div class="d-flex" style="min-height:100vh">
+
+  <!-- ─── Sidebar ─────────────────────────────────────────────── -->
+  <nav class="d-flex flex-column flex-shrink-0 bg-white border-end shadow-sm"
+       style="width:220px;min-height:100vh;position:fixed;top:0;left:0;z-index:100;">
+
+    <div class="px-3 py-3 border-bottom d-flex align-items-center gap-2">
+      <div class="rounded-2 d-flex align-items-center justify-content-center bg-primary text-white flex-shrink-0"
+           style="width:36px;height:36px;font-size:17px;">
+        <i class="bi bi-wrench-adjustable"></i>
+      </div>
+      <div>
+        <div class="fw-bold lh-1" style="font-family:'Syne',sans-serif;font-size:14px;">АвтоСервиз</div>
+        <div class="text-muted" style="font-size:10px;">SMS Напомняния</div>
+      </div>
+    </div>
+
+    <ul class="nav nav-pills flex-column px-2 py-3 flex-grow-1 gap-1">
+      <li class="nav-item">
+        <button class="nav-link active w-100 text-start d-flex align-items-center gap-2"
+                id="nav-dashboard" onclick="showView('dashboard')">
+          <i class="bi bi-speedometer2"></i> Табло
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link w-100 text-start d-flex align-items-center gap-2 text-secondary"
+                id="nav-settings" onclick="showView('settings')">
+          <i class="bi bi-gear"></i> Настройки
+        </button>
+      </li>
+    </ul>
+
+    <div class="px-3 py-2 border-top">
+      <small class="text-muted d-flex align-items-center gap-1" style="font-size:11px;">
+        <span class="status-dot"></span> Сървърът е активен
+      </small>
+    </div>
+  </nav>
+
+  <!-- ─── Main ─────────────────────────────────────────────────── -->
+  <main class="flex-grow-1 p-4" style="margin-left:220px;">
+
+    <!-- ══ ТАБЛО ══════════════════════════════════════════════════ -->
+    <div id="view-dashboard">
+
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <h1 class="h4 fw-bold mb-0" style="font-family:'Syne',sans-serif;">SMS Напомняния</h1>
+          <p class="text-muted small mb-0">Управление на годишни технически прегледи</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2" onclick="openAddModal()">
+          <i class="bi bi-plus-lg"></i> Добави клиент
+        </button>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+        <div class="col">
+          <div class="card border-0 shadow-sm h-100 stat-accent">
+            <div class="card-body py-3 px-3">
+              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Всички клиенти</div>
+              <div class="stat-value" id="stat-total">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm h-100 stat-warning">
+            <div class="card-body py-3 px-3">
+              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Очакващи SMS</div>
+              <div class="stat-value" id="stat-pending">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm h-100 stat-info">
+            <div class="card-body py-3 px-3">
+              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">За днес</div>
+              <div class="stat-value" id="stat-today">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm h-100 stat-success">
+            <div class="card-body py-3 px-3">
+              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Изпратени SMS</div>
+              <div class="stat-value" id="stat-sent">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-0 shadow-sm h-100 stat-danger">
+            <div class="card-body py-3 px-3">
+              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Просрочени</div>
+              <div class="stat-value" id="stat-overdue">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="d-flex gap-2 mb-3 flex-wrap">
+        <input type="text" class="form-control" id="search-input"
+               placeholder="Търси по име, рег. номер, модел…"
+               oninput="renderTable()" style="max-width:280px;" />
+        <select class="form-select" id="filter-status" onchange="renderTable()" style="max-width:200px;">
+          <option value="">Всички статуси</option>
+          <option value="pending">Очакващи</option>
+          <option value="sent">Изпратени</option>
+          <option value="overdue">Просрочени</option>
+          <option value="disabled">Деактивирани</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="col-header">Клиент</th>
+                <th class="col-header">Автомобил</th>
+                <th class="col-header">Телефон</th>
+                <th class="col-header">Напомняне</th>
+                <th class="col-header">Следващ преглед</th>
+                <th class="col-header">Статус</th>
+                <th class="col-header">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr>
+                <td colspan="7" class="text-center text-muted py-5">
+                  <i class="bi bi-hourglass d-block mb-2 fs-3 opacity-25"></i> Зареждане…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ НАСТРОЙКИ ══════════════════════════════════════════════ -->
+    <div id="view-settings" style="display:none">
+
+      <div class="mb-4">
+        <h1 class="h4 fw-bold mb-0" style="font-family:'Syne',sans-serif;">Настройки</h1>
+        <p class="text-muted small mb-0">SMS шаблон, почивни дни и управление на клиенти</p>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- SMS Template -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom d-flex align-items-center gap-2 py-3">
+              <i class="bi bi-chat-text text-primary"></i>
+              <span class="fw-semibold">SMS Шаблон</span>
+            </div>
+            <div class="card-body">
+              <label class="form-label col-header">Текст на шаблона</label>
+              <textarea class="form-control font-monospace" id="sms-template-input"
+                        rows="5" oninput="updatePreview()"></textarea>
+
+              <div class="mt-2 d-flex flex-wrap gap-1 align-items-center">
+                <span class="text-muted me-1" style="font-size:11px;">Променливи:</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 var-chip"
+                      onclick="insertVar('{{name}}')">{{name}}</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 var-chip"
+                      onclick="insertVar('{{carModel}}')">{{carModel}}</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 var-chip"
+                      onclick="insertVar('{{carPlate}}')">{{carPlate}}</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 var-chip"
+                      onclick="insertVar('{{serviceDate}}')">{{serviceDate}}</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 var-chip"
+                      onclick="insertVar('{{phone}}')">{{phone}}</span>
+              </div>
+
+              <div class="mt-3">
+                <label class="form-label col-header">Преглед</label>
+                <div class="p-3 bg-light rounded border sms-preview-box" id="sms-preview-box"
+                     style="min-height:70px;white-space:pre-wrap;font-size:13px;">—</div>
+                <div class="text-muted mt-1" style="font-size:11px;" id="sms-char-count">0 знака</div>
+              </div>
+            </div>
+            <div class="card-footer bg-white border-top d-flex justify-content-end py-3">
+              <button class="btn btn-primary d-flex align-items-center gap-2" onclick="saveTemplate()">
+                <i class="bi bi-floppy"></i> Запази шаблона
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Holidays -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom d-flex align-items-center gap-2 py-3">
+              <i class="bi bi-calendar-x text-primary"></i>
+              <span class="fw-semibold">Почивни дни (без SMS)</span>
+            </div>
+            <div class="card-body">
+              <div id="holiday-list" class="d-flex flex-column gap-2 mb-3"
+                   style="max-height:280px;overflow-y:auto;"></div>
+              <div class="input-group">
+                <input type="date" class="form-control" id="new-holiday-input" />
+                <button class="btn btn-primary d-flex align-items-center gap-1" onclick="addHoliday()">
+                  <i class="bi bi-plus-lg"></i> Добави
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- All customers -->
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between py-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-people text-primary"></i>
+                <span class="fw-semibold">Всички клиенти</span>
+              </div>
+              <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" onclick="openAddModal()">
+                <i class="bi bi-person-plus"></i> Добави клиент
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="col-header">Клиент</th>
+                    <th class="col-header">Автомобил</th>
+                    <th class="col-header">Телефон</th>
+                    <th class="col-header">Последен преглед</th>
+                    <th class="col-header">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="settings-table-body">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-5">
+                      <i class="bi bi-hourglass d-block mb-2 fs-3 opacity-25"></i> Зареждане…
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ МОДАЛ — Добавяне / редактиране ═════════════════════════════ -->
+<div class="modal fade" id="customer-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modal-title" style="font-family:'Syne',sans-serif;">
+          Добави клиент
+        </h5>
+        <button type="button" class="btn-close" onclick="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label col-header">Пълно име *</label>
+            <input type="text" class="form-control" id="f-name" placeholder="Иван Петров" />
+          </div>
+          <div class="col-6">
+            <label class="form-label col-header">Телефон (E.164) *</label>
+            <input type="text" class="form-control" id="f-phone" placeholder="+359881234567" />
+          </div>
+          <div class="col-12">
+            <label class="form-label col-header">Адрес</label>
+            <input type="text" class="form-control" id="f-address" placeholder="ул. Васил Левски 12, Пловдив" />
+          </div>
+          <div class="col-6">
+            <label class="form-label col-header">Модел автомобил *</label>
+            <input type="text" class="form-control" id="f-carModel" placeholder="VW Golf 7" />
+          </div>
+          <div class="col-6">
+            <label class="form-label col-header">Регистрационен номер *</label>
+            <input type="text" class="form-control" id="f-carPlate" placeholder="PB 1234 AB" />
+          </div>
+          <div class="col-12">
+            <label class="form-label col-header">Дата на последен преглед *</label>
+            <input type="date" class="form-control" id="f-lastServiceDate" />
+          </div>
+        </div>
+        <input type="hidden" id="f-id" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" onclick="closeModal()">Отказ</button>
+        <button type="button" class="btn btn-primary d-flex align-items-center gap-2" onclick="saveCustomer()">
+          <i class="bi bi-check-lg"></i> <span id="modal-save-label">Добави клиент</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ МОДАЛ — Преглед на SMS ═════════════════════════════════════ -->
+<div class="modal fade" id="sms-preview-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" style="font-family:'Syne',sans-serif;">Преглед на SMS</h5>
+        <button type="button" class="btn-close" onclick="closeSmsPreviewModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-2">Това е съобщението, което ще бъде изпратено на клиента:</p>
+        <div class="p-3 bg-light rounded border sms-preview-box" id="preview-modal-body"
+             style="min-height:90px;white-space:pre-wrap;font-size:13px;"></div>
+        <div class="text-muted mt-2" style="font-size:11px;" id="preview-modal-count"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" onclick="closeSmsPreviewModal()">Отказ</button>
+        <button type="button" class="btn btn-primary d-flex align-items-center gap-2"
+                id="confirm-send-btn" onclick="confirmSend()">
+          <i class="bi bi-send"></i> Изпрати SMS
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Toast container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:9999;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="scripts.js"></script>
+</body>
+</html>

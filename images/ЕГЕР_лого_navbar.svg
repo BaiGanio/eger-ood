@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" width="320" height="56">
+
+  <!-- Mini shield -->
+  <path d="M28 4 L52 12 L52 34 Q52 48 28 54 Q4 48 4 34 L4 12 Z" fill="#1a3258"/>
+  <path d="M28 7 L49 15 L49 34 Q49 46 28 51 Q7 46 7 34 L7 15 Z" fill="#C9A227"/>
+  <path d="M28 11 L46 18 L46 34 Q46 43 28 48 Q10 43 10 34 L10 18 Z" fill="#1F3864"/>
+  <text x="28" y="30" text-anchor="middle" dominant-baseline="central"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="18" font-weight="700" fill="#C9A227">Е</text>
+
+  <!-- Vertical divider -->
+  <line x1="62" y1="8" x2="62" y2="48" stroke="#C9A227" stroke-width="1" opacity="0.5"/>
+
+  <!-- Name -->
+  <text x="74" y="21" dominant-baseline="central"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="20" font-weight="700" fill="#1F3864" letter-spacing="4">ЕГЕР ООД</text>
+
+  <!-- Tagline -->
+  <text x="74" y="41" dominant-baseline="central"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="9" fill="#C9A227" letter-spacing="2">НАДЕЖДНОСТ ОТ ГОДИНИ</text>
+
+</svg>

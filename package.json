@@ -1,0 +1,26 @@
+{
+  "name": "car-service-sms",
+  "version": "1.0.0",
+  "description": "Car service annual check SMS reminder system",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build:win": "caxa -i . -o ЕГЕР-Сервиз.exe -- \"{{caxa}}/node_modules/.bin/node\" \"{{caxa}}/server.js\"",
+    "build:mac": "caxa -i . -o ЕГЕР-Сервиз     -- /opt/homebrew/bin/node \"{{caxa}}/server.js\"",
+    "build:linux": "caxa -i . -o ЕГЕР-Сервиз-linux -- \"{{caxa}}/node_modules/.bin/node\" \"{{caxa}}/server.js\""
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "twilio": "^4.19.0"
+  },
+  "devDependencies": {
+    "caxa": "^3.0.1",
+    "nodemon": "^3.0.2"
+  }
+}

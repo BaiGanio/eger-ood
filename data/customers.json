@@ -1,0 +1,90 @@
+{
+  "customers": [
+    {
+      "id": "c001",
+      "name": "Иван Петров",
+      "phone": "+359881234567",
+      "address": "ul. Vasil Levski 12, Plovdiv",
+      "carModel": "VW Golf 7",
+      "carPlate": "PB 1234 AB",
+      "lastServiceDate": "2024-12-31",
+      "nextReminderDate": "2025-12-24",
+      "nextServiceDate": "2025-12-31",
+      "status": "pending",
+      "smsSentAt": null,
+      "disabled": true
+    },
+    {
+      "id": "c002",
+      "name": "Мария Георгиева",
+      "phone": "+359887654321",
+      "address": "bul. Bulgaria 45, Plovdiv",
+      "carModel": "Toyota Yaris",
+      "carPlate": "PB 5678 CD",
+      "lastServiceDate": "2026-01-15",
+      "nextReminderDate": "2027-01-06",
+      "nextServiceDate": "2027-01-14",
+      "status": "sent",
+      "smsSentAt": "2026-03-19T19:21:01.308Z",
+      "disabled": true
+    },
+    {
+      "id": "c003",
+      "name": "Георги Иванов",
+      "phone": "+359889998877",
+      "address": "ul. Hristo Botev 7, Rakovski",
+      "carModel": "Opel Astra H",
+      "carPlate": "PB 9012 EF",
+      "lastServiceDate": "2025-03-10",
+      "nextReminderDate": "2026-03-03",
+      "nextServiceDate": "2026-03-10",
+      "status": "sent",
+      "smsSentAt": "2026-03-03T09:15:00.000Z",
+      "disabled": false
+    },
+    {
+      "id": "c004",
+      "name": "Eелена Иванова",
+      "phone": "+359882223344",
+      "address": "ul. Shipka 3, Asenovgrad",
+      "carModel": "Skoda Octavia",
+      "carPlate": "PB 3456 GH",
+      "lastServiceDate": "2025-03-19",
+      "nextReminderDate": "2026-03-12",
+      "nextServiceDate": "2026-03-19",
+      "status": "pending",
+      "smsSentAt": null,
+      "disabled": false
+    },
+    {
+      "id": "c005",
+      "name": "Николай Стоянов",
+      "phone": "+359885556677",
+      "address": "bul. Maritsa 22, Plovdiv",
+      "carModel": "Ford Focus",
+      "carPlate": "PB 7890 IJ",
+      "lastServiceDate": "2025-04-02",
+      "nextReminderDate": "2026-03-26",
+      "nextServiceDate": "2026-04-02",
+      "status": "pending",
+      "smsSentAt": null,
+      "disabled": true
+    }
+  ],
+  "smsTemplate": "Здравейте, {{name}}! Напомне ме Ви, че годишният технически преглед на Вашият автомобил {{carModel}} ({{carPlate}}) изтича на {{serviceDate}}. Moля, планирайте посещението си. ЕГЕР ООД",
+  "holidays": [
+    "2026-01-01",
+    "2026-01-06",
+    "2026-03-03",
+    "2026-04-10",
+    "2026-05-01",
+    "2026-05-06",
+    "2026-05-24",
+    "2026-09-06",
+    "2026-09-22",
+    "2026-11-01",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26"
+  ]
+}
