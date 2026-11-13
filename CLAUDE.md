@@ -4,7 +4,7 @@
 
 Two apps for ЕГЕР ООД, a family car service in Bulgaria. They share nothing at run time.
 
-- **Public site** (`index.html`, later `site/`): static, Bulgarian, mobile first. Final host: Cloudflare + domain.
+- **Public site** (`index.html`, later `site/`): static, Bulgarian, mobile first. GitHub Pages now, Cloudflare + domain later.
 - **Staff app** (`ati.html` + `server.js`, later `staff/`): local Node server on `127.0.0.1`. Staff keep customers and send ГТП (annual inspection) reminder SMS by hand through Twilio. Data goes to one Excel file.
 
 The repo is in the middle of a restructure. The root layout is the old one. The target layout is in `plan/03-split-repo.md`.
@@ -17,9 +17,8 @@ The repo is in the middle of a restructure. The root layout is the old one. The 
 
 ## Hard rules
 
-- Never commit `.env`, Twilio keys, real customer data, an `.xlsx` data file, or `plan/01-dev-notes/` (private).
+- The repo is public. Never commit `.env`, Twilio keys, real customer data, an `.xlsx` data file, or the private notes (`dev-notes/`, `plan/01-dev-notes/`).
 - Never use `toISOString()` to make a date. Use local date parts. (Sofia is UTC+2/+3. This bug exists today.)
-- No GDPR / consent feature for now. Do not add one.
 - Staff days off: Sunday, Monday, holidays. A reminder moves earlier to a work day. Saturday is a work day.
 - No automatic SMS. No cron.
 - No framework. No build step. Plain HTML, CSS, JavaScript.

@@ -4,7 +4,7 @@ Two small apps for ЕГЕР ООД, a family car service in Bulgaria with more t
 
 | App | What it does | Where it runs |
 |---|---|---|
-| **Public site** | Shows the services, the work days, and the contact details. | Static host (Cloudflare) |
+| **Public site** | Shows the services, the work days, and the contact details. | GitHub Pages now, own domain later |
 | **Staff app** | Keeps customers and cars. Shows who needs a reminder for the annual inspection (ГТП). Staff send the SMS with one click. | One PC at the service, local only |
 
 The two apps share nothing at run time.
@@ -35,7 +35,7 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 ```
 
-**Never commit `.env`.**
+**Never commit `.env`.** This repo is public.
 
 ## Layout
 

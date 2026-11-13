@@ -21,14 +21,13 @@ Last update: 2026-11-13.
 
 | # | Decision | Date |
 |---|---|---|
-| D1 | One repo, two folders: `site/` and `staff/`. **Under review, see O6.** | 2026-11-13 |
-| D2 | No secret and no real customer data goes into git, ever. Private notes (`plan/01-dev-notes/`) stay out of git too. | 2026-11-13 |
-| D3 | The final host of the public site is **Cloudflare with a dedicated domain**. All paths stay relative so any static host works. | 2026-11-13 |
+| D1 | One repo, two folders: `site/` and `staff/`. | 2026-11-13 |
+| D2 | The repo is **public**. No secret and no real customer data goes into git, ever. Private notes (`dev-notes/`, `plan/01-dev-notes/`) are git-ignored. | 2026-11-13 |
+| D3 | The public site runs on **GitHub Pages** until the official domain exists. Then it moves to Cloudflare with that domain. All paths stay relative so both hosts work. | 2026-11-13 |
 | D4 | No automatic SMS. Staff send each SMS by hand. No cron. | 2026-11-13 |
 | D5 | One Excel file is the only data store. Staff can edit it by hand. | 2026-11-13 |
 | D6 | The SMS shows the **true expiry date**: last inspection + 1 year. This date never moves. | 2026-11-13 |
 | D7 | Staff do not work on **Sunday and Monday**. Saturday is a work day. A reminder never shows on a day off. It moves **earlier**. See section 5. | 2026-11-13 |
-| D12 | **No GDPR / consent feature for now.** No consent field, no consent check, no mention in the app. | 2026-11-13 |
 | D13 | After every file change the agent gives a commit message. The owner reviews and decides on the commit. | 2026-11-13 |
 | D8 | The contact details that are visible on the public site are correct: `0887979373`, `031514709`, `eger@b-trust.org`. Links must match them. | 2026-11-13 |
 | D9 | Holidays for the public site come from a public API **one time per year**. A script saves them to `site/holidays.json`. The site reads only that file. | 2026-11-13 |
@@ -39,7 +38,6 @@ Last update: 2026-11-13.
 
 | # | Question | Default until answered |
 |---|---|---|
-| O6 | One repo or two (public site repo + private staff repo)? The GitHub repo is **private** today. | One private repo until the owner decides. |
 | O2 | "Send to all due today" button? | No. One SMS at a time. |
 | O3 | Where is the Excel file on the staff PC? | `Documents\ЕГЕР-Сервиз\клиенти.xlsx`. `EGER_DATA_DIR` overrides it. |
 | O4 | Second customer table in settings: keep or remove? | Ask in chapter 08. |
