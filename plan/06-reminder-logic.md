@@ -42,7 +42,9 @@ Computed on each read, in `staff/lib/reminders.js`:
 | `nextReminderDate` | `nextServiceDate` − 7 days. If that is a Sunday or a holiday, go earlier to a work day. |
 | `status` | `disabled` → if not active. `sent` → if `smsSentAt` is set. `overdue` → not sent and reminder date is before today. `due` → reminder date is today. `pending` → all others. |
 
-Note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS says "ГТП изтича {{serviceDate}}" (expires). An expiry date must be the true date. Confirm with the user in the session.
+**Decided 2026-11-13 (`specs.md` D6, D7):** the expiry date is the true date and never moves. Staff do not work on Sunday and Monday, so the reminder date moves earlier off those days too (Sunday → Saturday, Monday → Saturday). The weekly days off are a setting.
+
+Old note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS says "ГТП изтича {{serviceDate}}" (expires). An expiry date must be the true date. Confirm with the user in the session.
 
 ### The yearly cycle (Q3)
 - "Изпрати" sets `smsSentAt`. It changes nothing else.
@@ -52,7 +54,7 @@ Note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS says
 ## Manual send only
 - [ ] Remove the cron block (`server.js:337–377`) and the `node-cron` package.
 - [ ] One function `sendReminder(customerId)` in `staff/lib/sms.js`. The route calls it.
-- [ ] Order inside it: check active → check consent → build text → send → save `smsSentAt`. If the save fails after a real send (Excel has the file open), tell the staff clearly: "SMS е изпратен, но не е записан". Better: check the file lock **before** the send.
+- [ ] Order inside it: check active → build text → send → save `smsSentAt`. If the save fails after a real send (Excel has the file open), tell the staff clearly: "SMS е изпратен, но не е записан". Better: check the file lock **before** the send.
 - [ ] No send two times: if `smsSentAt` is set, the route refuses unless the request has `force: true`. The dashboard asks "Вече е изпратен на ДАТА. Изпрати отново?".
 - [ ] Simulated mode: the response has `simulated: true`. The dashboard shows a yellow banner "ТЕСТОВ РЕЖИМ — SMS не се изпращат" at all times when there are no Twilio keys. Add `GET /api/status` that returns `{ smsMode: "live" | "simulated" }`.
 - [ ] Dashboard: default sort puts overdue first, then due today (it does this already). Overdue rows stay until staff send or disable. A missed day loses nothing.
@@ -64,7 +66,7 @@ Note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS says
 - [ ] Reminder on a Sunday moves to Saturday. Reminder on a holiday moves earlier.
 - [ ] Each status rule, one test each.
 - [ ] "Прегледът мина" clears `smsSentAt` and moves the dates one year.
-- [ ] Send without consent → refused. Send when disabled → refused. Second send without `force` → refused.
+- [ ] Send when disabled → refused. Second send without `force` → refused.
 
 ## Done when
 - All tests pass in both time zones.

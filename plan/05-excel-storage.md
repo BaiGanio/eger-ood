@@ -25,8 +25,6 @@ Do not use the `xlsx` (SheetJS) package from npm. The npm copy is old and has kn
 | Следващ преглед | `nextServiceDate` | Excel date | App (computed) |
 | Напомняне на | `nextReminderDate` | Excel date | App (computed) |
 | SMS изпратен на | `smsSentAt` | Excel date-time | App |
-| Съгласие за SMS | `smsConsent` | `Да` / `Не` | Staff |
-| Съгласие от дата | `smsConsentAt` | Excel date | App, or staff |
 | Активен | `disabled` (inverted) | `Да` / `Не` | Staff |
 
 The final field list depends on chapter 06 (the status model). Chapter 06 can add or remove a column.
@@ -72,9 +70,9 @@ The 5 present ones plus 7 new ones. All names and phones are invented. Each one 
 | # | Case |
 |---|---|
 | 1–5 | The present five (move as they are) |
-| 6 | Reminder is due **today**, has consent |
-| 7 | Reminder was due 10 days ago (overdue), has consent |
-| 8 | Due today, **no consent** (send must be blocked) |
+| 6 | Reminder is due **today** |
+| 7 | Reminder was due 10 days ago (overdue) |
+| 8 | Reminder date falls on a **Monday** (day off, must show on Saturday) |
 | 9 | Disabled customer |
 | 10 | Very long name and car model (SMS goes over 70 characters) |
 | 11 | Inspection anniversary falls on a **Sunday** |

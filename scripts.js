@@ -139,19 +139,9 @@ function renderTable() {
       ? `<strong>${formatDate(rDate)}</strong> <span class="badge bg-primary ms-1">днес</span>`
       : formatDate(rDate);
 
-    const canSend = !c.disabled && c.smsConsent && eff !== 'sent';
+    const canSend = !c.disabled && eff !== 'sent';
 
-    const consentBadge = c.smsConsent
-      ? `<span class="badge bg-success-subtle text-success-emphasis border border-success-subtle"
-               title="Съгласие от ${c.smsConsentAt ? formatDate(c.smsConsentAt.slice(0, 10)) : '—'}">
-           <i class="bi bi-shield-check me-1"></i>Да</span>`
-      : `<span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle"
-               title="Няма съгласие — SMS няма да се изпрати">
-           <i class="bi bi-shield-exclamation me-1"></i>Не</span>`;
-
-    const sendTitle = c.disabled      ? 'Клиентът е деактивиран'
-                    : !c.smsConsent   ? 'Няма съгласие за SMS'
-                    : 'Вече е изпратен';
+    const sendTitle = c.disabled ? 'Клиентът е деактивиран' : 'Вече е изпратен';
 
     return `
     <tr class="${c.disabled ? 'row-disabled' : ''}" id="row-${c.id}">
@@ -166,7 +156,6 @@ function renderTable() {
         <div class="text-muted mt-1" style="font-size:11px;">${escHtml(c.carPlate)}</div>
       </td>
       <td><code class="text-body">${escHtml(c.phone)}</code></td>
-      <td>${consentBadge}</td>
       <td><span class="${rdClass}">${rdLabel}</span></td>
       <td>${formatDate(c.nextServiceDate)}</td>
       <td>${badge}</td>
@@ -319,8 +308,6 @@ function openAddModal() {
   ['name','phone','address','carModel','carPlate'].forEach(f =>
     document.getElementById('f-' + f).value = '');
   document.getElementById('f-lastServiceDate').value = '';
-  document.getElementById('f-smsConsent').checked    = false;
-  document.getElementById('f-consent-date').textContent = '';
   bsCustomerModal.show();
 }
 
@@ -336,11 +323,6 @@ function openEditModal(id) {
   document.getElementById('f-carModel').value        = c.carModel;
   document.getElementById('f-carPlate').value        = c.carPlate;
   document.getElementById('f-lastServiceDate').value = c.lastServiceDate;
-  document.getElementById('f-smsConsent').checked    = !!c.smsConsent;
-  document.getElementById('f-consent-date').textContent =
-    c.smsConsent && c.smsConsentAt
-      ? `Отбелязано на ${formatDate(c.smsConsentAt.slice(0, 10))}`
-      : '';
   bsCustomerModal.show();
 }
 
@@ -355,7 +337,6 @@ async function saveCustomer() {
     carModel:        document.getElementById('f-carModel').value.trim(),
     carPlate:        document.getElementById('f-carPlate').value.trim(),
     lastServiceDate: document.getElementById('f-lastServiceDate').value,
-    smsConsent:      document.getElementById('f-smsConsent').checked,
   };
 
   if (!body.name || !body.phone || !body.carModel || !body.carPlate || !body.lastServiceDate) {

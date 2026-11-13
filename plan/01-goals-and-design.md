@@ -26,7 +26,7 @@ A customer finds the car service, sees what it does, sees when it is open, and c
 ## B. Staff app
 
 ### Goal
-Staff keep a list of customers and cars. The app shows who needs a reminder for the annual inspection (ГТП). Staff send the SMS with one click. Each SMS costs as little as possible. No SMS goes out without recorded consent (GDPR).
+Staff keep a list of customers and cars. The app shows who needs a reminder for the annual inspection (ГТП). Staff send the SMS with one click. Each SMS costs as little as possible.
 
 ### Not a goal (for now)
 - No automatic sending. No cron.

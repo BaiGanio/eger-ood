@@ -12,9 +12,7 @@
       "nextServiceDate": "2028-12-28",
       "status": "pending",
       "smsSentAt": null,
-      "disabled": true,
-      "smsConsent": false,
-      "smsConsentAt": null
+      "disabled": true
     },
     {
       "id": "c002",
@@ -28,9 +26,7 @@
       "nextServiceDate": "2027-01-14",
       "status": "sent",
       "smsSentAt": "2026-03-19T19:21:01.308Z",
-      "disabled": true,
-      "smsConsent": false,
-      "smsConsentAt": null
+      "disabled": true
     },
     {
       "id": "c003",
@@ -44,9 +40,7 @@
       "nextServiceDate": "2026-03-10",
       "status": "sent",
       "smsSentAt": "2026-03-03T09:15:00.000Z",
-      "disabled": false,
-      "smsConsent": false,
-      "smsConsentAt": null
+      "disabled": false
     },
     {
       "id": "c004",
@@ -60,9 +54,7 @@
       "nextServiceDate": "2026-03-19",
       "status": "pending",
       "smsSentAt": null,
-      "disabled": false,
-      "smsConsent": false,
-      "smsConsentAt": null
+      "disabled": false
     },
     {
       "id": "c005",
@@ -76,9 +68,7 @@
       "nextServiceDate": "2026-04-02",
       "status": "pending",
       "smsSentAt": null,
-      "disabled": true,
-      "smsConsent": false,
-      "smsConsentAt": null
+      "disabled": true
     }
   ],
   "smsTemplate": "ЕГЕР ООД: ГТП на {{carPlate}} изтича {{serviceDate}}. Запазете час",

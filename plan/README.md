@@ -34,7 +34,7 @@ Do them in this order. Each chapter lists what it needs from earlier chapters.
 | # | File | What it does | Needs |
 |---|---|---|---|
 | 01 | `01-goals-and-design.md` | Goals and design of both apps. Read first. No code. | — |
-| 02 | `02-baseline-commit.md` | Commit the unfinished consent + SMS counter work. | — |
+| 02 | `02-baseline-commit.md` | Commit the unfinished SMS counter work. | — |
 | 03 | `03-split-repo.md` | Move files into `site/` and `staff/`. Cut the links between them. | 02 |
 | 04 | `04-public-site.md` | Make the site fully static. Deploy to GitHub Pages. | 03 |
 | 05 | `05-excel-storage.md` | Replace `customers.json` with one `.xlsx` file. Test data. | 03 |
@@ -46,6 +46,8 @@ Do them in this order. Each chapter lists what it needs from earlier chapters.
 Chapters 04 and 05 do not depend on each other. Chapter 07 can run any time after 03.
 
 ## Open questions
+
+**Answered 2026-11-13: Q1, Q2, Q6, and the expiry-date question in chapter 06. The answers are in `specs.md` section 2. `specs.md` wins over this table.**
 
 Each one has a default. If nobody answers, the chapter uses the default.
 
@@ -60,7 +62,8 @@ Each one has a default. If nobody answers, the chapter uses the default.
 
 ## Rules for every session
 
-- Read `README.md` and `01-goals-and-design.md` first, then the one chapter.
+- Read `specs.md`, `progress.md`, and `01-goals-and-design.md` first, then the one chapter.
+- Update `progress.md` at the end of the session.
 - Do only the work of that chapter.
 - Tick the checklist at the end of the chapter file when a step is done.
 - Run the tests before the commit.

@@ -64,12 +64,6 @@ function readData() {
   if (typeof data.smsPricePerSegment !== 'number') data.smsPricePerSegment = DEFAULT_PRICE;
   if (!Array.isArray(data.holidays))         data.holidays    = [];
   if (!Array.isArray(data.customers))        data.customers   = [];
-
-  // GDPR: no recorded consent means no consent. Never assume yes.
-  for (const c of data.customers) {
-    if (typeof c.smsConsent !== 'boolean') c.smsConsent = false;
-    if (c.smsConsentAt === undefined)      c.smsConsentAt = null;
-  }
   return data;
 }
 
@@ -164,7 +158,7 @@ app.get('/api/customers/:id', (req, res) => {
 // POST create customer
 app.post('/api/customers', (req, res) => {
   const data = readData();
-  const { name, phone, address, carModel, carPlate, lastServiceDate, smsConsent } = req.body;
+  const { name, phone, address, carModel, carPlate, lastServiceDate } = req.body;
 
   if (!name || !phone || !carModel || !carPlate || !lastServiceDate) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -182,9 +176,7 @@ app.post('/api/customers', (req, res) => {
     nextServiceDate,
     status: 'pending',
     smsSentAt: null,
-    disabled: false,
-    smsConsent: smsConsent === true,
-    smsConsentAt: smsConsent === true ? new Date().toISOString() : null
+    disabled: false
   };
 
   data.customers.push(customer);
@@ -200,11 +192,6 @@ app.put('/api/customers/:id', (req, res) => {
 
   const existing = data.customers[idx];
   const updated = { ...existing, ...req.body };
-
-  // Record WHEN consent was given — GDPR requires you to prove it.
-  if (typeof req.body.smsConsent === 'boolean' && req.body.smsConsent !== existing.smsConsent) {
-    updated.smsConsentAt = req.body.smsConsent ? new Date().toISOString() : null;
-  }
 
   // Recompute dates if lastServiceDate changed
   if (req.body.lastServiceDate && req.body.lastServiceDate !== existing.lastServiceDate) {
@@ -238,9 +225,6 @@ app.post('/api/customers/:id/send-sms', async (req, res) => {
   const customer = data.customers[idx];
   if (customer.disabled) {
     return res.status(400).json({ error: 'Customer is disabled' });
-  }
-  if (!customer.smsConsent) {
-    return res.status(403).json({ error: 'Клиентът не е дал съгласие за SMS' });
   }
 
   try {
@@ -329,8 +313,7 @@ app.post('/api/preview-sms/:id', (req, res) => {
   res.json({
     body,
     measure: measureSms(body),
-    pricePerSegment: data.smsPricePerSegment,
-    smsConsent: customer.smsConsent
+    pricePerSegment: data.smsPricePerSegment
   });
 });
 
@@ -347,7 +330,7 @@ cron.schedule('0 9 * * 1-6', async () => {
   }
 
   const due = data.customers.filter(
-    c => !c.disabled && c.smsConsent && c.status === 'pending' && c.nextReminderDate === today
+    c => !c.disabled && c.status === 'pending' && c.nextReminderDate === today
   );
 
   console.log(`[CRON] ${due.length} customer(s) due for reminder today.`);

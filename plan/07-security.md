@@ -16,7 +16,7 @@ The server listens only on `127.0.0.1`. That is good. But a browser on the same 
 - [ ] Static files: only `staff/public/` (done in chapter 03 — check it again).
 
 ### Check the input
-- [ ] `PUT /api/customers/:id` copies the whole request body into the customer (`server.js:202`). Accept only: `name`, `phone`, `address`, `carModel`, `carPlate`, `lastServiceDate`, `smsConsent`. Ignore all others.
+- [ ] `PUT /api/customers/:id` copies the whole request body into the customer (`server.js:202`). Accept only: `name`, `phone`, `address`, `carModel`, `carPlate`, `lastServiceDate`. Ignore all others.
 - [ ] Phone: must match `^\+[1-9]\d{7,14}$`. Offer to change `08...` to `+3598...` in the dashboard.
 - [ ] `lastServiceDate`: must be a real `YYYY-MM-DD` date, not in the future.
 - [ ] Holidays: each entry must be a real date.
@@ -37,7 +37,7 @@ The server listens only on `127.0.0.1`. That is good. But a browser on the same 
 ## Tests
 - [ ] Request with `Host: evil.example` → 403.
 - [ ] `POST` with `Origin: https://evil.example` → 403.
-- [ ] `PUT` with `{ "id": "x", "smsConsentAt": "2000-01-01" }` → these fields do not change.
+- [ ] `PUT` with `{ "id": "x", "smsSentAt": "2000-01-01" }` → these fields do not change.
 - [ ] Bad phone → 400 with a Bulgarian message.
 
 ## Done when
