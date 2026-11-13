@@ -15,19 +15,23 @@ The two apps share nothing at run time.
 
 You need Node.js 20 or newer.
 
+Staff app:
+
 ```bash
+cd staff
 npm install
 npm start
 ```
 
-- Public site: <http://localhost:3000>
-- Staff dashboard: <http://localhost:3000/app>
+- Staff dashboard: <http://localhost:3000/>
+
+Public site: open `site/index.html` in a browser. It needs no server.
 
 ### SMS
 
 With no Twilio keys, the app sends nothing. It only prints the SMS in the console.
 
-For real SMS, make a `.env` file in the project root:
+For real SMS, make a `.env` file in `staff/`:
 
 ```
 TWILIO_ACCOUNT_SID=
@@ -39,19 +43,20 @@ TWILIO_PHONE_NUMBER=
 
 ## Layout
 
-Today (old layout):
-
 ```
-index.html        public site
-ati.html          staff dashboard
-scripts.js        staff dashboard logic
-sms-text.js       SMS length and cost
-server.js         local server + API
-data/             test data only
-plan/             the work plan, specs, progress
+site/                    public site (static)
+  index.html
+  images/
+staff/                   staff app (local only)
+  server.js              local server + API
+  public/
+    index.html           staff dashboard
+    scripts.js           staff dashboard logic
+    sms-text.js          SMS length and cost
+    style.css
+  data/                  test data only
+plan/                    the work plan, specs, progress
 ```
-
-Target layout (after chapter 03): `site/` for the public site, `staff/` for the staff app.
 
 ## Docs
 

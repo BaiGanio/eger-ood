@@ -24,7 +24,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import { execSync } from 'child_process';
-import { measureSms } from './sms-text.js';
+import { measureSms } from './public/sms-text.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,17 +41,9 @@ const DEFAULT_PRICE = 0.1466;   // Twilio price per segment to a BG number
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
-
-// Landing page at root
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Dashboard app at /app
-app.get('/app', (req, res) => {
-  res.sendFile(path.join(__dirname, 'ati.html'));
-});
+// Only public/ is served. The engine code, the data, and .env stay private.
+// The dashboard is public/index.html, so it opens at "/".
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

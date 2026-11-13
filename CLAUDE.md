@@ -4,10 +4,10 @@
 
 Two apps for ЕГЕР ООД, a family car service in Bulgaria. They share nothing at run time.
 
-- **Public site** (`index.html`, later `site/`): static, Bulgarian, mobile first. GitHub Pages now, Cloudflare + domain later.
-- **Staff app** (`ati.html` + `server.js`, later `staff/`): local Node server on `127.0.0.1`. Staff keep customers and send ГТП (annual inspection) reminder SMS by hand through Twilio. Data goes to one Excel file.
+- **Public site** (`site/index.html`): static, Bulgarian, mobile first. GitHub Pages now, Cloudflare + domain later.
+- **Staff app** (`staff/public/index.html` + `staff/server.js`): local Node server on `127.0.0.1`. Staff keep customers and send ГТП (annual inspection) reminder SMS by hand through Twilio. Data goes to one Excel file.
 
-The repo is in the middle of a restructure. The root layout is the old one. The target layout is in `plan/03-split-repo.md`.
+The repo is in the middle of a restructure. The split into `site/` and `staff/` is done (`plan/03-split-repo.md`). The `staff/lib/` files come in chapters 05–06.
 
 ## Read before any work
 
@@ -32,12 +32,15 @@ The repo is in the middle of a restructure. The root layout is the old one. The 
 - Update `plan/progress.md` (status table and session log).
 - If a rule changed, update `plan/specs.md` first.
 
-## Commands (old layout, until chapter 03)
+## Commands
 
 ```
+cd staff
 npm install
-npm start          # http://localhost:3000  (site)  and  /app  (staff dashboard)
+npm start          # http://localhost:3000/  (staff dashboard)
 ```
+
+The public site has no server. Open `site/index.html` in a browser.
 
 No Twilio keys in `.env` = simulated SMS (logged to the console).
 
