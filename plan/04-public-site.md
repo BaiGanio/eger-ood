@@ -14,16 +14,17 @@ Needs: chapter 03. Open questions: Q1, Q2, Q6 in `README.md`.
 | Image file names have Cyrillic letters and a space (`Technical inspection.jpg`). They work, but they are fragile in URLs. | `images/` |
 
 ## Steps
-- [ ] Create `site/holidays.json`: `{ "holidays": ["2027-01-01", ...] }` with the Bulgarian public holidays.
-- [ ] Change the calendar script to `fetch('holidays.json')` (relative path).
-- [ ] Fix the phone and email links to match the visible text (confirm Q6 first).
-- [ ] Rename image files to plain Latin names without spaces. Update the references.
-- [ ] Check that every path in `index.html` is relative.
-- [ ] Add a page title, a description meta tag, and a favicon.
-- [ ] Remove the old placeholder comments.
-- [ ] Add a GitHub Actions workflow `.github/workflows/pages.yml` that publishes the `site/` folder. (The simple Pages setting can only publish the repo root or `/docs`, not `/site`.)
-- [ ] In the GitHub repo settings: Pages → Source → "GitHub Actions".
-- [ ] Open the live URL. Check images, calendar, phone links on a phone.
+- [x] Create `site/holidays.json`: `{ "holidays": ["2027-01-01", ...] }` with the Bulgarian public holidays. Made by `tools/update-holidays.mjs` from the Nager.Date API (`specs.md` D9). Years 2026 and 2027.
+- [x] Change the calendar script to `fetch('holidays.json')` (relative path).
+- [x] Fix the phone and email links to match the visible text (`specs.md` D8).
+- [x] Rename image files to plain Latin names without spaces. Update the references.
+- [x] Check that every path in `index.html` is relative.
+- [x] Add a page title, a description meta tag, and a favicon.
+- [x] Remove the old placeholder comments.
+- [x] Add a GitHub Actions workflow `.github/workflows/pages.yml` that publishes the `site/` folder. (The simple Pages setting can only publish the repo root or `/docs`, not `/site`.)
+- [ ] In the GitHub repo settings: Pages → Source → "GitHub Actions". **Owner does this by hand.**
+- [ ] Open the live URL. Check images, calendar, phone links on a phone. **Owner checks after the push.**
+- [x] Extra: fix a 12 px side scroll at 360 px width (`row g-5` → `row g-4 g-lg-5`).
 
 ## Design notes
 - Keep Bootstrap from the CDN. No build step.
@@ -31,6 +32,6 @@ Needs: chapter 03. Open questions: Q1, Q2, Q6 in `README.md`.
 - Later item (not now): a custom domain.
 
 ## Done when
-- The live GitHub Pages URL shows the full page.
-- The browser network tab shows no failed request.
-- A tap on the phone number starts a call to the correct number.
+- The live GitHub Pages URL shows the full page. — **owner checks** (checked on a local static server under `/eger-ood/` on 2026-11-13)
+- The browser network tab shows no failed request. — **owner checks** on the live URL (local check: all files 200)
+- A tap on the phone number starts a call to the correct number. — **owner checks** on a phone (links are `tel:+359887979373` and `tel:+35931514709`)

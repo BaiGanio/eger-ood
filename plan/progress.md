@@ -6,7 +6,7 @@ Last update: 2026-11-13.
 
 ## Where we are
 
-**Now:** chapter 03 (split the repo) is done in the work tree on branch `ch03-split-repo`. It waits for the owner's commit. **Next:** chapter 04 (public site) or 05 (Excel storage).
+**Now:** chapter 04 (public site) is done in the work tree on branch `ch04-public-site`. It waits for the owner's commit, push, and the checks on the live URL. **Next:** chapter 05 (Excel storage).
 
 ## Chapters
 
@@ -17,8 +17,8 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 00 | Project docs (`specs.md`, `progress.md`, `CLAUDE.md`, `README.md`) | ✅ | 2026-11-13. |
 | 01 | Goals and design | ✅ | Reference only. No code. |
 | 02 | Baseline commit | ✅ | Work is in `59593fe`. |
-| 03 | Split repo into `site/` and `staff/` | ✅ | 2026-11-13. Branch `ch03-split-repo`. Not committed yet. |
-| 04 | Public site: static + GitHub Pages | ⬜ | Can run in parallel with 05. |
+| 03 | Split repo into `site/` and `staff/` | ✅ | 2026-11-13. Committed in `d0cdb8d` on `master`. |
+| 04 | Public site: static + GitHub Pages | 🟨 | 2026-11-13. Branch `ch04-public-site`. Code is done. Owner must set Pages → "GitHub Actions", push, and check the live URL. |
 | 05 | Excel storage | ⬜ | |
 | 06 | Reminder logic | ⬜ | Must use the days-off rule (`specs.md` D7). |
 | 07 | Security | ⬜ | Any time after 03. |
@@ -29,6 +29,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 ## Later (not planned yet)
 
 - Move the public site to Cloudflare with a dedicated domain.
+- Automatic holiday update: a GitHub Action can run `tools/update-holidays.mjs` on a timer and commit `site/holidays.json`. It works with Cloudflare too, because Cloudflare publishes from the repo. Owner was not sure on 2026-11-13. Until a decision, the script runs by hand (D9).
 - English version of the public site.
 - More pages and images on the public site. Better UI design.
 - Extra staff pages after the talks with the staff.
@@ -46,9 +47,17 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-13: `staff/server.js` still has `toISOString()` for dates, the `cors` package, and the cron job. Chapters 06 and 07 fix them.
 - 2026-11-13: `staff/server.js` prints "data/customers.json" in the `[INIT]` lines. Chapter 05 replaces that code.
 - 2026-11-13: `staff/check-node.bat` downloads Node v20.11.0 from a fixed URL. Check it in chapter 09.
-- 2026-11-13: `site/images/eger1.jpeg` and `site/images/Technical inspection.jpg` are not used by `site/index.html`. Chapter 04 can decide.
+- 2026-11-13: `site/images/eger1.jpeg` and `site/images/technical-inspection.jpg` are not used by `site/index.html`. Chapter 04 kept them (renamed only). Owner can delete them or use them.
 - 2026-11-13: `staff/package.json` has the name `car-service-sms`. The dashboard title is "АвтоСервиз — SMS Напомняния". Chapter 08 or 09 can rename them.
 - 2026-11-13: chapters 05 and 06 were written before decision D7 (days off) and D9 (holidays script). Read `specs.md` first.
+- 2026-11-13 (ch04): the public site says Monday is a work day (hours "Понеделник – Петък 08:00 – 18:00", green Mondays in the calendar). `specs.md` D7 says staff do not work on Monday. Owner must say which is correct.
+- 2026-11-13 (ch04): the public site says two times that SMS reminders are automatic ("Напомняме ви автоматично с SMS"). D4 says there is no automatic SMS. The text needs the owner's word.
+- 2026-11-13 (ch04): the map block shows developer text to visitors ("Вмъкнете Google Maps iframe тук"). It needs a real map or removal.
+- 2026-11-13 (ch04): text errors on the public site: "Ракovski" (mixed alphabets), "продуктина едро", "модерна горивни станция", "автобомилни", turnover "€ 2 100 00". "29+ години" does not match "more than 30 years" in `specs.md`.
+- 2026-11-13 (ch04): each carousel slide sets `background-image` two times in one `style`. The first value is dead. Slides 1 and 2 show the same photo. `site/images/eger2.jpg` is 870 kB, heavy for a phone.
+- 2026-11-13 (ch04): the calendar script builds user text in JavaScript (month names, cell titles) and uses inline `onclick`. `specs.md` section 4 wants all visible text in the HTML. Fix it with the English version.
+- 2026-11-13 (ch04): the Nager.Date list has the legal holidays and some moved days off, but not all of them (example: no 2026-12-28 and no 2027-12-28 for Christmas days on a weekend). Check the list against the official calendar each year. `staff/` holidays (chapter 06) are a separate setting in the Excel file.
+- 2026-11-13 (ch04): `tools/` at the repo root is new (D1 names only `site/` and `staff/`). The script is there so that GitHub Pages does not publish it.
 
 ## Session log
 
@@ -57,4 +66,5 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-13 | Plan written (chapters 01–09). SMS counter work committed (`59593fe`). |
 | 2026-11-13 | Added `specs.md`, `progress.md`, `CLAUDE.md`, new `README.md`. Owner answered Q1, Q6, and the expiry-date question. |
 | 2026-11-13 | Chapter 03: files moved to `site/` and `staff/`. Server serves only `staff/public/`. "Персонал" links removed. Short `.gitignore`. Built file out of git. |
+| 2026-11-13 | Chapter 04: `site/holidays.json` + `tools/update-holidays.mjs` (Nager.Date). Calendar reads the file. Phone and email links match the text. Images renamed to Latin names. Description, favicon, Pages workflow. Side scroll at 360 px fixed. |
 | 2026-11-13 | Saturday is a work day (D7). `dev-notes/` and `plan/01-dev-notes/` are git-ignored. Repo stays public, GitHub Pages until the domain (D2, D3). |

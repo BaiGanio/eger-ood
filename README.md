@@ -27,6 +27,23 @@ npm start
 
 Public site: open `site/index.html` in a browser. It needs no server.
 
+The calendar reads `site/holidays.json`. A browser does not read that file from a `file://` page, so the calendar then shows no holidays. To see them on your machine:
+
+```bash
+cd site
+python3 -m http.server 8000     # http://localhost:8000/
+```
+
+A push to `master` that changes `site/` publishes the site (`.github/workflows/pages.yml`).
+
+### Holidays (one time per year, in December)
+
+```bash
+node tools/update-holidays.mjs          # this year and the next year
+```
+
+It gets the Bulgarian public holidays from the Nager.Date API and writes `site/holidays.json`. Look at the diff, then commit.
+
 ### SMS
 
 With no Twilio keys, the app sends nothing. It only prints the SMS in the console.
@@ -46,7 +63,13 @@ TWILIO_PHONE_NUMBER=
 ```
 site/                    public site (static)
   index.html
+  holidays.json          public holidays for the calendar
+  favicon.svg
   images/
+tools/
+  update-holidays.mjs    writes site/holidays.json (run one time per year)
+.github/workflows/
+  pages.yml              publishes site/ to GitHub Pages
 staff/                   staff app (local only)
   server.js              local server + API
   public/

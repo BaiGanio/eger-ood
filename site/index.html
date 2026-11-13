@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ЕГЕР ООД — Горивна станция, Автосервиз & Автомивка</title>
+  <title>ЕГЕР ООД — Горивна станция, Автосервиз &amp; Автомивка</title>
+  <meta name="description" content="ЕГЕР ООД, гр. Раковски — годишни технически прегледи (ГТП), горивна станция, газ станция и автомивка. Работно време и телефони за връзка.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
@@ -14,8 +16,7 @@
   <div class="container">
 
     <a class="navbar-brand fw-bold text-danger d-flex align-items-center gap-2" href="#">
-     
-       <img src="images/ЕГЕР_лого_navbar.svg" class="img-fluid rounded-3">
+      <img src="images/logo-navbar.svg" class="img-fluid rounded-3" alt="ЕГЕР ООД">
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
@@ -47,7 +48,6 @@
   <div class="carousel-inner">
 
     <!-- Slide 1 — Gas station -->
-    <!-- To use a real photo: add style="background-image:url('images/gas.jpg');background-size:cover;background-position:center;" -->
     <div class="carousel-item active">
       <div class="bg-dark d-flex align-items-end" style="min-height:88vh;background-image:url('images/eger-gas.jpg'); background-size:cover; background-position:center; background-image: linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.2) 60%, transparent 100%), url('images/eger2.jpg');">
         <div class="container pb-5 mb-3">
@@ -129,15 +129,12 @@
 <!-- ═══ ABOUT ════════════════════════════════════════════════════════ -->
 <section id="about" class="py-5 bg-white">
   <div class="container py-4">
-    <div class="row g-5 align-items-center">
+    <div class="row g-4 g-lg-5 align-items-center">
 
       <div class="col-12 col-lg-6">
-        <!-- Placeholder image — replace with <img src="images/ЕГЕР_ООД_лого.svg" class="img-fluid rounded-3"> -->
-        
         <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-secondary"
              style="min-height:340px;">
-          <!-- <i class="bi bi-building-gear" style="font-size:80px;opacity:.3;"></i> -->
-           <img src="images/ЕГЕР_ООД_лого.svg" class="img-fluid rounded-3">
+          <img src="images/logo.svg" class="img-fluid rounded-3" alt="ЕГЕР ООД">
         </div>
       </div>
 
@@ -266,7 +263,7 @@
 <section id="calendar-section" class="py-5 bg-white">
   <div class="container py-4">
 
-    <div class="row g-5 align-items-start">
+    <div class="row g-4 g-lg-5 align-items-start">
 
       <!-- Left: calendar -->
       <div class="col-12 col-lg-7">
@@ -391,7 +388,7 @@
 <section id="contact" class="py-5 bg-dark text-white">
   <div class="container py-4">
 
-    <div class="row g-5">
+    <div class="row g-4 g-lg-5">
 
       <div class="col-12 col-lg-5">
         <p class="text-danger text-uppercase fw-bold small mb-2">Контакти</p>
@@ -420,8 +417,8 @@
             </div>
             <div>
               <div class="text-white-50 text-uppercase fw-bold mb-1" style="font-size:10px;letter-spacing:.1em;">Телефон</div>
-              <div><a href="tel:+359888000000" class="text-white text-decoration-none">0887979373</a></div>
-              <div><a href="tel:+359888000001" class="text-white-50 text-decoration-none">031514709</a></div>
+              <div><a href="tel:+359887979373" class="text-white text-decoration-none">0887979373</a></div>
+              <div><a href="tel:+35931514709" class="text-white-50 text-decoration-none">031514709</a></div>
             </div>
           </div>
 
@@ -443,7 +440,7 @@
             </div>
             <div>
               <div class="text-white-50 text-uppercase fw-bold mb-1" style="font-size:10px;letter-spacing:.1em;">Имейл</div>
-              <div><a href="mailto:info@eger.bg" class="text-white text-decoration-none">eger@b-trust.org</a></div>
+              <div><a href="mailto:eger@b-trust.org" class="text-white text-decoration-none">eger@b-trust.org</a></div>
             </div>
           </div>
 
@@ -492,7 +489,7 @@ let calYear, calMonth, calHolidays = [];
 
 async function initCalendar() {
   try {
-    const res = await fetch('/api/holidays');
+    const res = await fetch('holidays.json');
     const data = await res.json();
     calHolidays = data.holidays || [];
   } catch(e) {
