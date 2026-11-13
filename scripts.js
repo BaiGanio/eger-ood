@@ -1,6 +1,7 @@
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
 let smsTemplate = '';
+let pricePerSegment = 0.1466;
 let holidays = [];
 let pendingSendId = null;
 
@@ -37,8 +38,11 @@ async function loadTemplate() {
   try {
     const res  = await fetch('/api/template');
     const data = await res.json();
-    smsTemplate = data.template || '';
+    smsTemplate     = data.template || '';
+    pricePerSegment = Number.isFinite(data.pricePerSegment) ? data.pricePerSegment : 0.1466;
+
     document.getElementById('sms-template-input').value = smsTemplate;
+    document.getElementById('f-price').value            = pricePerSegment;
     updatePreview();
   } catch (e) {}
 }
@@ -108,7 +112,7 @@ function renderTable() {
   const tbody = document.getElementById('table-body');
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-5">
       <i class="bi bi-inbox d-block mb-2 fs-3 opacity-25"></i>Няма намерени клиенти</td></tr>`;
     return;
   }
@@ -135,7 +139,19 @@ function renderTable() {
       ? `<strong>${formatDate(rDate)}</strong> <span class="badge bg-primary ms-1">днес</span>`
       : formatDate(rDate);
 
-    const canSend = !c.disabled && eff !== 'sent';
+    const canSend = !c.disabled && c.smsConsent && eff !== 'sent';
+
+    const consentBadge = c.smsConsent
+      ? `<span class="badge bg-success-subtle text-success-emphasis border border-success-subtle"
+               title="Съгласие от ${c.smsConsentAt ? formatDate(c.smsConsentAt.slice(0, 10)) : '—'}">
+           <i class="bi bi-shield-check me-1"></i>Да</span>`
+      : `<span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle"
+               title="Няма съгласие — SMS няма да се изпрати">
+           <i class="bi bi-shield-exclamation me-1"></i>Не</span>`;
+
+    const sendTitle = c.disabled      ? 'Клиентът е деактивиран'
+                    : !c.smsConsent   ? 'Няма съгласие за SMS'
+                    : 'Вече е изпратен';
 
     return `
     <tr class="${c.disabled ? 'row-disabled' : ''}" id="row-${c.id}">
@@ -150,6 +166,7 @@ function renderTable() {
         <div class="text-muted mt-1" style="font-size:11px;">${escHtml(c.carPlate)}</div>
       </td>
       <td><code class="text-body">${escHtml(c.phone)}</code></td>
+      <td>${consentBadge}</td>
       <td><span class="${rdClass}">${rdLabel}</span></td>
       <td>${formatDate(c.nextServiceDate)}</td>
       <td>${badge}</td>
@@ -160,7 +177,8 @@ function renderTable() {
                        onclick="previewSms('${c.id}')">
                  <i class="bi bi-send"></i> Изпрати
                </button>`
-            : `<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" disabled>
+            : `<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                       disabled title="${sendTitle}">
                  <i class="bi bi-send"></i> Изпрати
                </button>`
           }
@@ -217,8 +235,12 @@ async function previewSms(id) {
   try {
     const res  = await fetch(`/api/preview-sms/${id}`, { method: 'POST' });
     const data = await res.json();
-    document.getElementById('preview-modal-body').textContent  = data.body;
-    document.getElementById('preview-modal-count').textContent = `${data.body.length} знака`;
+    document.getElementById('preview-modal-body').textContent = data.body;
+    renderCounter(
+      document.getElementById('preview-modal-count'),
+      data.body,
+      Number.isFinite(data.pricePerSegment) ? data.pricePerSegment : pricePerSegment
+    );
     pendingSendId = id;
     bsSmsPreviewModal.show();
   } catch (e) {
@@ -297,6 +319,8 @@ function openAddModal() {
   ['name','phone','address','carModel','carPlate'].forEach(f =>
     document.getElementById('f-' + f).value = '');
   document.getElementById('f-lastServiceDate').value = '';
+  document.getElementById('f-smsConsent').checked    = false;
+  document.getElementById('f-consent-date').textContent = '';
   bsCustomerModal.show();
 }
 
@@ -312,6 +336,11 @@ function openEditModal(id) {
   document.getElementById('f-carModel').value        = c.carModel;
   document.getElementById('f-carPlate').value        = c.carPlate;
   document.getElementById('f-lastServiceDate').value = c.lastServiceDate;
+  document.getElementById('f-smsConsent').checked    = !!c.smsConsent;
+  document.getElementById('f-consent-date').textContent =
+    c.smsConsent && c.smsConsentAt
+      ? `Отбелязано на ${formatDate(c.smsConsentAt.slice(0, 10))}`
+      : '';
   bsCustomerModal.show();
 }
 
@@ -326,6 +355,7 @@ async function saveCustomer() {
     carModel:        document.getElementById('f-carModel').value.trim(),
     carPlate:        document.getElementById('f-carPlate').value.trim(),
     lastServiceDate: document.getElementById('f-lastServiceDate').value,
+    smsConsent:      document.getElementById('f-smsConsent').checked,
   };
 
   if (!body.name || !body.phone || !body.carModel || !body.carPlate || !body.lastServiceDate) {
@@ -367,7 +397,10 @@ async function saveCustomer() {
 // ─── Template ─────────────────────────────────────────────────────────
 function updatePreview() {
   const tmpl = document.getElementById('sms-template-input').value;
-  smsTemplate = tmpl;
+  smsTemplate     = tmpl;
+  const price     = parseFloat(document.getElementById('f-price').value);
+  pricePerSegment = Number.isFinite(price) && price >= 0 ? price : 0;
+
   const sample = {
     name:            'Иван Петров',
     carModel:        'VW Golf 7',
@@ -381,8 +414,41 @@ function updatePreview() {
     .replace(/{{carPlate}}/g,    sample.carPlate)
     .replace(/{{serviceDate}}/g, formatDate(sample.nextServiceDate))
     .replace(/{{phone}}/g,       sample.phone);
-  document.getElementById('sms-preview-box').textContent  = preview || '—';
-  document.getElementById('sms-char-count').textContent   = `${preview.length} знака`;
+
+  document.getElementById('sms-preview-box').textContent = preview || '—';
+  renderCounter(document.getElementById('sms-counter'), preview, pricePerSegment);
+}
+
+/**
+ * Draw the letter / SMS / cost counter into `el`.
+ * It is the only place that explains why a message suddenly costs 3x.
+ */
+function renderCounter(el, text, price) {
+  const m    = window.SmsText.measureSms(text);
+  const cost = m.segments * (Number.isFinite(price) ? price : 0);
+  const tone = m.segments === 1 ? 'success' : m.segments === 2 ? 'warning' : 'danger';
+  const over = m.segments > 1;
+
+  const used  = m.billedUnits;
+  const total = m.segments * m.limit;
+  const pct   = Math.min(100, Math.round((used / total) * 100));
+
+  el.innerHTML = `
+    <div class="d-flex align-items-center gap-2 flex-wrap" style="font-size:11px;">
+      <span class="badge bg-${tone}-subtle text-${tone}-emphasis border border-${tone}-subtle">
+        <i class="bi bi-envelope me-1"></i>${m.segments} SMS
+      </span>
+      <span class="text-muted">${used} / ${total} знака</span>
+      <span class="badge bg-light text-dark border">${m.encoding}</span>
+      <span class="text-muted ms-auto fw-semibold">≈ $${cost.toFixed(4)}</span>
+    </div>
+    <div class="progress mt-1" style="height:4px;">
+      <div class="progress-bar bg-${tone}" style="width:${pct}%"></div>
+    </div>
+    ${over ? `<div class="text-${tone} mt-1" style="font-size:11px;">
+      <i class="bi bi-exclamation-triangle me-1"></i>Над 70 знака — съобщението се
+      таксува като ${m.segments} SMS. Съкратете текста, за да плащате един.
+    </div>` : ''}`;
 }
 
 function insertVar(v) {
@@ -400,7 +466,7 @@ async function saveTemplate() {
     await fetch('/api/template', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template })
+      body: JSON.stringify({ template, pricePerSegment })
     });
     smsTemplate = template;
     toast('Шаблонът е запазен!', 'success');

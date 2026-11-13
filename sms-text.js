@@ -1,0 +1,52 @@
+// ─── SMS text helpers ────────────────────────────────────────────────────────
+// Shared by server.js (ESM import) and the browser (see ati.html).
+//
+// Why this exists: a Cyrillic message is sent as UCS-2, so ONE SMS holds only
+// 70 characters, not 160. Go over that and the carrier bills two messages, over
+// 134 and it bills three. The counter in the dashboard uses this to show the
+// real cost before anything is sent.
+
+const GSM_BASIC = new Set((
+    '@£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡'
+  + 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà'
+  + '\n\r'
+).split(''));
+
+// These cost 2 characters each (escape + character).
+const GSM_EXT = new Set(['\f', '^', '{', '}', '\\', '[', '~', ']', '|', '€']);
+
+const GSM_SINGLE = 160, GSM_MULTI = 153;   // multipart steals 7 chars for the header
+const UCS_SINGLE =  70, UCS_MULTI =  67;
+
+/**
+ * Work out how a message will actually be billed.
+ * Returns { encoding, chars, billedUnits, segments, limit }
+ *   chars       — characters a human sees
+ *   billedUnits — what the carrier counts (GSM extended chars count twice)
+ *   segments    — how many SMS this becomes, i.e. how many times you pay
+ */
+export function measureSms(text) {
+  const str = String(text ?? '');
+
+  let units = 0, isGsm = true;
+  for (const ch of str) {
+    if (GSM_BASIC.has(ch))    { units += 1; continue; }
+    if (GSM_EXT.has(ch))      { units += 2; continue; }
+    isGsm = false;
+    break;
+  }
+
+  if (!isGsm) units = str.length;          // UTF-16 code units, what UCS-2 bills
+
+  const single = isGsm ? GSM_SINGLE : UCS_SINGLE;
+  const multi  = isGsm ? GSM_MULTI  : UCS_MULTI;
+  const segments = units === 0 ? 1 : (units <= single ? 1 : Math.ceil(units / multi));
+
+  return {
+    encoding: isGsm ? 'GSM-7' : 'UCS-2',
+    chars: [...str].length,
+    billedUnits: units,
+    segments,
+    limit: segments === 1 ? single : multi
+  };
+}

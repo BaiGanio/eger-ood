@@ -24,6 +24,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import { execSync } from 'child_process';
+import { measureSms } from './sms-text.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +32,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'customers.json');
+
+// Cyrillic is billed as UCS-2, so one SMS is 70 characters. This default is a
+// fixed 59 characters whatever the customer's name, i.e. always one message.
+const DEFAULT_TEMPLATE =
+  'ЕГЕР ООД: ГТП на {{carPlate}} изтича {{serviceDate}}. Запазете час';
+const DEFAULT_PRICE = 0.1466;   // Twilio price per segment to a BG number
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -49,8 +56,21 @@ app.get('/app', (req, res) => {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function readData() {
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-  return JSON.parse(raw);
+  const raw  = fs.readFileSync(DATA_FILE, 'utf-8');
+  const data = JSON.parse(raw);
+
+  // Defaults for files written by an older version of this app.
+  if (typeof data.smsTemplate !== 'string')  data.smsTemplate = DEFAULT_TEMPLATE;
+  if (typeof data.smsPricePerSegment !== 'number') data.smsPricePerSegment = DEFAULT_PRICE;
+  if (!Array.isArray(data.holidays))         data.holidays    = [];
+  if (!Array.isArray(data.customers))        data.customers   = [];
+
+  // GDPR: no recorded consent means no consent. Never assume yes.
+  for (const c of data.customers) {
+    if (typeof c.smsConsent !== 'boolean') c.smsConsent = false;
+    if (c.smsConsentAt === undefined)      c.smsConsentAt = null;
+  }
+  return data;
 }
 
 function writeData(data) {
@@ -96,10 +116,10 @@ function toDateStr(date) {
 }
 
 function buildSmsBody(template, customer) {
-  const serviceDate = new Date(customer.nextServiceDate + 'T00:00:00');
-  const formatted = serviceDate.toLocaleDateString('bg-BG', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
-  });
+  // Formatted by hand, not with toLocaleDateString('bg-BG'): that appends
+  // " г." which reads badly ("2026 г..") and wastes 3 of the 70 characters.
+  const [y, m, d] = customer.nextServiceDate.split('-');
+  const formatted = `${d}.${m}.${y}`;
   return template
     .replace(/{{name}}/g, customer.name)
     .replace(/{{carModel}}/g, customer.carModel)
@@ -144,7 +164,7 @@ app.get('/api/customers/:id', (req, res) => {
 // POST create customer
 app.post('/api/customers', (req, res) => {
   const data = readData();
-  const { name, phone, address, carModel, carPlate, lastServiceDate } = req.body;
+  const { name, phone, address, carModel, carPlate, lastServiceDate, smsConsent } = req.body;
 
   if (!name || !phone || !carModel || !carPlate || !lastServiceDate) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -162,7 +182,9 @@ app.post('/api/customers', (req, res) => {
     nextServiceDate,
     status: 'pending',
     smsSentAt: null,
-    disabled: false
+    disabled: false,
+    smsConsent: smsConsent === true,
+    smsConsentAt: smsConsent === true ? new Date().toISOString() : null
   };
 
   data.customers.push(customer);
@@ -178,6 +200,11 @@ app.put('/api/customers/:id', (req, res) => {
 
   const existing = data.customers[idx];
   const updated = { ...existing, ...req.body };
+
+  // Record WHEN consent was given — GDPR requires you to prove it.
+  if (typeof req.body.smsConsent === 'boolean' && req.body.smsConsent !== existing.smsConsent) {
+    updated.smsConsentAt = req.body.smsConsent ? new Date().toISOString() : null;
+  }
 
   // Recompute dates if lastServiceDate changed
   if (req.body.lastServiceDate && req.body.lastServiceDate !== existing.lastServiceDate) {
@@ -211,6 +238,9 @@ app.post('/api/customers/:id/send-sms', async (req, res) => {
   const customer = data.customers[idx];
   if (customer.disabled) {
     return res.status(400).json({ error: 'Customer is disabled' });
+  }
+  if (!customer.smsConsent) {
+    return res.status(403).json({ error: 'Клиентът не е дал съгласие за SMS' });
   }
 
   try {
@@ -252,17 +282,26 @@ app.patch('/api/customers/:id/toggle-disabled', (req, res) => {
 // GET SMS template
 app.get('/api/template', (req, res) => {
   const data = readData();
-  res.json({ template: data.smsTemplate });
+  res.json({
+    template: data.smsTemplate,
+    pricePerSegment: data.smsPricePerSegment
+  });
 });
 
 // PUT update SMS template
 app.put('/api/template', (req, res) => {
-  const { template } = req.body;
+  const { template, pricePerSegment } = req.body;
   if (!template) return res.status(400).json({ error: 'Template is required' });
   const data = readData();
   data.smsTemplate = template;
+  if (Number.isFinite(pricePerSegment) && pricePerSegment >= 0) {
+    data.smsPricePerSegment = pricePerSegment;
+  }
   writeData(data);
-  res.json({ template });
+  res.json({
+    template: data.smsTemplate,
+    pricePerSegment: data.smsPricePerSegment
+  });
 });
 
 // GET holidays
@@ -287,7 +326,12 @@ app.post('/api/preview-sms/:id', (req, res) => {
   const customer = data.customers.find(c => c.id === req.params.id);
   if (!customer) return res.status(404).json({ error: 'Not found' });
   const body = buildSmsBody(data.smsTemplate, customer);
-  res.json({ body });
+  res.json({
+    body,
+    measure: measureSms(body),
+    pricePerSegment: data.smsPricePerSegment,
+    smsConsent: customer.smsConsent
+  });
 });
 
 // ─── Daily cron job: auto-send to customers whose reminder date is today ──────
@@ -303,7 +347,7 @@ cron.schedule('0 9 * * 1-6', async () => {
   }
 
   const due = data.customers.filter(
-    c => !c.disabled && c.status === 'pending' && c.nextReminderDate === today
+    c => !c.disabled && c.smsConsent && c.status === 'pending' && c.nextReminderDate === today
   );
 
   console.log(`[CRON] ${due.length} customer(s) due for reminder today.`);
@@ -339,7 +383,8 @@ if (!fs.existsSync(DATA_FILE)) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(DATA_FILE, JSON.stringify({
     customers: [],
-    smsTemplate: 'Здравейте, {{name}}! Вашият автомобил {{carModel}} ({{carPlate}}) е записан за годишен преглед на {{serviceDate}}. Авто Сервиз ЕГЕР ООД.',
+    smsTemplate: DEFAULT_TEMPLATE,
+    smsPricePerSegment: DEFAULT_PRICE,
     holidays: []
   }, null, 2));
   console.log('[INIT] Created empty data/customers.json');

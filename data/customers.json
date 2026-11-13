@@ -7,12 +7,14 @@
       "address": "ul. Vasil Levski 12, Plovdiv",
       "carModel": "VW Golf 7",
       "carPlate": "PB 1234 AB",
-      "lastServiceDate": "2024-12-31",
-      "nextReminderDate": "2025-12-24",
-      "nextServiceDate": "2025-12-31",
+      "lastServiceDate": "2027-12-29",
+      "nextReminderDate": "2028-12-20",
+      "nextServiceDate": "2028-12-28",
       "status": "pending",
       "smsSentAt": null,
-      "disabled": true
+      "disabled": true,
+      "smsConsent": false,
+      "smsConsentAt": null
     },
     {
       "id": "c002",
@@ -26,7 +28,9 @@
       "nextServiceDate": "2027-01-14",
       "status": "sent",
       "smsSentAt": "2026-03-19T19:21:01.308Z",
-      "disabled": true
+      "disabled": true,
+      "smsConsent": false,
+      "smsConsentAt": null
     },
     {
       "id": "c003",
@@ -40,7 +44,9 @@
       "nextServiceDate": "2026-03-10",
       "status": "sent",
       "smsSentAt": "2026-03-03T09:15:00.000Z",
-      "disabled": false
+      "disabled": false,
+      "smsConsent": false,
+      "smsConsentAt": null
     },
     {
       "id": "c004",
@@ -54,7 +60,9 @@
       "nextServiceDate": "2026-03-19",
       "status": "pending",
       "smsSentAt": null,
-      "disabled": false
+      "disabled": false,
+      "smsConsent": false,
+      "smsConsentAt": null
     },
     {
       "id": "c005",
@@ -68,10 +76,12 @@
       "nextServiceDate": "2026-04-02",
       "status": "pending",
       "smsSentAt": null,
-      "disabled": true
+      "disabled": true,
+      "smsConsent": false,
+      "smsConsentAt": null
     }
   ],
-  "smsTemplate": "Здравейте, {{name}}! Напомне ме Ви, че годишният технически преглед на Вашият автомобил {{carModel}} ({{carPlate}}) изтича на {{serviceDate}}. Moля, планирайте посещението си. ЕГЕР ООД",
+  "smsTemplate": "ЕГЕР ООД: ГТП на {{carPlate}} изтича {{serviceDate}}. Запазете час",
   "holidays": [
     "2026-01-01",
     "2026-01-06",
@@ -86,5 +96,6 @@
     "2026-12-24",
     "2026-12-25",
     "2026-12-26"
-  ]
+  ],
+  "smsPricePerSegment": 0.1466
 }
