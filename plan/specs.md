@@ -30,7 +30,7 @@ Last update: 2026-11-13.
 | D7 | Staff do not work on **Sunday and Monday**. Saturday is a work day. A reminder never shows on a day off. It moves **earlier**. See section 5. | 2026-11-13 |
 | D13 | After every file change the agent gives a commit message. The owner reviews and decides on the commit. | 2026-11-13 |
 | D8 | The contact details that are visible on the public site are correct: `0887979373`, `031514709`, `eger@b-trust.org`. Links must match them. | 2026-11-13 |
-| D9 | Holidays for the public site come from a public API **one time per year**. A script saves them to `site/holidays.json`. The site reads only that file. | 2026-11-13 |
+| D9 | Holidays for the public site are made by a script **one time per year**. The script joins two sources: the law (fixed dates, Orthodox Easter, the weekend rule of Labour Code art. 154) and the Nager.Date API (one-time days off). It saves them to `site/holidays.json`. The site reads only that file. | 2026-11-13 |
 | D10 | No framework and no build step. Plain HTML, CSS, JavaScript. Bootstrap from the CDN. | 2026-11-13 |
 | D11 | The form of the staff guide (help page in the app, or one file) is decided with the staff at the end. | 2026-11-13 |
 
@@ -119,7 +119,7 @@ Last update: 2026-11-13.
 
 ## 10. Work rules
 
-- One chapter = one work session = one branch (`ch03-split-repo`). Merge to `master` when the "Done when" list is true.
+- One chapter = one work session. All work is on `master`. No chapter branches (owner, 2026-11-13).
 - Before work: read `CLAUDE.md`, this file, `progress.md`, and the one chapter.
 - Do only the work of that chapter. Write other findings into `progress.md` → "Found on the way".
 - After work: tick the chapter checklist and update `progress.md`.

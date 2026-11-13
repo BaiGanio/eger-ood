@@ -42,7 +42,7 @@ A push to `master` that changes `site/` publishes the site (`.github/workflows/p
 node tools/update-holidays.mjs          # this year and the next year
 ```
 
-It gets the Bulgarian public holidays from the Nager.Date API and writes `site/holidays.json`. Look at the diff, then commit.
+It computes the Bulgarian days off from the law (fixed dates, Orthodox Easter, the weekend rule), adds the one-time days from the Nager.Date API, and writes `site/holidays.json`. Look at the diff, then commit.
 
 ### SMS
 
