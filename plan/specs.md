@@ -73,6 +73,7 @@ Last update: 2026-11-13.
 ## 5. Date and reminder rules
 
 - A date is `YYYY-MM-DD` text. Build it from local parts (`getFullYear`, `getMonth`, `getDate`). **Never** use `toISOString()` for a date.
+- One exception, in `lib/dates.js` only: an Excel cell. Excel has no time zone, and `exceljs` gives a date cell as a `Date` whose **UTC** parts are the numbers in the cell. So a cell is read and written with UTC parts. Local parts move the day west of UTC. (Chapter 05, 2026-11-13.)
 - `nextServiceDate` = `lastServiceDate` + 1 year. 29 Feb → 28 Feb. Never moved (D6).
 - `nextReminderDate` = `nextServiceDate` − 7 days. If that day is a day off, go **earlier** to the nearest work day (D7).
 - Days off = the weekly days off + the holiday list. Both are settings in the Excel file. Default weekly days off: Sunday, Monday.
@@ -99,6 +100,8 @@ Last update: 2026-11-13.
 - Check the Excel lock **before** an SMS send, not after.
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash.
 - `Телефон` is a text column.
+- A write changes the workbook in place. Rows that did not load (bad rows) and columns that the staff added stay in the file.
+- The file holds no computed column. "Следващ преглед" and "Напомняне на" show in the dashboard only (owner, 2026-11-13).
 
 ## 8. Code rules
 

@@ -44,6 +44,26 @@ node tools/update-holidays.mjs          # this year and the next year
 
 It computes the Bulgarian days off from the law (fixed dates, Orthodox Easter, the weekend rule), adds the one-time days from the Nager.Date API, and writes `site/holidays.json`. Look at the diff, then commit.
 
+### Data (staff app)
+
+The staff app keeps all data in one Excel file: `Documents/ЕГЕР-Сервиз/клиенти.xlsx`. The app makes an empty file on the first start. `EGER_DATA_DIR` (in `.env` or in the shell) gives another folder.
+
+```bash
+cd staff
+EGER_DATA_DIR=./data npm run test-data     # invented customers, for development
+EGER_DATA_DIR=./data npm start
+```
+
+Tests (two time zones):
+
+```bash
+cd staff
+TZ=Europe/Sofia npm test
+TZ=UTC npm test
+```
+
+**Never commit an `.xlsx` file.**
+
 ### SMS
 
 With no Twilio keys, the app sends nothing. It only prints the SMS in the console.
@@ -77,7 +97,14 @@ staff/                   staff app (local only)
     scripts.js           staff dashboard logic
     sms-text.js          SMS length and cost
     style.css
-  data/                  test data only
+  lib/
+    store.js             the only code that touches the Excel file
+    dates.js             date math
+    paths.js             data folder, backup folder, .env
+  tools/
+    make-test-data.js    makes клиенти.xlsx with invented customers
+    json-to-xlsx.js      one-time: old customers.json → клиенти.xlsx
+  test/                  node --test
 plan/                    the work plan, specs, progress
 ```
 

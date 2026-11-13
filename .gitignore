@@ -13,11 +13,12 @@ npm-debug.log*
 *.log
 
 # Staff data. Never in git.
-# customers.json is invented test data. Chapter 05 removes it.
-staff/data/*
-!staff/data/customers.json
+staff/data/
 backups/
 *.xlsx
+# Excel lock file and the store's temp file
+~$*
+*.xlsx.*.tmp
 
 # Build outputs (caxa)
 ЕГЕР-Сервиз

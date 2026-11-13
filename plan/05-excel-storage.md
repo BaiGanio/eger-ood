@@ -22,18 +22,20 @@ Do not use the `xlsx` (SheetJS) package from npm. The npm copy is old and has kn
 | Автомобил | `carModel` | text | Staff |
 | Рег. номер | `carPlate` | text | Staff |
 | Последен преглед | `lastServiceDate` | Excel date | Staff |
-| Следващ преглед | `nextServiceDate` | Excel date | App (computed) |
-| Напомняне на | `nextReminderDate` | Excel date | App (computed) |
 | SMS изпратен на | `smsSentAt` | Excel date-time | App |
 | Активен | `disabled` (inverted) | `Да` / `Не` | Staff |
+
+**Owner decision, 2026-11-13:** "Следващ преглед" and "Напомняне на" are **not** in the file. `specs.md` section 4 says: do not store what can be computed. The app computes them (and the status) on each read. The staff see them in the dashboard.
 
 The final field list depends on chapter 06 (the status model). Chapter 06 can add or remove a column.
 
 ### Sheet 2 — `Настройки`
-Two columns, key and value: `SMS шаблон`, `Цена за 1 SMS`.
+Two columns, key and value: `SMS шаблон`, `Цена за 1 SMS`, `Почивни дни от седмицата`.
+
+`Почивни дни от седмицата` holds the weekly days off as words, with commas: `неделя, понеделник` (the default, `specs.md` D7). In the data object it is `weeklyDaysOff`, a list of day numbers (0 = Sunday).
 
 ### Sheet 3 — `Почивни дни`
-One column of dates.
+One column of dates (the holiday list).
 
 ### Format rules
 - Header row is frozen and bold. App-only columns have a grey fill, so staff see what not to touch.
@@ -53,16 +55,16 @@ One column of dates.
 | The file does not exist. | The app creates an empty one with the three sheets and the headers. |
 
 ## Steps
-- [ ] `npm install exceljs` in `staff/`.
-- [ ] Write `staff/lib/store.js` with `readData()` and `writeData(data)`. They return and accept the same object shape that `server.js` uses today (`customers`, `smsTemplate`, `smsPricePerSegment`, `holidays`). Then the routes need almost no change.
-- [ ] `readData` becomes async. Update all routes to `await` it.
-- [ ] Add the lock check, the temp-file write, the daily backup, and the row checks from the table above.
-- [ ] New route `GET /api/data-problems` + a banner in the dashboard that lists bad rows.
-- [ ] The data folder path comes from one config value (default `staff/data/`). Chapter 09 sets the final place.
-- [ ] Write a one-time script `staff/tools/json-to-xlsx.js` that converts the old `customers.json`.
-- [ ] Write `staff/tools/make-test-data.js`. It creates `клиенти.xlsx` with 12 test customers (see below). Dates are relative to "today", so the file is always useful.
-- [ ] Delete `data/customers.json` from git. Add `staff/data/` and `backups/` to `.gitignore`.
-- [ ] Tests (`node --test`): round trip (write then read gives the same data), bad row, missing column, duplicate ID, locked file.
+- [x] `npm install exceljs` in `staff/`.
+- [x] Write `staff/lib/store.js` with `readData()` and `writeData(data)`. They return and accept the same object shape that `server.js` uses today (`customers`, `smsTemplate`, `smsPricePerSegment`, `holidays`), plus `weeklyDaysOff` and `problems`. `server.js` adds the computed fields after each read.
+- [x] `readData` becomes async. Update all routes to `await` it.
+- [x] Add the lock check, the temp-file write, the daily backup, and the row checks from the table above.
+- [x] New route `GET /api/data-problems` + a banner in the dashboard that lists bad rows.
+- [x] The data folder path comes from one config value, in `staff/lib/paths.js`. Default: `Documents/ЕГЕР-Сервиз/` (`specs.md` O3). `EGER_DATA_DIR` overrides it.
+- [x] Write a one-time script `staff/tools/json-to-xlsx.js` that converts the old `customers.json`.
+- [x] Write `staff/tools/make-test-data.js`. It creates `клиенти.xlsx` with 12 test customers (see below). Dates are relative to "today", so the file is always useful.
+- [x] Delete `data/customers.json` from git. Add `staff/data/` and `backups/` to `.gitignore`.
+- [x] Tests (`node --test`): round trip (write then read gives the same data), bad row, missing column, duplicate ID, locked file.
 
 ## Test customers (12)
 The 5 present ones plus 7 new ones. All names and phones are invented. Each one covers a case:
@@ -79,7 +81,17 @@ The 5 present ones plus 7 new ones. All names and phones are invented. Each one 
 | 12 | Last inspection on **29 February**, and one row with a missing phone (bad-row test) |
 
 ## Done when
-- The dashboard does add, edit, delete, and send, and the changes are in the `.xlsx` file.
-- A hand edit in Excel shows in the dashboard after a reload.
-- With the file open in Excel on Windows, a save gives the clear message and no data is lost.
-- All store tests pass.
+- [x] The dashboard does add, edit, delete, and send, and the changes are in the `.xlsx` file. (Checked through the API on the Mac. **Owner checks** the clicks in the browser.)
+- [ ] A hand edit in Excel shows in the dashboard after a reload. (A test does the edit with `exceljs`. **Owner checks** with real Excel.)
+- [ ] With the file open in Excel on Windows, a save gives the clear message and no data is lost. (A test uses a lock file. **Owner checks** on Windows.)
+- [x] All store tests pass. (31 tests, `TZ=Europe/Sofia` and `TZ=UTC`.)
+
+### Owner checks (Windows PC with Excel)
+1. In `staff/`: `npm install`, then `npm run test-data`, then `npm start`. The file is `Documents\ЕГЕР-Сервиз\клиенти.xlsx`.
+2. Dashboard: 12 customers show. A yellow box names sheet "Клиенти", row 14, "липсва телефон".
+3. Add a customer, edit it, send an SMS to it, delete it. After each step open the file in Excel, look, and **close Excel**.
+4. In Excel: change a name, save, close. Reload the dashboard. The new name shows.
+5. In Excel: look at "Телефон" (the `+` is there), "Последен преглед" (a date like 15.01.2026), "Активен" (a drop-down with Да / Не), the grey columns "ID" and "SMS изпратен на", the frozen bold header.
+6. Keep the file **open** in Excel. In the dashboard click "Изпрати" on a customer and confirm. The message must be "…Затворете файла в Excel и опитайте отново." No SMS line shows in the black window.
+7. Still open: edit a customer and save. Same message. Close Excel. Reload. The data is as before the edit.
+8. Look in `Documents\ЕГЕР-Сервиз\backups\`. One file with today's date is there.

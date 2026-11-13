@@ -1,0 +1,622 @@
+// The only code that touches the Excel file (repository pattern).
+//
+// The file is the one store, and the staff also edit it by hand. So:
+//  - a read checks every row and reports the bad ones, it never crashes;
+//  - a write changes the existing workbook in place. Rows that the app did
+//    not load (bad rows) and columns that the staff added stay as they are;
+//  - a write goes to a temp file first, then a rename puts it over the real
+//    file. A power cut cannot leave half a file.
+
+import ExcelJS from 'exceljs';
+import crypto from 'crypto';
+import fs from 'fs/promises';
+import path from 'path';
+import {
+  excelDateTimeToText, excelDateToText, isDateText, localDateText,
+  momentToExcelDateTime, textToExcelDate, toDateText,
+} from './dates.js';
+import {
+  backupDir, backupFile, dataDir, dataFile, lockFile, DATA_FILE_NAME,
+} from './paths.js';
+
+// ─── Defaults (their one home) ───────────────────────────────────────────────
+
+// Cyrillic is billed as UCS-2, so one SMS is 70 characters. This default is a
+// fixed 59 characters whatever the customer's name, i.e. always one message.
+export const DEFAULT_TEMPLATE =
+  'ЕГЕР ООД: ГТП на {{carPlate}} изтича {{serviceDate}}. Запазете час';
+export const DEFAULT_PRICE = 0.1466;          // Twilio price per segment to a BG number
+export const DEFAULT_WEEKLY_DAYS_OFF = [0, 1]; // Sunday, Monday (specs D7)
+
+const KEEP_BACKUPS = 30;
+const PHONE = /^\+[1-9]\d{7,14}$/;
+
+// ─── Layout of the workbook ──────────────────────────────────────────────────
+
+export const SHEETS = {
+  customers: 'Клиенти',
+  settings: 'Настройки',
+  holidays: 'Почивни дни',
+};
+
+// `appOnly` columns get a grey fill, so the staff see what not to touch.
+const CUSTOMER_COLUMNS = [
+  { field: 'id',              header: 'ID',               width: 16, appOnly: true },
+  { field: 'name',            header: 'Име',              width: 28 },
+  { field: 'phone',           header: 'Телефон',          width: 18, numFmt: '@' },
+  { field: 'address',         header: 'Адрес',            width: 32 },
+  { field: 'carModel',        header: 'Автомобил',        width: 22 },
+  { field: 'carPlate',        header: 'Рег. номер',       width: 14 },
+  { field: 'lastServiceDate', header: 'Последен преглед', width: 18, numFmt: 'dd.mm.yyyy' },
+  { field: 'smsSentAt',       header: 'SMS изпратен на',  width: 20, numFmt: 'dd.mm.yyyy hh:mm', appOnly: true },
+  { field: 'disabled',        header: 'Активен',          width: 10 },
+];
+
+const SETTING_KEYS = {
+  smsTemplate: 'SMS шаблон',
+  smsPricePerSegment: 'Цена за 1 SMS',
+  weeklyDaysOff: 'Почивни дни от седмицата',
+};
+
+const YES = 'Да';
+const NO = 'Не';
+// Index = Date.getDay() number.
+const DAY_NAMES = ['неделя', 'понеделник', 'вторник', 'сряда', 'четвъртък', 'петък', 'събота'];
+const GREY = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE7E6E6' } };
+// The drop-down covers the present rows and room for rows added by hand.
+const VALIDATION_ROWS = 2000;
+
+// ─── Errors ──────────────────────────────────────────────────────────────────
+
+/** An error with a clear Bulgarian message that the user can see. */
+export class StoreError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.name = 'StoreError';
+    this.code = code; // 'LOCKED' | 'MISSING_SHEET' | 'MISSING_COLUMN' | 'UNREADABLE'
+  }
+}
+
+const LOCKED_MESSAGE =
+  `Файлът „${DATA_FILE_NAME}“ е отворен в Excel. Затворете файла в Excel и опитайте отново.`;
+
+/** Windows gives these codes when another program holds the file. */
+export function isLockError(err) {
+  return Boolean(err) && ['EBUSY', 'EPERM', 'EACCES'].includes(err.code);
+}
+
+// ─── Small helpers ───────────────────────────────────────────────────────────
+
+export function generateId(taken = new Set()) {
+  let id;
+  do { id = 'c' + crypto.randomBytes(5).toString('hex'); } while (taken.has(id));
+  return id;
+}
+
+/** The plain value of a cell: formula → its result, rich text → text. */
+function plainValue(cell) {
+  const v = cell.value;
+  if (v === null || v === undefined) return null;
+  if (v instanceof Date) return v;
+  if (typeof v === 'object') {
+    if (Array.isArray(v.richText)) return v.richText.map(part => part.text).join('');
+    if ('result' in v) return v.result ?? null;
+    if ('text' in v) return v.text;
+    return null; // an error cell, or a formula with no result yet
+  }
+  return v;
+}
+
+function cellText(cell) {
+  const v = plainValue(cell);
+  if (v === null || v instanceof Date) return '';
+  return String(v).trim();
+}
+
+function sameText(a, b) {
+  return a.trim().toLocaleLowerCase('bg') === b.trim().toLocaleLowerCase('bg');
+}
+
+/** Date cell, "YYYY-MM-DD" or "DD.MM.YYYY" text → "YYYY-MM-DD". Else null. */
+function readDate(cell) {
+  const v = plainValue(cell);
+  if (v instanceof Date) return excelDateToText(v);
+  if (typeof v !== 'string') return null;
+  const text = v.trim();
+  if (isDateText(text)) return text;
+  const m = /^(\d{1,2})[./](\d{1,2})[./](\d{4})$/.exec(text);
+  if (!m) return null;
+  const iso = toDateText(Number(m[3]), Number(m[2]), Number(m[1]));
+  return isDateText(iso) ? iso : null;
+}
+
+/** Date-time cell or text → "YYYY-MM-DDTHH:mm:ss". Else null. */
+function readDateTime(cell) {
+  const v = plainValue(cell);
+  if (v instanceof Date) return excelDateTimeToText(v);
+  if (typeof v !== 'string') return null;
+  const asCell = momentToExcelDateTime(v.trim());
+  return asCell ? excelDateTimeToText(asCell) : null;
+}
+
+function isBlank(cell) {
+  const v = plainValue(cell);
+  return v === null || (typeof v === 'string' && v.trim() === '');
+}
+
+// ─── New workbook ────────────────────────────────────────────────────────────
+
+function styleHeader(ws) {
+  ws.getRow(1).font = { bold: true };
+  ws.views = [{ state: 'frozen', ySplit: 1 }];
+}
+
+function addCustomerSheet(wb) {
+  const ws = wb.addWorksheet(SHEETS.customers);
+  ws.columns = CUSTOMER_COLUMNS.map(c => ({ header: c.header, key: c.field, width: c.width }));
+  CUSTOMER_COLUMNS.forEach((c, i) => {
+    const col = ws.getColumn(i + 1);
+    // A column format also covers the cells of rows that the staff add later.
+    // "@" = text: Excel then keeps the "+" of a phone number.
+    if (c.numFmt) col.numFmt = c.numFmt;
+    if (c.appOnly) col.fill = GREY;
+  });
+  styleHeader(ws);
+  const letter = ws.getColumn(CUSTOMER_COLUMNS.length).letter;
+  ws.dataValidations.add(`${letter}2:${letter}${VALIDATION_ROWS}`, {
+    type: 'list',
+    allowBlank: true,
+    formulae: [`"${YES},${NO}"`],
+    showErrorMessage: true,
+    errorTitle: 'Активен',
+    error: `Изберете „${YES}“ или „${NO}“.`,
+  });
+  return ws;
+}
+
+function addSettingsSheet(wb) {
+  const ws = wb.addWorksheet(SHEETS.settings);
+  ws.columns = [
+    { header: 'Настройка', width: 30 },
+    { header: 'Стойност', width: 80 },
+  ];
+  styleHeader(ws);
+  ws.addRow([SETTING_KEYS.smsTemplate, DEFAULT_TEMPLATE]);
+  ws.addRow([SETTING_KEYS.smsPricePerSegment, DEFAULT_PRICE]);
+  ws.addRow([SETTING_KEYS.weeklyDaysOff, formatWeeklyDaysOff(DEFAULT_WEEKLY_DAYS_OFF)]);
+  return ws;
+}
+
+function addHolidaySheet(wb) {
+  const ws = wb.addWorksheet(SHEETS.holidays);
+  ws.columns = [{ header: 'Дата', width: 16 }];
+  ws.getColumn(1).numFmt = 'dd.mm.yyyy';
+  styleHeader(ws);
+  return ws;
+}
+
+function newWorkbook() {
+  const wb = new ExcelJS.Workbook();
+  addCustomerSheet(wb);
+  addSettingsSheet(wb);
+  addHolidaySheet(wb);
+  return wb;
+}
+
+// ─── Read: workbook → data ───────────────────────────────────────────────────
+
+function findCustomerColumns(ws) {
+  const cols = {};
+  ws.getRow(1).eachCell((cell, colNumber) => {
+    const header = cellText(cell);
+    const known = CUSTOMER_COLUMNS.find(c => sameText(c.header, header));
+    if (known && !cols[known.field]) cols[known.field] = colNumber;
+  });
+  const missing = CUSTOMER_COLUMNS.filter(c => !cols[c.field]).map(c => `„${c.header}“`);
+  if (missing.length) {
+    throw new StoreError('MISSING_COLUMN',
+      `В лист „${SHEETS.customers}“ липсва колона ${missing.join(', ')}. ` +
+      'Върнете заглавието на колоната в първия ред и презаредете.');
+  }
+  return cols;
+}
+
+/** One sheet row → `{ customer }` or `{ reasons }`. */
+function readCustomerRow(row, cols) {
+  const text = field => cellText(row.getCell(cols[field]));
+  const reasons = [];
+
+  const customer = {
+    id: text('id'),
+    name: text('name'),
+    phone: text('phone').replace(/[\s-]/g, ''),
+    address: text('address'),
+    carModel: text('carModel'),
+    carPlate: text('carPlate'),
+    lastServiceDate: null,
+    smsSentAt: null,
+    disabled: false,
+  };
+
+  if (!customer.name) reasons.push('липсва име');
+  if (!customer.phone) reasons.push('липсва телефон');
+  else if (!PHONE.test(customer.phone)) reasons.push('телефонът трябва да е текст във вида +359881234567');
+  if (!customer.carModel) reasons.push('липсва автомобил');
+  if (!customer.carPlate) reasons.push('липсва рег. номер');
+
+  const lastCell = row.getCell(cols.lastServiceDate);
+  if (isBlank(lastCell)) reasons.push('липсва дата на последен преглед');
+  else {
+    customer.lastServiceDate = readDate(lastCell);
+    if (!customer.lastServiceDate) reasons.push('невалидна дата на последен преглед');
+  }
+
+  const sentCell = row.getCell(cols.smsSentAt);
+  if (!isBlank(sentCell)) {
+    customer.smsSentAt = readDateTime(sentCell);
+    if (!customer.smsSentAt) reasons.push('невалидна дата в „SMS изпратен на“');
+  }
+
+  const active = text('disabled');
+  if (sameText(active, NO)) customer.disabled = true;
+  else if (active && !sameText(active, YES)) reasons.push(`в „Активен“ трябва да е „${YES}“ или „${NO}“`);
+
+  return reasons.length ? { reasons } : { customer };
+}
+
+function readCustomers(wb, problems) {
+  const ws = wb.getWorksheet(SHEETS.customers);
+  if (!ws) {
+    throw new StoreError('MISSING_SHEET',
+      `Във файла „${DATA_FILE_NAME}“ липсва лист „${SHEETS.customers}“. Върнете името на листа и презаредете.`);
+  }
+  const cols = findCustomerColumns(ws);
+  const customers = [];
+  const rowById = new Map();   // id → row number, for the rows that loaded
+  const fileIds = new Set();   // ids that are really in the file
+  const newIds = new Map();    // id made in this read → row number
+  let lastRow = 1;
+
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    if (CUSTOMER_COLUMNS.every(c => isBlank(row.getCell(cols[c.field])))) return;
+    lastRow = rowNumber;
+
+    const { customer, reasons } = readCustomerRow(row, cols);
+    if (reasons) {
+      problems.push({ sheet: SHEETS.customers, row: rowNumber, reason: reasons.join('; ') });
+      return;
+    }
+    // No ID (a row made by hand) or a copy of an ID above (copy-paste):
+    // the row gets a new ID.
+    if (!customer.id || rowById.has(customer.id)) {
+      customer.id = generateId(new Set([...rowById.keys(), ...fileIds]));
+      newIds.set(customer.id, rowNumber);
+    } else {
+      fileIds.add(customer.id);
+    }
+    rowById.set(customer.id, rowNumber);
+    customers.push(customer);
+  });
+
+  return { customers, layout: { ws, cols, rowById, fileIds, newIds, lastRow } };
+}
+
+function parsePrice(value) {
+  if (typeof value === 'number') return value >= 0 ? value : null;
+  if (typeof value !== 'string') return null;
+  // Bulgarian Excel shows 0,1466.
+  const n = Number(value.trim().replace(',', '.'));
+  return value.trim() !== '' && Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+function parseWeeklyDaysOff(text) {
+  const days = [];
+  for (const part of text.split(/[,;]/).map(s => s.trim()).filter(Boolean)) {
+    const day = DAY_NAMES.findIndex(name => sameText(name, part));
+    if (day === -1) return null;
+    if (!days.includes(day)) days.push(day);
+  }
+  return days.sort((a, b) => a - b);
+}
+
+function formatWeeklyDaysOff(days) {
+  return days.map(d => DAY_NAMES[d]).join(', ');
+}
+
+function readSettings(wb, problems) {
+  const settings = {
+    smsTemplate: DEFAULT_TEMPLATE,
+    smsPricePerSegment: DEFAULT_PRICE,
+    weeklyDaysOff: [...DEFAULT_WEEKLY_DAYS_OFF],
+  };
+  const ws = wb.getWorksheet(SHEETS.settings);
+  const rowByKey = {};
+  let lastRow = 1;
+  if (!ws) return { settings, layout: null };
+
+  const bad = (row, reason) => problems.push({ sheet: SHEETS.settings, row, reason });
+
+  ws.eachRow((row, rowNumber) => {
+    lastRow = rowNumber;
+    const key = cellText(row.getCell(1));
+    const field = Object.keys(SETTING_KEYS).find(f => sameText(SETTING_KEYS[f], key));
+    if (!field || rowByKey[field]) return;
+    rowByKey[field] = rowNumber;
+    const valueCell = row.getCell(2);
+    // An empty value means "use the default". It is not a problem.
+    if (isBlank(valueCell)) return;
+
+    if (field === 'smsTemplate') {
+      settings.smsTemplate = cellText(valueCell);
+    } else if (field === 'smsPricePerSegment') {
+      const price = parsePrice(plainValue(valueCell));
+      if (price === null) bad(rowNumber, `„${key}“ не е число. Използва се ${DEFAULT_PRICE}.`);
+      else settings.smsPricePerSegment = price;
+    } else {
+      const days = parseWeeklyDaysOff(cellText(valueCell));
+      if (days === null) {
+        bad(rowNumber, `„${key}“: непознат ден. Пишете дните с думи, например „неделя, понеделник“. ` +
+          'Използват се неделя и понеделник.');
+      } else settings.weeklyDaysOff = days;
+    }
+  });
+
+  return { settings, layout: { ws, rowByKey, lastRow } };
+}
+
+function readHolidays(wb, problems) {
+  const ws = wb.getWorksheet(SHEETS.holidays);
+  const holidays = [];
+  if (!ws) return { holidays, layout: null };
+  const rowsByDate = new Map();
+  let lastRow = 1;
+
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return; // the header
+    const cell = row.getCell(1);
+    if (isBlank(cell)) return;
+    lastRow = rowNumber;
+    const date = readDate(cell);
+    if (!date) {
+      problems.push({ sheet: SHEETS.holidays, row: rowNumber, reason: 'невалидна дата' });
+      return;
+    }
+    if (!rowsByDate.has(date)) { rowsByDate.set(date, []); holidays.push(date); }
+    rowsByDate.get(date).push(rowNumber);
+  });
+
+  return { holidays, layout: { ws, rowsByDate, lastRow } };
+}
+
+function parse(wb) {
+  const problems = [];
+  const c = readCustomers(wb, problems);
+  const s = readSettings(wb, problems);
+  const h = readHolidays(wb, problems);
+  return {
+    data: { customers: c.customers, ...s.settings, holidays: h.holidays, problems },
+    layout: { customers: c.layout, settings: s.layout, holidays: h.layout },
+  };
+}
+
+// ─── Write: data → workbook ──────────────────────────────────────────────────
+
+function writeCustomerRow(ws, cols, rowNumber, customer) {
+  const row = ws.getRow(rowNumber);
+  const set = (field, value, numFmt) => {
+    const cell = row.getCell(cols[field]);
+    cell.value = value;
+    if (numFmt) cell.numFmt = numFmt;
+  };
+  const fmt = field => CUSTOMER_COLUMNS.find(c => c.field === field).numFmt;
+
+  set('id', customer.id);
+  set('name', customer.name ?? '');
+  set('phone', customer.phone ?? '', fmt('phone'));
+  set('address', customer.address ?? '');
+  set('carModel', customer.carModel ?? '');
+  set('carPlate', customer.carPlate ?? '');
+  // A value that is not a date stays as text. The next read reports the row.
+  set('lastServiceDate',
+    isDateText(customer.lastServiceDate) ? textToExcelDate(customer.lastServiceDate) : (customer.lastServiceDate ?? null),
+    fmt('lastServiceDate'));
+  set('smsSentAt', customer.smsSentAt ? momentToExcelDateTime(customer.smsSentAt) : null, fmt('smsSentAt'));
+  set('disabled', customer.disabled ? NO : YES);
+}
+
+function deleteRows(ws, rowNumbers) {
+  // From the bottom up, so the numbers of the rows above stay true.
+  [...rowNumbers].sort((a, b) => b - a).forEach(n => ws.spliceRows(n, 1));
+}
+
+function applyCustomers(layout, customers) {
+  const { ws, cols, rowById, fileIds } = layout;
+  const taken = new Set(rowById.keys());
+  const wanted = new Set();
+  let lastRow = layout.lastRow;
+
+  for (const customer of customers) {
+    if (!customer.id) customer.id = generateId(taken);
+    taken.add(customer.id);
+    wanted.add(customer.id);
+    const rowNumber = rowById.get(customer.id) ?? ++lastRow;
+    writeCustomerRow(ws, cols, rowNumber, customer);
+  }
+  // Delete only a row whose ID was in the file. A row that got its ID in this
+  // same read is new to the caller: it did not ask to delete it.
+  deleteRows(ws, [...fileIds].filter(id => !wanted.has(id)).map(id => rowById.get(id)));
+}
+
+function applySettings(layout, parsed, data) {
+  const { ws, rowByKey } = layout;
+  let lastRow = layout.lastRow;
+  const put = (field, value) => {
+    // An unchanged value is not written. So a cell with a typing error that
+    // the read replaced by the default keeps the staff's text.
+    const same = JSON.stringify(parsed[field]) === JSON.stringify(data[field]);
+    if (same && rowByKey[field]) return;
+    const rowNumber = rowByKey[field] ?? ++lastRow;
+    ws.getRow(rowNumber).getCell(1).value = SETTING_KEYS[field];
+    ws.getRow(rowNumber).getCell(2).value = value;
+  };
+  put('smsTemplate', data.smsTemplate);
+  put('smsPricePerSegment', data.smsPricePerSegment);
+  put('weeklyDaysOff', formatWeeklyDaysOff(data.weeklyDaysOff));
+}
+
+function applyHolidays(layout, holidays) {
+  const { ws, rowsByDate } = layout;
+  const wanted = new Set(holidays);
+  let lastRow = layout.lastRow;
+  for (const date of wanted) {
+    if (rowsByDate.has(date) || !isDateText(date)) continue;
+    const cell = ws.getRow(++lastRow).getCell(1);
+    cell.value = textToExcelDate(date);
+    cell.numFmt = 'dd.mm.yyyy';
+  }
+  deleteRows(ws, [...rowsByDate].filter(([date]) => !wanted.has(date)).flatMap(([, rows]) => rows));
+}
+
+// ─── File work ───────────────────────────────────────────────────────────────
+
+async function exists(file) {
+  try { await fs.access(file); return true; } catch { return false; }
+}
+
+async function loadWorkbook() {
+  const wb = new ExcelJS.Workbook();
+  try {
+    await wb.xlsx.readFile(dataFile());
+  } catch (err) {
+    if (isLockError(err)) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+    console.error('[STORE] Cannot read the data file:', err);
+    throw new StoreError('UNREADABLE',
+      `Файлът „${DATA_FILE_NAME}“ не може да се прочете. Вземете копие от папка „backups“.`);
+  }
+  return wb;
+}
+
+let tempCounter = 0;
+
+/** Temp file in the same folder, then rename: the real file is never half written. */
+async function saveWorkbook(wb) {
+  const file = dataFile();
+  const temp = path.join(dataDir(), `.${DATA_FILE_NAME}.${process.pid}.${++tempCounter}.tmp`);
+  try {
+    await wb.xlsx.writeFile(temp);
+    await fs.rename(temp, file);
+  } catch (err) {
+    await fs.rm(temp, { force: true });
+    if (isLockError(err)) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+    throw err;
+  }
+}
+
+/** Before the first write of each day: copy the file to backups/. Keep 30. */
+async function backupOncePerDay() {
+  const target = backupFile(localDateText());
+  if (await exists(target) || !(await exists(dataFile()))) return;
+  await fs.mkdir(backupDir(), { recursive: true });
+  await fs.copyFile(dataFile(), target);
+
+  const ext = path.extname(DATA_FILE_NAME);
+  const prefix = path.basename(DATA_FILE_NAME, ext) + '-';
+  // macOS can give file names in another Unicode form. NFC makes them equal.
+  const backups = (await fs.readdir(backupDir()))
+    .filter(name => {
+      const n = name.normalize('NFC');
+      return n.startsWith(prefix) && n.endsWith(ext) && isDateText(n.slice(prefix.length, -ext.length));
+    })
+    .sort((a, b) => a.normalize('NFC').localeCompare(b.normalize('NFC')));
+  for (const old of backups.slice(0, -KEEP_BACKUPS)) {
+    await fs.rm(path.join(backupDir(), old), { force: true });
+  }
+}
+
+/**
+ * True when Excel has the file open.
+ * Two signs: Excel's own lock file, and (on Windows) a refused open for write.
+ */
+export async function isLocked() {
+  if (await exists(lockFile())) return true;
+  try {
+    const handle = await fs.open(dataFile(), 'r+');
+    await handle.close();
+    return false;
+  } catch (err) {
+    return isLockError(err);
+  }
+}
+
+/** Throws the clear message when a write cannot work. Call it BEFORE an SMS send. */
+export async function assertWritable() {
+  if (await isLocked()) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+}
+
+/** Makes an empty file with the three sheets when there is none. */
+export async function ensureDataFile() {
+  if (await exists(dataFile())) return { file: dataFile(), created: false };
+  await fs.mkdir(dataDir(), { recursive: true });
+  await saveWorkbook(newWorkbook());
+  return { file: dataFile(), created: true };
+}
+
+async function persistNewIds(wb, layout, problems) {
+  const { ws, cols, newIds } = layout.customers;
+  try {
+    await assertWritable();
+    for (const [id, rowNumber] of newIds) ws.getRow(rowNumber).getCell(cols.id).value = id;
+    await backupOncePerDay();
+    await saveWorkbook(wb);
+  } catch (err) {
+    if (!(err instanceof StoreError) || err.code !== 'LOCKED') throw err;
+    problems.push({
+      sheet: SHEETS.customers,
+      row: null,
+      reason: 'Има редове без ID. Новите ID не са записани, защото файлът е отворен в Excel. ' +
+        'Затворете файла в Excel и презаредете.',
+    });
+  }
+}
+
+// ─── Public API ──────────────────────────────────────────────────────────────
+
+/**
+ * Reads the file fresh. Returns
+ * `{ customers, smsTemplate, smsPricePerSegment, weeklyDaysOff, holidays, problems }`.
+ * `problems` is a list of `{ sheet, row, reason }` for the rows that did not load.
+ */
+export async function readData() {
+  await ensureDataFile();
+  const wb = await loadWorkbook();
+  const { data, layout } = parse(wb);
+  // A new ID must be in the file. Otherwise the row gets another ID on each
+  // read, and a click in the dashboard does not find the customer.
+  if (layout.customers.newIds.size) await persistNewIds(wb, layout, data.problems);
+  return data;
+}
+
+/**
+ * Writes `data` (same shape as `readData`) into the file.
+ * Throws a `StoreError` with code `LOCKED` when Excel has the file open.
+ */
+export async function writeData(data) {
+  await ensureDataFile();
+  await assertWritable();
+  const wb = await loadWorkbook();
+  if (!wb.getWorksheet(SHEETS.settings)) addSettingsSheet(wb);
+  if (!wb.getWorksheet(SHEETS.holidays)) addHolidaySheet(wb);
+  const { data: parsed, layout } = parse(wb);
+
+  applyCustomers(layout.customers, data.customers ?? []);
+  applySettings(layout.settings, parsed, {
+    smsTemplate: data.smsTemplate ?? parsed.smsTemplate,
+    smsPricePerSegment: data.smsPricePerSegment ?? parsed.smsPricePerSegment,
+    weeklyDaysOff: data.weeklyDaysOff ?? parsed.weeklyDaysOff,
+  });
+  applyHolidays(layout.holidays, data.holidays ?? parsed.holidays);
+
+  await backupOncePerDay();
+  await saveWorkbook(wb);
+}

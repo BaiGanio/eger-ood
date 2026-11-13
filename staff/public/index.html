@@ -55,6 +55,16 @@
   <!-- ─── Main ─────────────────────────────────────────────────── -->
   <main class="flex-grow-1 p-4" style="margin-left:220px;">
 
+    <!-- The Excel file cannot be read (example: a missing column). -->
+    <div id="data-error" class="alert alert-danger d-none" role="alert"></div>
+
+    <!-- Rows of the Excel file that did not load. -->
+    <div id="data-problems" class="alert alert-warning d-none" role="alert">
+      <strong>Във файла „клиенти.xlsx“ има редове с грешка. Те не са заредени.</strong>
+      Поправете ги в Excel, запазете файла, затворете го и презаредете страницата.
+      <ul class="mb-0 mt-2" id="data-problems-list"></ul>
+    </div>
+
     <!-- ══ ТАБЛО ══════════════════════════════════════════════════ -->
     <div id="view-dashboard">
 

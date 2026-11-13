@@ -14,30 +14,26 @@ process.on('unhandledRejection', (reason) => {
   process.stdin.once('data', () => process.exit(1));
 });
 import { createRequire } from 'module';
+import { ENV_FILE, dataFile } from './lib/paths.js';
 const _require = createRequire(import.meta.url);
-try { _require('dotenv').config(); } catch(e) { /* no .env file, that's ok */ }
+try { _require('dotenv').config({ path: ENV_FILE }); } catch(e) { /* no .env file, that's ok */ }
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import { execSync } from 'child_process';
 import { measureSms } from './public/sms-text.js';
+import {
+  StoreError, assertWritable, ensureDataFile, generateId, readData, writeData,
+} from './lib/store.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data', 'customers.json');
-
-// Cyrillic is billed as UCS-2, so one SMS is 70 characters. This default is a
-// fixed 59 characters whatever the customer's name, i.e. always one message.
-const DEFAULT_TEMPLATE =
-  'ЕГЕР ООД: ГТП на {{carPlate}} изтича {{serviceDate}}. Запазете час';
-const DEFAULT_PRICE = 0.1466;   // Twilio price per segment to a BG number
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -47,25 +43,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function readData() {
-  const raw  = fs.readFileSync(DATA_FILE, 'utf-8');
-  const data = JSON.parse(raw);
+// The Excel file holds only what the staff or the app enter. The next
+// inspection date, the reminder date and the status are computed on each read
+// (specs section 4). Chapter 06 moves this to lib/reminders.js and fixes the
+// date math below.
+function withComputed(customer, holidays) {
+  const nextServiceDate = computeNextServiceDate(customer.lastServiceDate, holidays);
+  return {
+    ...customer,
+    nextServiceDate,
+    nextReminderDate: computeReminderDate(nextServiceDate, holidays),
+    status: customer.smsSentAt ? 'sent' : 'pending',
+  };
+}
 
-  // Defaults for files written by an older version of this app.
-  if (typeof data.smsTemplate !== 'string')  data.smsTemplate = DEFAULT_TEMPLATE;
-  if (typeof data.smsPricePerSegment !== 'number') data.smsPricePerSegment = DEFAULT_PRICE;
-  if (!Array.isArray(data.holidays))         data.holidays    = [];
-  if (!Array.isArray(data.customers))        data.customers   = [];
+async function loadData() {
+  const data = await readData();
+  data.customers = data.customers.map(c => withComputed(c, data.holidays));
   return data;
 }
 
-function writeData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-function generateId() {
-  return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-}
+// Express 4 does not catch an error from an async route. Without this, a
+// locked Excel file would stop the whole server.
+const route = handler => (req, res, next) => handler(req, res, next).catch(next);
 
 /**
  * Given a service date, compute the reminder date (7 days prior),
@@ -134,83 +134,76 @@ async function sendSms(to, body) {
 // ─── API Routes ───────────────────────────────────────────────────────────────
 
 // GET all customers
-app.get('/api/customers', (req, res) => {
-  const data = readData();
+app.get('/api/customers', route(async (req, res) => {
+  const data = await loadData();
   res.json(data);
-});
+}));
 
 // GET single customer
-app.get('/api/customers/:id', (req, res) => {
-  const data = readData();
+app.get('/api/customers/:id', route(async (req, res) => {
+  const data = await loadData();
   const customer = data.customers.find(c => c.id === req.params.id);
   if (!customer) return res.status(404).json({ error: 'Customer not found' });
   res.json(customer);
-});
+}));
 
 // POST create customer
-app.post('/api/customers', (req, res) => {
-  const data = readData();
+app.post('/api/customers', route(async (req, res) => {
+  const data = await loadData();
   const { name, phone, address, carModel, carPlate, lastServiceDate } = req.body;
 
   if (!name || !phone || !carModel || !carPlate || !lastServiceDate) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const nextServiceDate = computeNextServiceDate(lastServiceDate, data.holidays);
-  const nextReminderDate = computeReminderDate(nextServiceDate, data.holidays);
-
-  const customer = {
-    id: generateId(),
+  const customer = withComputed({
+    id: generateId(new Set(data.customers.map(c => c.id))),
     name, phone, address: address || '',
     carModel, carPlate,
     lastServiceDate,
-    nextReminderDate,
-    nextServiceDate,
-    status: 'pending',
     smsSentAt: null,
     disabled: false
-  };
+  }, data.holidays);
 
   data.customers.push(customer);
-  writeData(data);
+  await writeData(data);
   res.status(201).json(customer);
-});
+}));
 
 // PUT update customer
-app.put('/api/customers/:id', (req, res) => {
-  const data = readData();
+app.put('/api/customers/:id', route(async (req, res) => {
+  const data = await loadData();
   const idx = data.customers.findIndex(c => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Customer not found' });
 
   const existing = data.customers[idx];
-  const updated = { ...existing, ...req.body };
+  // The ID is the key of the row in the Excel file. A request cannot change it.
+  const merged = { ...existing, ...req.body, id: existing.id };
 
-  // Recompute dates if lastServiceDate changed
+  // A new inspection date starts a new cycle: no SMS was sent for it yet.
   if (req.body.lastServiceDate && req.body.lastServiceDate !== existing.lastServiceDate) {
-    updated.nextServiceDate = computeNextServiceDate(req.body.lastServiceDate, data.holidays);
-    updated.nextReminderDate = computeReminderDate(updated.nextServiceDate, data.holidays);
-    updated.status = 'pending';
-    updated.smsSentAt = null;
+    merged.smsSentAt = null;
   }
 
+  const updated = withComputed(merged, data.holidays);
   data.customers[idx] = updated;
-  writeData(data);
+  await writeData(data);
   res.json(updated);
-});
+}));
 
 // DELETE customer
-app.delete('/api/customers/:id', (req, res) => {
-  const data = readData();
+app.delete('/api/customers/:id', route(async (req, res) => {
+  const data = await loadData();
   const idx = data.customers.findIndex(c => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Customer not found' });
   data.customers.splice(idx, 1);
-  writeData(data);
+  await writeData(data);
   res.json({ success: true });
-});
+}));
 
 // POST send SMS to a customer
-app.post('/api/customers/:id/send-sms', async (req, res) => {
-  const data = readData();
+app.post('/api/customers/:id/send-sms', route(async (req, res) => {
+  const data = await loadData();
   const idx = data.customers.findIndex(c => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Customer not found' });
 
@@ -219,86 +212,89 @@ app.post('/api/customers/:id/send-sms', async (req, res) => {
     return res.status(400).json({ error: 'Customer is disabled' });
   }
 
+  // Check the Excel lock BEFORE the send (specs section 7). After the send it
+  // is too late: the SMS is paid and the file cannot record it.
+  await assertWritable();
+
   try {
     const body = buildSmsBody(data.smsTemplate, customer);
     const result = await sendSms(customer.phone, body);
 
     // Update customer: mark sent, advance service dates
-    const newLastServiceDate = customer.nextServiceDate;
-    const newNextServiceDate = computeNextServiceDate(newLastServiceDate, data.holidays);
-    const newNextReminderDate = computeReminderDate(newNextServiceDate, data.holidays);
-
-    data.customers[idx] = {
+    data.customers[idx] = withComputed({
       ...customer,
-      status: 'sent',
       smsSentAt: new Date().toISOString(),
-      lastServiceDate: newLastServiceDate,
-      nextServiceDate: newNextServiceDate,
-      nextReminderDate: newNextReminderDate
-    };
+      lastServiceDate: customer.nextServiceDate
+    }, data.holidays);
 
-    writeData(data);
+    await writeData(data);
     res.json({ success: true, sid: result.sid, status: result.status, customer: data.customers[idx] });
   } catch (err) {
     console.error('SMS error:', err);
     res.status(500).json({ error: err.message });
   }
-});
+}));
 
 // PATCH toggle disabled
-app.patch('/api/customers/:id/toggle-disabled', (req, res) => {
-  const data = readData();
+app.patch('/api/customers/:id/toggle-disabled', route(async (req, res) => {
+  const data = await loadData();
   const idx = data.customers.findIndex(c => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Customer not found' });
   data.customers[idx].disabled = !data.customers[idx].disabled;
-  writeData(data);
+  await writeData(data);
   res.json(data.customers[idx]);
-});
+}));
+
+// GET the rows of the Excel file that did not load (sheet, row, reason)
+app.get('/api/data-problems', route(async (req, res) => {
+  const data = await readData();
+  res.json({ problems: data.problems });
+}));
 
 // GET SMS template
-app.get('/api/template', (req, res) => {
-  const data = readData();
+app.get('/api/template', route(async (req, res) => {
+  const data = await loadData();
   res.json({
     template: data.smsTemplate,
     pricePerSegment: data.smsPricePerSegment
   });
-});
+}));
 
 // PUT update SMS template
-app.put('/api/template', (req, res) => {
+app.put('/api/template', route(async (req, res) => {
   const { template, pricePerSegment } = req.body;
   if (!template) return res.status(400).json({ error: 'Template is required' });
-  const data = readData();
+  const data = await loadData();
   data.smsTemplate = template;
   if (Number.isFinite(pricePerSegment) && pricePerSegment >= 0) {
     data.smsPricePerSegment = pricePerSegment;
   }
-  writeData(data);
+  await writeData(data);
   res.json({
     template: data.smsTemplate,
     pricePerSegment: data.smsPricePerSegment
   });
-});
+}));
 
 // GET holidays
-app.get('/api/holidays', (req, res) => {
-  const data = readData();
+app.get('/api/holidays', route(async (req, res) => {
+  const data = await loadData();
   res.json({ holidays: data.holidays });
-});
+}));
 
 // PUT update holidays
-app.put('/api/holidays', (req, res) => {
+app.put('/api/holidays', route(async (req, res) => {
   const { holidays } = req.body;
   if (!Array.isArray(holidays)) return res.status(400).json({ error: 'holidays must be an array' });
-  const data = readData();
+  const data = await loadData();
   data.holidays = holidays;
-  writeData(data);
+  await writeData(data);
   res.json({ holidays });
-});
+}));
 
 // POST preview SMS body for a customer
-app.post('/api/preview-sms/:id', (req, res) => {
-  const data = readData();
+app.post('/api/preview-sms/:id', route(async (req, res) => {
+  const data = await loadData();
   const customer = data.customers.find(c => c.id === req.params.id);
   if (!customer) return res.status(404).json({ error: 'Not found' });
   const body = buildSmsBody(data.smsTemplate, customer);
@@ -307,13 +303,13 @@ app.post('/api/preview-sms/:id', (req, res) => {
     measure: measureSms(body),
     pricePerSegment: data.smsPricePerSegment
   });
-});
+}));
 
 // ─── Daily cron job: auto-send to customers whose reminder date is today ──────
 // Runs every day at 09:00, skips Sundays automatically
 cron.schedule('0 9 * * 1-6', async () => {
   const today = toDateStr(new Date());
-  const data = readData();
+  const data = await loadData();
   console.log(`[CRON] Running daily check for ${today}`);
 
   if (data.holidays.includes(today)) {
@@ -332,15 +328,10 @@ cron.schedule('0 9 * * 1-6', async () => {
       const body = buildSmsBody(data.smsTemplate, customer);
       const result = await sendSms(customer.phone, body);
       const idx = data.customers.findIndex(c => c.id === customer.id);
-      const newLastServiceDate = customer.nextServiceDate;
-      const newNextServiceDate = computeNextServiceDate(newLastServiceDate, data.holidays);
       data.customers[idx] = {
         ...customer,
-        status: 'sent',
         smsSentAt: new Date().toISOString(),
-        lastServiceDate: newLastServiceDate,
-        nextServiceDate: newNextServiceDate,
-        nextReminderDate: computeReminderDate(newNextServiceDate, data.holidays)
+        lastServiceDate: customer.nextServiceDate
       };
       console.log(`[CRON] Sent to ${customer.name} (${customer.phone}) — SID: ${result.sid}`);
     } catch (err) {
@@ -348,23 +339,31 @@ cron.schedule('0 9 * * 1-6', async () => {
     }
   }
 
-  writeData(data);
+  await writeData(data);
+});
+
+// ─── Errors ───────────────────────────────────────────────────────────────────
+// The user sees a clear Bulgarian message. The stack trace stays in the console.
+app.use((err, req, res, next) => {
+  if (err instanceof StoreError) {
+    // 423 Locked: Excel has the file. 500: the file itself is wrong.
+    return res.status(err.code === 'LOCKED' ? 423 : 500).json({ error: err.message, code: err.code });
+  }
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Невалидна заявка.' });
+  }
+  console.error('[ГРЕШКА]', err);
+  res.status(500).json({ error: 'Възникна грешка. Вижте черния прозорец на програмата.' });
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-// Auto-create data file if missing (first run)
-if (!fs.existsSync(DATA_FILE)) {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify({
-    customers: [],
-    smsTemplate: DEFAULT_TEMPLATE,
-    smsPricePerSegment: DEFAULT_PRICE,
-    holidays: []
-  }, null, 2));
-  console.log('[INIT] Created empty data/customers.json');
-} else{ 
-  console.log('[INIT] Initial file existed at; data/customers.json');
+// Make an empty Excel file if there is none (first run).
+try {
+  const { created } = await ensureDataFile();
+  console.log(`[INIT] ${created ? 'Created an empty data file' : 'Data file'}: ${dataFile()}`);
+} catch (err) {
+  console.error('\n  [ГРЕШКА] Файлът с данни не може да се създаде:', dataFile());
+  throw err;
 }
  
 function openBrowser(url) {

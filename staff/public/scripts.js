@@ -22,16 +22,48 @@ async function init() {
 }
 
 async function loadCustomers() {
+  const errorBox = document.getElementById('data-error');
   try {
-    const res  = await fetch('/api/customers');
-    const data = await res.json();
+    const data = await readReply(await fetch('/api/customers'));
     customers  = data.customers || [];
+    errorBox.classList.add('d-none');
     renderTable();
     renderStats();
     renderSettingsTable();
+    loadDataProblems();
   } catch (e) {
+    // The message stays on the page: a toast is gone after a few seconds.
+    errorBox.textContent = e.message;
+    errorBox.classList.remove('d-none');
     toast('Грешка при зареждане на клиентите', 'danger');
   }
+}
+
+// The answer of the server as an object. A failed request throws the
+// Bulgarian text that the server sent (example: "Затворете файла в Excel…").
+async function readReply(res) {
+  let data = {};
+  try { data = await res.json(); } catch (e) { /* no JSON body: the status decides */ }
+  if (!res.ok) throw new Error(data.error || 'Сървърът върна грешка.');
+  return data;
+}
+
+// Rows of the Excel file that did not load. The staff correct them in Excel.
+async function loadDataProblems() {
+  try {
+    const data = await readReply(await fetch('/api/data-problems'));
+    renderDataProblems(data.problems || []);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function renderDataProblems(problems) {
+  const box = document.getElementById('data-problems');
+  box.classList.toggle('d-none', problems.length === 0);
+  document.getElementById('data-problems-list').innerHTML = problems.map(p => `
+    <li>Лист „${escHtml(p.sheet)}“${p.row ? `, ред ${escHtml(p.row)}` : ''}: ${escHtml(p.reason)}</li>
+  `).join('');
 }
 
 async function loadTemplate() {
@@ -249,9 +281,7 @@ async function confirmSend() {
   btn.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Изпращане…`;
 
   try {
-    const res  = await fetch(`/api/customers/${pendingSendId}/send-sms`, { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
+    const data = await readReply(await fetch(`/api/customers/${pendingSendId}/send-sms`, { method: 'POST' }));
 
     const idx = customers.findIndex(c => c.id === pendingSendId);
     if (idx !== -1) customers[idx] = data.customer;
@@ -272,8 +302,7 @@ async function confirmSend() {
 // ─── Toggle disabled ──────────────────────────────────────────────────
 async function toggleDisabled(id) {
   try {
-    const res     = await fetch(`/api/customers/${id}/toggle-disabled`, { method: 'PATCH' });
-    const updated = await res.json();
+    const updated = await readReply(await fetch(`/api/customers/${id}/toggle-disabled`, { method: 'PATCH' }));
     const idx = customers.findIndex(c => c.id === id);
     if (idx !== -1) customers[idx] = updated;
     renderTable();
@@ -281,7 +310,7 @@ async function toggleDisabled(id) {
     renderSettingsTable();
     toast(updated.disabled ? 'Клиентът е деактивиран' : 'Клиентът е активиран', 'info');
   } catch (e) {
-    toast('Грешка при промяна на статуса', 'danger');
+    toast('Грешка при промяна на статуса: ' + e.message, 'danger');
   }
 }
 
@@ -289,14 +318,14 @@ async function toggleDisabled(id) {
 async function deleteCustomer(id, name) {
   if (!confirm(`Изтриване на клиент "${name}"? Действието е необратимо.`)) return;
   try {
-    await fetch(`/api/customers/${id}`, { method: 'DELETE' });
+    await readReply(await fetch(`/api/customers/${id}`, { method: 'DELETE' }));
     customers = customers.filter(c => c.id !== id);
     renderTable();
     renderStats();
     renderSettingsTable();
     toast(`Клиент ${name} е изтрит`, 'secondary');
   } catch (e) {
-    toast('Грешка при изтриване', 'danger');
+    toast('Грешка при изтриване: ' + e.message, 'danger');
   }
 }
 
@@ -352,7 +381,7 @@ async function saveCustomer() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      data = await res.json();
+      data = await readReply(res);
       const idx = customers.findIndex(c => c.id === id);
       if (idx !== -1) customers[idx] = data;
       toast('Клиентът е обновен', 'success');
@@ -362,7 +391,7 @@ async function saveCustomer() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      data = await res.json();
+      data = await readReply(res);
       customers.push(data);
       toast('Клиентът е добавен', 'success');
     }
@@ -444,15 +473,15 @@ function insertVar(v) {
 async function saveTemplate() {
   const template = document.getElementById('sms-template-input').value;
   try {
-    await fetch('/api/template', {
+    await readReply(await fetch('/api/template', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ template, pricePerSegment })
-    });
+    }));
     smsTemplate = template;
     toast('Шаблонът е запазен!', 'success');
   } catch (e) {
-    toast('Грешка при запазване', 'danger');
+    toast('Грешка при запазване: ' + e.message, 'danger');
   }
 }
 
@@ -492,13 +521,15 @@ async function removeHoliday(date) {
 
 async function saveHolidays() {
   try {
-    await fetch('/api/holidays', {
+    await readReply(await fetch('/api/holidays', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ holidays })
-    });
+    }));
   } catch (e) {
-    toast('Грешка при запазване на почивните дни', 'danger');
+    toast('Грешка при запазване на почивните дни: ' + e.message, 'danger');
+    // The page must show what is in the file, not what failed to save.
+    await loadHolidays();
   }
 }
 

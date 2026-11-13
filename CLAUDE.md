@@ -5,9 +5,9 @@
 Two apps for ЕГЕР ООД, a family car service in Bulgaria. They share nothing at run time.
 
 - **Public site** (`site/index.html`): static, Bulgarian, mobile first. GitHub Pages now, Cloudflare + domain later.
-- **Staff app** (`staff/public/index.html` + `staff/server.js`): local Node server on `127.0.0.1`. Staff keep customers and send ГТП (annual inspection) reminder SMS by hand through Twilio. Data goes to one Excel file.
+- **Staff app** (`staff/public/index.html` + `staff/server.js`): local Node server on `127.0.0.1`. Staff keep customers and send ГТП (annual inspection) reminder SMS by hand through Twilio. Data goes to one Excel file (`exceljs`, only through `staff/lib/store.js`).
 
-The repo is in the middle of a restructure. The split into `site/` and `staff/` is done (`plan/03-split-repo.md`). The `staff/lib/` files come in chapters 05–06.
+The repo is in the middle of a restructure. The split into `site/` and `staff/` is done (`plan/03-split-repo.md`). `staff/lib/store.js`, `paths.js` and the start of `dates.js` exist (chapter 05). `reminders.js` and `sms.js` come in chapter 06.
 
 ## Read before any work
 
@@ -44,4 +44,11 @@ The public site has no server. Open `site/index.html` in a browser.
 
 No Twilio keys in `.env` = simulated SMS (logged to the console).
 
-Tests do not exist yet. They come in chapters 05–07 with `node --test`.
+Tests (in `staff/`, both time zones must pass):
+
+```
+TZ=Europe/Sofia npm test
+TZ=UTC npm test
+```
+
+Data: `Documents/ЕГЕР-Сервиз/клиенти.xlsx`. For development use `EGER_DATA_DIR=./data` and `npm run test-data`.
