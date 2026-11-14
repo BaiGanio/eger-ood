@@ -27,6 +27,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
+| 13 | Public site: fuel page (`goriva.html`) | 🟨 | 2026-11-14. Demo page done: partly invented text, `noindex`. Waits for the real text and photo rights. |
 
 ## Later (not planned yet)
 
@@ -53,7 +54,8 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-13: chapters 05 and 06 were written before decision D7 (days off) and D9 (holidays script). Read `specs.md` first.
 - 2026-11-13 (ch04): the map block shows developer text to visitors ("Вмъкнете Google Maps iframe тук"). Waits for the owner: map link or embed.
 - 2026-11-13 (ch04): text errors on the public site. 2026-11-14: four fixed ("Раковски", "продукти на едро", "горивна станция", "автомобилни"). Still open: turnover "€ 2 100 00" (owner gives the right number; 2020 was in leva). "29+ години" stays until the owners give real data.
-- 2026-11-14: map block done as links only (`specs.md` D15). The links search by name and address. Swap in the exact pin link when the owners have Google Business Profile (`12-seo.md`, A1 step 9).
+- 2026-11-14: map block is a Leaflet + OpenStreetMap map (`specs.md` D15). It shows the centre of Раковски. Put in the exact coordinates and the Google pin link when the owners have Google Business Profile (`12-seo.md`, A1 steps 9–10).
+- 2026-11-14: `zemya.html` and `goriva.html` copy the navbar and footer of `index.html`. A change there must be made in all three files (D17).
 - 2026-11-14: the ГТП service card on `index.html` says "Напомняме ви автоматично с SMS". `specs.md` D4 says no automatic SMS. Change the text ("Напомняме ви с SMS") in a site session.
 - 2026-11-14: slides 1 and 2 show the same photo. It stays until the owner has more photos.
 - 2026-11-14: ImgBot is not installed on the repo. It only compresses without loss. Resize is in chapter 12, B3.
@@ -87,3 +89,4 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-13 | `npm audit` = 0. `overrides.uuid ^11.1.1` in `staff/package.json` (exceljs and node-cron use only `v4()`). `npm audit fix` set nodemon to 3.1.11 (safe minimatch). The override stays for exceljs (4.4.0 still asks for uuid 8). Remove it only if a new exceljs uses uuid 11. |
 | 2026-11-14 | Four text errors fixed on the public site. Chapter 11 (land page) and 12 (SEO) written. D14 in `specs.md`. |
 | 2026-11-14 | Map block: links to Google Maps, no embed (D15). Demo land page `site/zemya.html` (invented text, stock photos, `noindex`), link from the main page. Land photos renamed, `harvest.jpg` resized. Bulgarian Google Business Profile guide for the owners in `12-seo.md`. Checked at 360 px: no side scroll, no broken image. |
+| 2026-11-14 | Map: Leaflet + OpenStreetMap, visible, no cookies (D15 changed). Demo fuel page `site/goriva.html` (D16, chapter 13). "Още от ЕГЕР ООД" section on the main page links both extra pages. Stay on plain HTML (D17). Checked at 360 px. |

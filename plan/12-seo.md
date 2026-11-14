@@ -1,6 +1,6 @@
 # 12 — SEO (search engine optimization)
 
-Needs: chapter 11 (land page), so that SEO covers both pages. Do this chapter last on the public site.
+Needs: chapters 11 (land page) and 13 (fuel page), so that SEO covers all pages. Remove `noindex` from a demo page only when it has real text and photos. Do this chapter last on the public site.
 
 Goal: people who search Google for a ГТП, gas, a car wash, or farm land near Раковски find ЕГЕР ООД.
 
@@ -40,6 +40,7 @@ Use **one Google account for the company** (not a private one). Give the develop
 7. Ask happy customers for a review. Answer every review, also the bad ones, politely and in Bulgarian.
 8. The land work (chapter 11) is a different service. Add it as a "Service" or a "Product" on the same card. Make a second card only if the land office has its own address and staff (Google rule).
 9. Send the developer the **pin link**: Google Maps → open the company card → "Share" (Сподели) → "Copy link" (Копиране на връзката). It looks like `https://maps.app.goo.gl/...`. Paste it in a chat or an email. It is not a secret. The developer puts it in the two map buttons of `site/index.html` (search for `google.com/maps`) and in `sameAs` (B4).
+10. Send the developer the **coordinates** of the pin too: in Google Maps, press and hold on the exact spot. The numbers show at the top (example: `42.28731, 24.96595`). The developer puts them in `data-lat` and `data-lon` of `<div id="map">` in `site/index.html`, and in `geo` (B4). Until then the map shows the centre of Раковски.
 
 ### A1 — Text to send to the owners (Bulgarian)
 
@@ -60,6 +61,7 @@ The owners make the profile with their own Google account. Copy this text to the
 > 9. Качете поне 5 истински снимки: фасада, табела, станция, пункт за преглед, автомивка.
 > 10. Добавете разработчика като **Мениджър** (Настройки → Хора и достъп). Не като Собственик.
 > 11. Изпратете на разработчика връзката към фирмата в Google Maps: отворете профила → „Сподели“ → „Копиране на връзката“.
+> 12. Изпратете и координатите: в Google Maps задръжте пръст върху точното място. Числата излизат горе (пример: 42.28731, 24.96595).
 >
 > Отговаряйте учтиво на всеки отзив — и на добрите, и на лошите.
 
@@ -119,7 +121,7 @@ Viber, Facebook, and Messenger show a card when someone sends the link.
 
 ### B6 — sitemap.xml and robots.txt
 
-- `site/sitemap.xml`: a list of the page URLs (full URLs). Two lines now: the main page and the land page. Add a page = add a line.
+- `site/sitemap.xml`: a list of the page URLs (full URLs). Three lines now: the main page, `goriva.html`, `zemya.html`. Add a page = add a line.
 - `site/robots.txt`: allow all, point to the sitemap.
 - **Catch:** robots.txt works only at the root of a domain. On GitHub Pages the site lives at `baiganio.github.io/eger-ood/`, so a robots.txt there is not read. The sitemap still works when you submit it in Search Console (A2 step 4). So: add `sitemap.xml` now. Add `robots.txt` with the domain (part D).
 

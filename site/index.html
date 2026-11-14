@@ -8,6 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 </head>
 <body>
 
@@ -28,6 +29,7 @@
         <li class="nav-item"><a class="nav-link text-secondary" href="#about">За нас</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#services">Услуги</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#calendar-section">Автосервиз</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="goriva.html">Горива на едро</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="zemya.html">Земеделие</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#contact">Контакти</a></li>
       </ul>
@@ -385,19 +387,35 @@
   </div>
 </section>
 
-<!-- ═══ LAND (short; full page is zemya.html) ═══════════════════════ -->
-<section id="land" class="py-5 bg-light border-top">
+<!-- ═══ MORE (short; full pages are goriva.html and zemya.html) ═══════ -->
+<section id="more" class="py-5 bg-light border-top">
   <div class="container py-3">
-    <div class="row g-4 align-items-center">
-      <div class="col-12 col-lg-8">
-        <p class="text-danger text-uppercase fw-bold small mb-2">Земеделие</p>
-        <h2 class="h3 fw-bold mb-2">Обработваме и купуваме земеделска земя</h2>
-        <p class="text-muted mb-0">
-          В общините Раковски и Брезово. Аренда, наем и покупка на ниви с ясен договор.
-        </p>
+    <div class="text-center mb-4">
+      <p class="text-danger text-uppercase fw-bold small mb-2">Още от ЕГЕР ООД</p>
+      <h2 class="h3 fw-bold mb-0">Други дейности</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4 d-flex flex-column">
+            <h3 class="h5 fw-bold mb-2"><i class="bi bi-droplet-fill text-danger me-2"></i>Горива и масла на едро</h3>
+            <p class="text-muted small mb-3">
+              Горива и смазочни продукти за кооперации, фирми и обекти в Южна България.
+            </p>
+            <a href="goriva.html" class="btn btn-outline-danger mt-auto align-self-start">Горива на едро <i class="bi bi-arrow-right ms-1"></i></a>
+          </div>
+        </div>
       </div>
-      <div class="col-12 col-lg-4 text-lg-end">
-        <a href="zemya.html" class="btn btn-outline-danger btn-lg">Земеделска дейност <i class="bi bi-arrow-right ms-1"></i></a>
+      <div class="col-12 col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4 d-flex flex-column">
+            <h3 class="h5 fw-bold mb-2"><i class="bi bi-flower1 text-success me-2"></i>Земеделска земя</h3>
+            <p class="text-muted small mb-3">
+              Обработка, аренда и покупка на ниви в общините Раковски и Брезово.
+            </p>
+            <a href="zemya.html" class="btn btn-outline-danger mt-auto align-self-start">Земеделска дейност <i class="bi bi-arrow-right ms-1"></i></a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -466,27 +484,25 @@
         </div>
       </div>
 
-      <!-- Map: links only, no embed. An embedded Google map sets cookies (specs.md section 4).
-           The links search by name and address. Replace both with the exact pin link
-           from Google Business Profile when the owners have it (plan/12-seo.md, A1). -->
-      <div class="col-12 col-lg-7">
-        <div class="bg-secondary bg-opacity-25 rounded-3 d-flex align-items-center justify-content-center flex-column gap-3 p-4 text-center"
-             style="min-height:300px;">
-          <i class="bi bi-geo-alt-fill text-danger" style="font-size:48px;"></i>
-          <div>
-            <div class="fw-bold fs-5">ЕГЕР ООД</div>
-            <div class="text-white-50">ул. Брезовско шосе, Раковски, обл. Пловдив</div>
-          </div>
-          <div class="d-flex flex-wrap justify-content-center gap-2">
-            <a class="btn btn-danger" target="_blank" rel="noopener"
-               href="https://www.google.com/maps/search/?api=1&amp;query=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
-              <i class="bi bi-map me-1"></i>Отвори в Google Maps
-            </a>
-            <a class="btn btn-outline-light" target="_blank" rel="noopener"
-               href="https://www.google.com/maps/dir/?api=1&amp;destination=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
-              <i class="bi bi-sign-turn-right me-1"></i>Упътване
-            </a>
-          </div>
+      <!-- Map: Leaflet + OpenStreetMap tiles. Visible at once, no cookies, no API key
+           (specs.md D15). A Google embed sets cookies.
+           TODO(owner): data-lat/data-lon are the centre of Раковски, not the station.
+           Put the exact pin here, and the Google pin link in both buttons (plan/12-seo.md, A1). -->
+      <div class="col-12 col-lg-7 d-flex flex-column gap-2">
+        <div id="map" class="rounded-3 flex-grow-1 bg-secondary bg-opacity-25" style="min-height:340px;"
+             data-lat="42.2873" data-lon="24.9660" data-zoom="15">
+          <noscript><div class="p-4 text-white-50">ул. Брезовско шосе, Раковски, обл. Пловдив</div></noscript>
+        </div>
+        <div id="map-popup" class="d-none"><strong>ЕГЕР ООД</strong><br>ул. Брезовско шосе, Раковски</div>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-danger btn-sm" target="_blank" rel="noopener"
+             href="https://www.google.com/maps/search/?api=1&amp;query=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
+            <i class="bi bi-map me-1"></i>Отвори в Google Maps
+          </a>
+          <a class="btn btn-outline-light btn-sm" target="_blank" rel="noopener"
+             href="https://www.google.com/maps/dir/?api=1&amp;destination=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
+            <i class="bi bi-sign-turn-right me-1"></i>Упътване
+          </a>
         </div>
       </div>
 
@@ -501,6 +517,7 @@
     <div class="d-flex gap-3">
       <a href="#about" class="text-white-50 text-decoration-none small">За нас</a>
       <a href="#services" class="text-white-50 text-decoration-none small">Услуги</a>
+      <a href="goriva.html" class="text-white-50 text-decoration-none small">Горива</a>
       <a href="zemya.html" class="text-white-50 text-decoration-none small">Земеделие</a>
       <a href="#contact" class="text-white-50 text-decoration-none small">Контакти</a>
     </div>
@@ -509,6 +526,24 @@
 
 <!-- ═══ SCRIPTS ════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ── Map ─────────────────────────────────────────────────────────────
+(function initMap() {
+  const el = document.getElementById('map');
+  if (!el || !window.L) return;
+  const pos = [Number(el.dataset.lat), Number(el.dataset.lon)];
+  // One-finger drag on a phone would trap the page scroll; zoom buttons still work.
+  const map = L.map(el, { scrollWheelZoom: false, dragging: !L.Browser.mobile })
+    .setView(pos, Number(el.dataset.zoom));
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+  L.marker(pos).addTo(map)
+    .bindPopup(document.getElementById('map-popup').innerHTML).openPopup();
+})();
+</script>
 <script>
 // ── Calendar ────────────────────────────────────────────────────────
 const BG_MONTHS = [
