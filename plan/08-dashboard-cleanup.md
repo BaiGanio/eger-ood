@@ -30,6 +30,10 @@ Needs: chapter 06.
 - [ ] Set the name to "ЕГЕР ООД" in the title and the sidebar.
 - [ ] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it.
 
+### Staff requests (screenshot, 2026-11-14)
+- [ ] Bulgarian template variables: `{{име}}`, `{{модел}}`, `{{номер}}`, `{{дата}}`, `{{телефон}}`. The chips show and insert these. `fillTemplate` accepts them. The old English tokens (`{{name}}`, `{{carModel}}`, `{{carPlate}}`, `{{serviceDate}}`, `{{phone}}`) still work, so a saved template does not break. Note: the regex `\w` does not match Cyrillic. Change it. Add tests.
+- [ ] Plate with no spaces ("PB1234AB"). Remove the spaces and use capitals when a customer is saved (dashboard and Excel read). `fillTemplate` also removes spaces, for old rows. Change the placeholder and the test data. Add tests.
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 

@@ -108,3 +108,5 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-14 (ch06, part 2): the test data (`npm run test-data`) has invented phone numbers. With real Twilio keys, a send to them is a paid SMS to a number of a stranger. Put your own number in the row before a send. Chapter 07 or 09 can add a safer way.
 - 2026-11-14 (ch06, part 2): a data file that the app wrote between the two parts can have the column "Тестов SMS". The app ignores it. Delete the column by hand in Excel, or make the test data again with `--force`.
 - 2026-11-14 (ch06, part 2): `staff/.env.example` does not exist (`specs.md` section 6 wants it, with empty values). Chapter 07.
+- 2026-11-14: staff requests from a screenshot: Bulgarian template variables and plates with no spaces. Owner chose: Bulgarian tokens (old English tokens still work), spaces removed on save and in the SMS. Added to chapter 08 steps.
+- 2026-11-14: new test rule (`specs.md` §9): a real SMS send test uses only short English words. Bulgarian (UCS-2) uses up the Twilio test limit fast.

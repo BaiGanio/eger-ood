@@ -127,6 +127,7 @@ Last update: 2026-11-14.
 - A bug fix comes with a test that fails before the fix.
 - All tests pass before a commit.
 - The test data file comes from `staff/tools/make-test-data.js`. It is never a copy of a real file.
+- A test with a real SMS send uses only short English words in the template and the customer values. No Bulgarian: it is UCS-2 (70 characters per SMS) and uses up the Twilio test limit fast (owner, 2026-11-14).
 
 ## 10. Work rules
 
