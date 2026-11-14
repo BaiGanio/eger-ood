@@ -28,13 +28,14 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
 | 13 | Public site: fuel page (`goriva.html`) | 🟨 | 2026-11-14. Demo page done: partly invented text, `noindex`. Waits for the real text and photo rights. |
+| 14 | Public site: redesign | 🟨 | 2026-11-14. New layout and look for the three pages (`specs.md` D18). Waits for the owner's review and a check on a real phone. |
 
 ## Later (not planned yet)
 
 - Move the public site to Cloudflare with a dedicated domain.
 - Automatic holiday update: a GitHub Action can run `tools/update-holidays.mjs` on a timer and commit `site/holidays.json`. It works with Cloudflare too, because Cloudflare publishes from the repo. Owner was not sure on 2026-11-13. Until a decision, the script runs by hand (D9).
 - English version of the public site.
-- More images on the public site (owner sends them). Better UI design.
+- More images on the public site (owner sends them).
 - Extra staff pages after the talks with the staff.
 - Bulk send. Automatic daily send. Twilio delivery status. Sender name "EGER".
 
@@ -90,3 +91,9 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-14 | Four text errors fixed on the public site. Chapter 11 (land page) and 12 (SEO) written. D14 in `specs.md`. |
 | 2026-11-14 | Map block: links to Google Maps, no embed (D15). Demo land page `site/zemya.html` (invented text, stock photos, `noindex`), link from the main page. Land photos renamed, `harvest.jpg` resized. Bulgarian Google Business Profile guide for the owners in `12-seo.md`. Checked at 360 px: no side scroll, no broken image. |
 | 2026-11-14 | Map: Leaflet + OpenStreetMap, visible, no cookies (D15 changed). Demo fuel page `site/goriva.html` (D16, chapter 13). "Още от ЕГЕР ООД" section on the main page links both extra pages. Stay on plain HTML (D17). Checked at 360 px. |
+- 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
+- 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
+- 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.
+- 2026-11-14 (ch14): `site/images/eger2.jpg` (870 kB) is not used now; `station.jpg` is its small copy. `eger1.jpeg` and `technical-inspection.jpg` are still not used. `eger1.jpeg` has a Google watermark and `technical-inspection.jpg` looks like a stock photo: do not use them. Owner can delete the three files.
+- 2026-11-14 (ch14): chapter 12 (SEO) must know that the home page `h1` is now "Бензиностанция, ГТП и автомивка в Раковски" and the anchor `#calendar-section` is now `#gtp`.
+- 2026-11-14 (ch14): the owner wants the carousel on top and the about section second. The home page has this order now. Before any layout change: show a proposal and get the owner's OK.

@@ -1,0 +1,260 @@
+/* ЕГЕР ООД — public site styles (plan/14-site-redesign.md).
+   Loaded after Bootstrap. One file for all pages, so a look change has one home.
+   Colours come from the real station: blue canopy, red sign letters, navy and gold of the logo. */
+
+/* Sofia Sans: open font (OFL, fonts/OFL.txt), made in Bulgaria, real Bulgarian Cyrillic.
+   Self-hosted: no request to a font service (specs.md section 4, no tracking). */
+@font-face {
+  font-family: "Sofia Sans";
+  src: url("../fonts/sofia-sans-cyrillic.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Sofia Sans";
+  src: url("../fonts/sofia-sans-latin.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Sofia Sans Extra Condensed";
+  src: url("../fonts/sofia-sans-extra-condensed-cyrillic.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Sofia Sans Extra Condensed";
+  src: url("../fonts/sofia-sans-extra-condensed-latin.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --navy: #14284b;        /* logo shield, dark surfaces */
+  --canopy: #1b6fc9;      /* station roof */
+  --sign-red: #d9261c;    /* the ЕГЕР letters on the sign */
+  --gold: #c9a227;        /* logo ring */
+  --sky: #eef3f8;         /* quiet section background */
+  --ink: #17202e;
+  --ink-soft: #55607a;
+  --line: #d5dde8;
+  --open: #1f8a4c;
+  --accent: var(--canopy);       /* a page theme changes this one */
+  --accent-ink: #ffffff;
+
+  --font-body: "Sofia Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Sofia Sans Extra Condensed", "Sofia Sans", "Arial Narrow", sans-serif;
+
+  --bs-body-font-family: var(--font-body);
+  --bs-body-color: var(--ink);
+  --bs-body-font-size: 1.0625rem;
+  --bs-body-line-height: 1.55;
+  --bs-link-color-rgb: 27, 111, 201;
+}
+.theme-fuel { --accent: #e0a100; --accent-ink: #1c1606; }
+.theme-land { --accent: #3f7d3a; --accent-ink: #ffffff; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { overflow-x: hidden; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+h1, h2, .display-type {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: .98;
+  letter-spacing: .005em;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.9rem, 10vw, 5.5rem); }
+h2 { font-size: clamp(2.2rem, 6vw, 3.4rem); margin-bottom: 1rem; }
+h3 { font-size: 1.25rem; font-weight: 700; }
+p { max-width: 62ch; }
+.lede { font-size: 1.2rem; color: var(--ink-soft); }
+
+.band { padding: clamp(3rem, 8vw, 5.5rem) 0; }
+.band-sky { background: var(--sky); }
+.band-navy { background: var(--navy); color: #fff; }
+.band-navy .lede, .band-navy .soft { color: #b9c6dc; }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn-call, .btn-ghost, .btn-accent {
+  display: inline-flex; align-items: center; gap: .55rem;
+  padding: .8rem 1.25rem; border-radius: 6px;
+  font-weight: 700; text-decoration: none; border: 2px solid transparent;
+}
+.btn-call { background: var(--sign-red); color: #fff; }
+.btn-call:hover { background: #b81d15; color: #fff; }
+.btn-ghost { border-color: currentColor; color: inherit; }
+.btn-ghost:hover { background: rgba(127, 150, 190, .18); color: inherit; }
+.btn-accent { background: var(--accent); color: var(--accent-ink); }
+.btn-accent:hover { filter: brightness(.93); color: var(--accent-ink); }
+
+/* ── Top bar ─────────────────────────────────────────────────────── */
+.topbar { background: #fff; border-bottom: 1px solid var(--line); }
+.topbar .navbar-brand img { height: 44px; width: auto; }
+.topbar .nav-link { color: var(--ink); font-weight: 600; }
+.topbar .nav-link:hover { color: var(--canopy); }
+.topbar .nav-link[aria-current="page"] { color: var(--canopy); box-shadow: inset 0 -3px 0 var(--accent); }
+@media (max-width: 400px) {
+  .topbar .navbar-brand img { height: 36px; }
+}
+
+/* ── Home carousel ───────────────────────────────────────────────
+   The owner wants the old carousel exactly as it was (2026-11-14). The markup is the old one.
+   These rules switch the new fonts off inside it, so it looks the same as before. */
+#heroCarousel { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif; font-size: 1rem; line-height: 1.5; }
+#heroCarousel h1 { font-family: inherit; font-weight: 700; line-height: 1.2; letter-spacing: normal; text-wrap: wrap; }
+
+
+/* The board copies the real roadside sign: white post, red name, blue rows with big figures. */
+.totem {
+  background: #fff; color: var(--navy);
+  border-radius: 10px; padding: 8px;
+  box-shadow: 0 24px 60px rgba(4, 12, 30, .45);
+  max-width: 460px;
+}
+.totem-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  padding: .5rem .75rem .6rem;
+}
+.totem-name { font-family: var(--font-display); font-weight: 900; font-size: 2.4rem; line-height: 1; color: var(--sign-red); letter-spacing: .04em; }
+.totem-today { font-size: .9rem; font-weight: 600; color: var(--ink-soft); }
+.totem-row {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .25rem 1rem;
+  background: var(--canopy); color: #fff;
+  padding: .8rem .9rem; margin-top: 6px; border-radius: 4px;
+  text-decoration: none;
+}
+a.totem-row:hover { background: #165fae; color: #fff; }
+.totem-row h3 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.totem-row p { margin: 0; font-size: .92rem; color: #dbe8f8; grid-column: 1; }
+.totem-hours {
+  grid-column: 2; grid-row: 1 / span 2; text-align: right;
+  font-family: var(--font-display); font-weight: 800; font-size: 2.3rem; line-height: .95;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.totem-hours small { display: block; font-family: var(--font-body); font-size: .78rem; font-weight: 600; color: #dbe8f8; margin-top: .2rem; }
+.totem-hours .second { font-size: 1.5rem; }
+.status { display: inline-flex; align-items: center; gap: .4rem; font-weight: 700; font-size: .85rem; grid-column: 1; margin-top: .15rem; }
+.status::before { content: ""; width: .6rem; height: .6rem; border-radius: 50%; background: currentColor; }
+.status-open { color: #9ff0bd; }
+.status-closed { color: #ffd0cc; }
+
+/* ── Plain lists and tables ──────────────────────────────────────── */
+.hours { width: 100%; border-collapse: collapse; }
+.hours th, .hours td { padding: .7rem 0; border-bottom: 1px solid var(--line); font-weight: 400; text-align: left; }
+.hours td { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hours .off td { color: var(--sign-red); }
+.ticks { list-style: none; padding: 0; margin: 0; columns: 2 14rem; column-gap: 2rem; }
+.ticks li { padding: .3rem 0 .3rem 1.7rem; position: relative; break-inside: avoid; }
+.ticks li::before { content: ""; position: absolute; left: 0; top: .75rem; width: 1rem; height: .5rem;
+  border-left: 3px solid var(--accent); border-bottom: 3px solid var(--accent); transform: rotate(-45deg) translateY(-50%); }
+.note { border-left: 4px solid var(--gold); padding: .2rem 0 .2rem 1rem; color: var(--ink-soft); }
+
+/* Three things at the station: rule on top, no boxes. */
+.offer { border-top: 4px solid var(--accent); padding-top: 1rem; height: 100%; }
+.offer i { font-size: 1.6rem; color: var(--accent); }
+.theme-fuel .offer i, .theme-fuel .ticks li::before { color: #a87800; border-color: #a87800; }
+.offer h3 { margin: .5rem 0 .4rem; }
+.offer p { color: var(--ink-soft); margin: 0; }
+
+/* ── Calendar ────────────────────────────────────────────────────── */
+.cal { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; max-width: 420px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+.cal-head button { border: 1px solid var(--line); background: #fff; border-radius: 6px; width: 40px; height: 40px; color: var(--navy); }
+.cal-head button:hover { background: var(--sky); }
+.cal-month { font-weight: 800; font-size: 1.1rem; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { text-align: center; font-size: .75rem; font-weight: 700; color: var(--ink-soft); padding: .2rem 0; }
+.cal-day { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 700; font-size: .95rem; }
+.cal-work { background: #e3f3e9; color: #17683a; }
+.cal-off { background: #f1f3f6; color: #8792a6; }
+.cal-holiday { background: #fbeec2; color: #7a5a00; }
+.cal-past { background: transparent; color: #b4bccb; }
+.cal-today { background: var(--navy); color: #fff; }
+.cal-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .8rem; font-size: .85rem; color: var(--ink-soft); padding: 0; list-style: none; }
+.cal-legend span { display: inline-block; width: .9rem; height: .9rem; border-radius: 3px; vertical-align: -2px; margin-right: .35rem; }
+
+/* ── Big photo links to the two other businesses ─────────────────── */
+.door { position: relative; display: flex; align-items: flex-end; min-height: 320px; border-radius: 10px; overflow: hidden; color: #fff; text-decoration: none; isolation: isolate; }
+.door img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .4s ease; }
+.door::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(10,20,40,.9) 0%, rgba(10,20,40,.35) 55%, rgba(10,20,40,.05) 100%); }
+.door:hover { color: #fff; }
+.door:hover img { transform: scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .door img { transition: none; } }
+.door-body { padding: 1.4rem; border-left: 6px solid var(--door, var(--accent)); }
+.door-body h3 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; line-height: 1; margin: 0 0 .4rem; }
+.door-body p { margin: 0 0 .6rem; color: #dfe6f1; }
+.door-go { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ── About ───────────────────────────────────────────────────────── */
+.fact { font-family: var(--font-display); font-weight: 800; font-size: 3.4rem; line-height: 1; color: var(--navy); }
+.fact-label { color: var(--ink-soft); }
+
+/* ── Contact ─────────────────────────────────────────────────────── */
+.contact-list { list-style: none; padding: 0; margin: 0; }
+.contact-list li { display: grid; grid-template-columns: 2rem 1fr; gap: .2rem .6rem; padding: .9rem 0; border-bottom: 1px solid rgba(255,255,255,.14); }
+.contact-list i { color: var(--gold); font-size: 1.2rem; }
+.contact-list a { color: #fff; text-decoration: none; font-weight: 700; }
+.contact-list a:hover { text-decoration: underline; }
+.contact-big { font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: .02em; }
+#map { min-height: 340px; border-radius: 10px; background: #24406e; }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+.foot { background: #0d1b34; color: #9fb0cb; padding: 1.4rem 0; font-size: .95rem; }
+.foot a { color: #dbe4f2; text-decoration: none; }
+.foot a:hover { text-decoration: underline; }
+
+/* ── Inner pages ─────────────────────────────────────────────────── */
+.kicker { font-weight: 700; color: var(--accent); margin-bottom: .6rem; }
+
+/* Product list: a price-list look, one line per product group. */
+.stock { border-top: 3px solid var(--ink); margin: 0; }
+.stock > div { display: grid; grid-template-columns: 1fr; gap: .2rem 2rem; padding: 1.3rem 0; border-bottom: 1px solid var(--line); }
+.stock dt { font-family: var(--font-display); font-size: 2rem; font-weight: 800; line-height: 1; }
+.stock dd { margin: 0; color: var(--ink-soft); max-width: 60ch; }
+@media (min-width: 768px) { .stock > div { grid-template-columns: 16rem 1fr; align-items: baseline; } }
+
+.places { list-style: none; padding: 0; margin: 0 0 1rem; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; display: flex; flex-wrap: wrap; gap: 0 1.2rem; }
+.places li { border-bottom: 4px solid var(--accent); margin-bottom: .5rem; }
+.photo { width: 100%; height: 100%; min-height: 260px; max-height: 420px; object-fit: cover; border-radius: 10px; }
+
+/* Land page and fuel page: the photo fills the top. The text is at the bottom on a dark fade, with no box,
+   so the photo stays visible (owner, 2026-11-14). */
+.hero-land { position: relative; min-height: min(82vh, 700px); display: flex; align-items: flex-end; color: #fff; isolation: isolate; background: #22331f; }
+.hero-land > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.hero-land::after { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(to top, rgba(18,32,16,.88) 0%, rgba(18,32,16,.45) 38%, rgba(18,32,16,0) 70%); }
+.theme-fuel .hero-land { background: #171c22; }
+.theme-fuel .hero-land::after { background: linear-gradient(to top, rgba(14,18,24,.9) 0%, rgba(14,18,24,.5) 40%, rgba(14,18,24,0) 72%); }
+.theme-fuel .hero-land > img { object-position: 50% 70%; }
+.hero-land-card { padding: 0 0 clamp(2rem, 5vw, 3.5rem); max-width: 760px; }
+.hero-land h1 { font-size: clamp(2.6rem, 7vw, 4.2rem); }
+.hero-land .lede { color: #e6eee2; }
+
+/* Steps are a real order (call, visit, contract), so they get numbers and a line. */
+.steps { list-style: none; padding: 0; margin: 0; counter-reset: step; display: grid; gap: 1.5rem; }
+.steps li { counter-increment: step; position: relative; padding-left: 4.2rem; }
+.steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 3rem; height: 3rem; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; display: flex; align-items: center; justify-content: center; }
+.steps p { margin: 0; color: var(--ink-soft); }
+@media (min-width: 768px) {
+  .steps { grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .steps li { padding: 4rem 0 0; }
+  .steps li::after { content: ""; position: absolute; top: 1.5rem; left: 3.6rem; right: -1.4rem; height: 3px; background: var(--line); }
+  .steps li:last-child::after { display: none; }
+}
+
+.cta { background: var(--navy); color: #fff; border-top: 8px solid var(--accent); }
+.cta .contact-big a { color: #fff; text-decoration: none; }
+
+/* Phone: keep the first screen short, so the hours board starts sooner. */
+@media (max-width: 575px) {
+  h1 { font-size: 2.6rem; }
+  .lede { font-size: 1.08rem; }
+}
+
+.contact-list li:first-child { padding-top: 0; }
+
+/* On a photo the small label needs its own background to stay readable. */
+.hero-land .kicker { display: inline-block; background: var(--accent); color: var(--accent-ink); padding: .3rem .7rem; border-radius: 4px; }

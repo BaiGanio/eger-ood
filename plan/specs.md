@@ -36,6 +36,7 @@ Last update: 2026-11-14.
 | D14 | The agricultural land work gets its own page, `site/zemya.html`, with a link from the main page. Not a section on the main page. | 2026-11-14 |
 | D15 | The map on the public site is a visible map: Leaflet (cdnjs) + OpenStreetMap tiles. No cookies, no API key. Two buttons under it open Google Maps ("Отвори в Google Maps", "Упътване"). No Google embed, because it sets cookies (section 4). | 2026-11-14 |
 | D16 | Wholesale fuels and lubricants get their own page, `site/goriva.html`, like D14. | 2026-11-14 |
+| D18 | The public site has one style file, `site/css/site.css`, and one script file, `site/js/site.js` (home page). Bootstrap stays as the base (D10). The font is Sofia Sans (open licence), kept in `site/fonts/`, not loaded from a font service. Colours come from the station and the logo; each inner page changes one accent colour. The navbar and the footer are the same block on every page. | 2026-11-14 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions

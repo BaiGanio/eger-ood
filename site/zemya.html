@@ -12,206 +12,145 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <style>
-    .page-hero { position: relative; min-height: 70vh; }
-    .page-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .page-hero::after { content: ""; position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.25) 60%, transparent 100%); }
-    .page-hero .container { position: relative; z-index: 1; }
-    .page-photo { width: 100%; height: 260px; object-fit: cover; }
-  </style>
+  <link rel="stylesheet" href="css/site.css">
 </head>
-<body>
+<body class="theme-land">
 
-<!-- ═══ NAVBAR ════════════════════════════════════════════════════════ -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm">
+<!-- ═══ TOP BAR (the same block is in index.html, goriva.html, zemya.html — specs.md D17) ═══ -->
+<nav class="navbar navbar-expand-lg sticky-top topbar">
   <div class="container">
-
-    <a class="navbar-brand fw-bold text-danger d-flex align-items-center gap-2" href="index.html">
-      <img src="images/logo-navbar.svg" class="img-fluid rounded-3" alt="ЕГЕР ООД">
+    <a class="navbar-brand me-auto" href="index.html">
+      <img src="images/logo-navbar.svg" width="320" height="56" alt="ЕГЕР ООД — начало">
     </a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Меню">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+            aria-controls="mainNav" aria-expanded="false" aria-label="Меню">
       <span class="navbar-toggler-icon"></span>
     </button>
-
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link text-secondary" href="index.html">Начало</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#services">Какво правим</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#how">Как работим</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="goriva.html">Горива на едро</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#contact">Контакти</a></li>
+    <div class="collapse navbar-collapse flex-grow-0" id="mainNav">
+      <ul class="navbar-nav gap-lg-2 py-2 py-lg-0">
+        <li class="nav-item"><a class="nav-link" href="index.html">Начало</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#services">Станция</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#gtp">ГТП</a></li>
+        <li class="nav-item"><a class="nav-link" href="goriva.html">Горива на едро</a></li>
+        <li class="nav-item"><a class="nav-link" href="zemya.html" aria-current="page">Земеделие</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#contact">Контакти</a></li>
       </ul>
     </div>
-
   </div>
 </nav>
 
-<!-- ═══ HERO ═════════════════════════════════════════════════════════ -->
-<header class="page-hero d-flex align-items-end bg-dark">
+<main>
+
+<!-- ═══ HERO: the field fills the screen, the text sits on a green block ═══ -->
+<header class="hero-land">
   <img src="images/land/harvest.jpg" width="1400" height="933" fetchpriority="high"
        alt="Жътва на пшеница с комбайн и трактор с ремарке">
-  <div class="container pb-5 text-white">
-    <p class="text-uppercase fw-bold small mb-2 text-warning">Земеделие</p>
-    <h1 class="display-4 fw-bold mb-3">Обработка и покупка на земеделска земя</h1>
-    <p class="lead mb-4" style="max-width:600px;">
-      В общините Раковски и Брезово. Грижим се за земята така, както се грижим за клиентите си — честно и навреме.
-    </p>
-    <div class="d-flex flex-wrap gap-2">
-      <a href="tel:+359887979373" class="btn btn-danger btn-lg"><i class="bi bi-telephone-fill me-2"></i>Обадете се</a>
-      <a href="#services" class="btn btn-outline-light btn-lg">Какво правим</a>
+  <div class="container">
+    <div class="hero-land-card">
+      <h1 class="mb-3">Обработка и покупка на земеделска земя</h1>
+      <p class="lede mb-4">В общините Раковски и Брезово. Грижим се за земята така, както се грижим за клиентите си — честно и навреме.</p>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn-call" href="tel:+359887979373"><i class="bi bi-telephone-fill"></i>Обадете се</a>
+        <a class="btn-ghost" href="#services">Какво правим</a>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- ═══ SERVICES ═════════════════════════════════════════════════════ -->
-<section id="services" class="py-5 bg-light">
-  <div class="container py-4">
-
-    <div class="text-center mb-5">
-      <p class="text-danger text-uppercase fw-bold small mb-2">Какво правим</p>
-      <h2 class="display-6 fw-bold mb-3">Земеделска дейност</h2>
-      <p class="text-muted mx-auto" style="max-width:560px;">
-        Освен горивната станция и автосервиза, ЕГЕР ООД обработва земеделска земя в региона.
-      </p>
-    </div>
-
-    <div class="row g-4">
-
+<!-- ═══ WHAT WE DO ═══ -->
+<section id="services" class="band">
+  <div class="container">
+    <h2>Земеделска дейност</h2>
+    <p class="lede mb-5">Освен горивната станция и автосервиза, ЕГЕР ООД обработва земеделска земя в региона.</p>
+    <div class="row g-4 g-lg-5">
       <div class="col-12 col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-success bg-opacity-10 text-success rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-flower1"></i>
-            </div>
-            <h3 class="h5 fw-bold mb-2">Обработка на земя</h3>
-            <p class="text-muted small mb-0">
-              Отглеждаме зърнени и технически култури: пшеница, царевица, слънчоглед. Работим със собствена техника.
-            </p>
-          </div>
+        <div class="offer">
+          <i class="bi bi-flower1"></i>
+          <h3>Обработка на земя</h3>
+          <p>Отглеждаме зърнени и технически култури: пшеница, царевица, слънчоглед. Работим със собствена техника.</p>
         </div>
       </div>
-
       <div class="col-12 col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-warning bg-opacity-10 text-warning rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-file-earmark-text-fill"></i>
-            </div>
-            <h3 class="h5 fw-bold mb-2">Аренда и наем</h3>
-            <p class="text-muted small mb-0">
-              Имате земя, но не я обработвате? Вземаме я под аренда или наем с договор. Плащаме рентата навреме.
-            </p>
-          </div>
+        <div class="offer">
+          <i class="bi bi-file-earmark-text-fill"></i>
+          <h3>Аренда и наем</h3>
+          <p>Имате земя, но не я обработвате? Вземаме я под аренда или наем с договор. Плащаме рентата навреме.</p>
         </div>
       </div>
-
       <div class="col-12 col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-danger bg-opacity-10 text-danger rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-cash-coin"></i>
-            </div>
-            <h3 class="h5 fw-bold mb-2">Купуваме земя</h3>
-            <p class="text-muted small mb-0">
-              Купуваме земеделски ниви в региона. Оглед на място, честна цена и помощ с документите при нотариуса.
-            </p>
-          </div>
+        <div class="offer">
+          <i class="bi bi-cash-coin"></i>
+          <h3>Купуваме земя</h3>
+          <p>Купуваме земеделски ниви в региона. Оглед на място, честна цена и помощ с документите при нотариуса.</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- ═══ PHOTOS ═══════════════════════════════════════════════════════ -->
-<section class="py-5 bg-white">
-  <div class="container py-4">
-    <div class="row g-4 align-items-center">
+<!-- ═══ PHOTOS ═══ -->
+<section class="band band-sky">
+  <div class="container">
+    <div class="row g-5 align-items-center">
       <div class="col-12 col-lg-6">
         <img src="images/land/tillage.jpg" width="780" height="440" loading="lazy"
-             class="page-photo rounded-3 shadow-sm" alt="Трактор обработва нива с култиватор">
+             class="photo" alt="Трактор обработва нива с култиватор">
       </div>
       <div class="col-12 col-lg-6">
-        <h2 class="h3 fw-bold mb-3">Земята е в добри ръце</h2>
-        <p class="text-muted mb-3">
-          Ние сме семеен бизнес от Раковски. Познаваме земята в региона и хората, на които тя принадлежи.
-        </p>
-        <p class="text-muted mb-0">
-          Обработваме всяка нива навреме: оран, сеитба, грижа за посевите и жътва.
-        </p>
+        <h2>Земята е в добри ръце</h2>
+        <p>Ние сме семеен бизнес от Раковски. Познаваме земята в региона и хората, на които тя принадлежи.</p>
+        <p class="mb-0">Обработваме всяка нива навреме: оран, сеитба, грижа за посевите и жътва.</p>
       </div>
     </div>
-
-    <div class="row g-4 align-items-center mt-2 flex-lg-row-reverse">
+    <div class="row g-5 align-items-center mt-1 flex-lg-row-reverse">
       <div class="col-12 col-lg-6">
         <img src="images/land/field-check.jpg" width="830" height="470" loading="lazy"
-             class="page-photo rounded-3 shadow-sm" alt="Стопанин проверява почвата след обработка">
+             class="photo" alt="Стопанин проверява почвата след обработка">
       </div>
       <div class="col-12 col-lg-6">
-        <h2 class="h3 fw-bold mb-3">Ясни договори</h2>
-        <p class="text-muted mb-0">
-          Всеки договор за аренда или покупка е писмен и ясен. Отговаряме на всеки въпрос, преди да подпишете.
-        </p>
+        <h2>Ясни договори</h2>
+        <p class="mb-0">Всеки договор за аренда или покупка е писмен и ясен. Отговаряме на всеки въпрос, преди да подпишете.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ HOW WE WORK ══════════════════════════════════════════════════ -->
-<section id="how" class="py-5 bg-light">
-  <div class="container py-4">
-    <div class="text-center mb-5">
-      <p class="text-danger text-uppercase fw-bold small mb-2">Как работим</p>
-      <h2 class="display-6 fw-bold">Три лесни стъпки</h2>
-    </div>
-    <div class="row g-4 text-center">
-      <div class="col-12 col-md-4">
-        <div class="display-6 fw-bold text-danger mb-2">1</div>
-        <h3 class="h5 fw-bold">Обадете се</h3>
-        <p class="text-muted small mb-0">Кажете ни къде е земята и какво искате: аренда, наем или продажба.</p>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="display-6 fw-bold text-danger mb-2">2</div>
-        <h3 class="h5 fw-bold">Оглед</h3>
-        <p class="text-muted small mb-0">Идваме на място и проверяваме нивата и документите.</p>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="display-6 fw-bold text-danger mb-2">3</div>
-        <h3 class="h5 fw-bold">Договор</h3>
-        <p class="text-muted small mb-0">Предлагаме ясни условия. Подписваме, когато сте готови.</p>
-      </div>
+<!-- ═══ HOW WE WORK ═══ -->
+<section id="how" class="band">
+  <div class="container">
+    <h2 class="mb-5">Три лесни стъпки</h2>
+    <ol class="steps">
+      <li><h3>Обадете се</h3><p>Кажете ни къде е земята и какво искате: аренда, наем или продажба.</p></li>
+      <li><h3>Оглед</h3><p>Идваме на място и проверяваме нивата и документите.</p></li>
+      <li><h3>Договор</h3><p>Предлагаме ясни условия. Подписваме, когато сте готови.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="band cta">
+  <div class="container">
+    <h2>Имате земя в региона?</h2>
+    <p class="lede text-white-50 mb-4">Обадете се или пишете. Ще ви отговорим в рамките на работния ден.</p>
+    <p class="contact-big mb-4"><a href="tel:+359887979373">0887979373</a></p>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn-call" href="tel:+359887979373"><i class="bi bi-telephone-fill"></i>Обадете се</a>
+      <a class="btn-ghost" href="mailto:eger@b-trust.org"><i class="bi bi-envelope-fill"></i>eger@b-trust.org</a>
     </div>
   </div>
 </section>
 
-<!-- ═══ CONTACT ══════════════════════════════════════════════════════ -->
-<section id="contact" class="py-5 bg-dark text-white">
-  <div class="container py-4 text-center">
-    <p class="text-danger text-uppercase fw-bold small mb-2">Контакти</p>
-    <h2 class="display-6 fw-bold mb-3">Имате земя в региона?</h2>
-    <p class="text-white-50 mx-auto mb-4" style="max-width:520px;">
-      Обадете се или пишете. Ще ви отговорим в рамките на работния ден.
-    </p>
-    <div class="d-flex flex-wrap justify-content-center gap-2">
-      <a href="tel:+359887979373" class="btn btn-danger btn-lg"><i class="bi bi-telephone-fill me-2"></i>0887979373</a>
-      <a href="mailto:eger@b-trust.org" class="btn btn-outline-light btn-lg"><i class="bi bi-envelope-fill me-2"></i>eger@b-trust.org</a>
-    </div>
-  </div>
-</section>
+</main>
 
-<!-- ═══ FOOTER ════════════════════════════════════════════════════════ -->
-<footer class="bg-black text-white-50 py-3 border-top border-secondary">
-  <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2">
-    <small>© 2026 ЕГЕР ООД. Всички права запазени.</small>
-    <div class="d-flex gap-3">
-      <a href="index.html" class="text-white-50 text-decoration-none small">Начало</a>
-      <a href="index.html#services" class="text-white-50 text-decoration-none small">Услуги</a>
-      <a href="index.html#contact" class="text-white-50 text-decoration-none small">Контакти</a>
+<!-- ═══ FOOTER (the same block is in all three pages) ═══ -->
+<footer class="foot">
+  <div class="container d-flex flex-wrap justify-content-between gap-3">
+    <div>© 2026 ЕГЕР ООД, ул. Брезовско шосе, Раковски</div>
+    <div class="d-flex flex-wrap gap-3">
+      <a href="index.html">Начало</a>
+      <a href="goriva.html">Горива на едро</a>
+      <a href="zemya.html">Земеделие</a>
+      <a href="tel:+359887979373">0887979373</a>
     </div>
   </div>
 </footer>

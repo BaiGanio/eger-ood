@@ -9,34 +9,34 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 
-<!-- ═══ NAVBAR ════════════════════════════════════════════════════════ -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm">
+<!-- ═══ TOP BAR (the same block is in index.html, goriva.html, zemya.html — specs.md D17) ═══ -->
+<nav class="navbar navbar-expand-lg sticky-top topbar">
   <div class="container">
-
-    <a class="navbar-brand fw-bold text-danger d-flex align-items-center gap-2" href="#">
-      <img src="images/logo-navbar.svg" class="img-fluid rounded-3" alt="ЕГЕР ООД">
+    <a class="navbar-brand me-auto" href="index.html">
+      <img src="images/logo-navbar.svg" width="320" height="56" alt="ЕГЕР ООД — начало">
     </a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+            aria-controls="mainNav" aria-expanded="false" aria-label="Меню">
       <span class="navbar-toggler-icon"></span>
     </button>
-
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link text-secondary" href="#about">За нас</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#services">Услуги</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#calendar-section">Автосервиз</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="goriva.html">Горива на едро</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="zemya.html">Земеделие</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#contact">Контакти</a></li>
+    <div class="collapse navbar-collapse flex-grow-0" id="mainNav">
+      <ul class="navbar-nav gap-lg-2 py-2 py-lg-0">
+        <li class="nav-item"><a class="nav-link" href="index.html" aria-current="page">Начало</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#services">Станция</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#gtp">ГТП</a></li>
+        <li class="nav-item"><a class="nav-link" href="goriva.html">Горива на едро</a></li>
+        <li class="nav-item"><a class="nav-link" href="zemya.html">Земеделие</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#contact">Контакти</a></li>
       </ul>
     </div>
-
   </div>
 </nav>
+
+<main>
 
 <!-- ═══ HERO CAROUSEL ════════════════════════════════════════════════ -->
 <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5500">
@@ -129,379 +129,238 @@
 
 </div>
 
-<!-- ═══ ABOUT ════════════════════════════════════════════════════════ -->
-<section id="about" class="py-5 bg-white">
-  <div class="container py-4">
-    <div class="row g-4 g-lg-5 align-items-center">
-
-      <div class="col-12 col-lg-6">
-        <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-secondary"
-             style="min-height:340px;">
-          <img src="images/logo.svg" class="img-fluid rounded-3" alt="ЕГЕР ООД">
-        </div>
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="band">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-12 col-lg-4 text-center">
+        <img src="images/logo.svg" width="400" height="340" class="img-fluid" loading="lazy" alt="Емблема на ЕГЕР ООД">
       </div>
-
-      <div class="col-12 col-lg-6">
-        <p class="text-danger text-uppercase fw-bold small letter-spacing-1 mb-2">За нас</p>
-        <h2 class="display-6 fw-bold mb-3">ЕГЕР ООД —<br>надеждност от години</h2>
-        <hr class="border-danger opacity-100 mb-4" style="width:40px;border-width:3px;">
-        <p class="text-muted mb-3">
+      <div class="col-12 col-lg-8">
+        <h2>Семеен бизнес от Раковски</h2>
+        <p>
           Ние сме семеен бизнес с дълга история в град Раковски и региона. Нашата цел е да осигурим на всеки клиент качествено и честно обслужване — от зареждане с гориво до пълен технически преглед на автомобила.
         </p>
-         <p class="text-muted mb-3">
-          ЕГЕР ООД се занимава с търговия на горива и смазочни продукти на едро. Основният ни обхват включва общините Раковски и Брезово (кооперации и сдружения), както и регионалните структури на НЕК ЕАД в Южна България, включително Пловдив, Хасково, Кърджали, Смолян и Асеновград.          
+        <p>
+          ЕГЕР ООД се занимава и с търговия на горива и смазочни продукти на едро. Основният ни обхват включва общините Раковски и Брезово, както и регионалните структури на НЕК ЕАД в Южна България.
         </p>
-        <p class="text-muted mb-3">
-          Разполагаме с модерна горивна станция, предлагаща бензин А95 и газ за автомобила и бита на конкурентни цени. Нашият автосервиз извършва годишни технически прегледи и диагностика на автомобили от всички марки. За удобство на клиентите предлагаме и ръчна автомивка, която ще направи вашия автомобил да блести като нов.
-        </p>
-        <p class="text-muted mb-3">
-          Доверете ни се — ние се грижим за клиентите си.
-        </p>
-
-        <div class="row g-4">
-          <div class="col-auto">
-            <div class="border-start border-danger border-3 ps-3">
-              <div class="display-6 fw-bold text-danger lh-1">3 000+</div>
-              <div class="text-muted small mt-1">обслужени клиенти</div>
-            </div>
-          </div>
-          <div class="col-auto">
-            <div class="border-start border-danger border-3 ps-3">
-              <div class="display-6 fw-bold text-danger lh-1">29+</div>
-              <div class="text-muted small mt-1">години в бранша</div>
-            </div>
-          </div>
-          <div class="col-auto">
-            <div class="border-start border-danger border-3 ps-3">
-              <div class="display-6 fw-bold text-danger lh-1">€ 2 100 00</div>
-              <div class="text-muted small mt-1">оборот за 2020 г.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══ SERVICES ══════════════════════════════════════════════════════ -->
-<section id="services" class="py-5 bg-light">
-  <div class="container py-4">
-
-    <div class="text-center mb-5">
-      <p class="text-danger text-uppercase fw-bold small mb-2">Какво предлагаме</p>
-      <h2 class="display-6 fw-bold mb-3">Нашите услуги</h2>
-      <p class="text-muted mx-auto" style="max-width:500px;">
-        Годишен технически преглед (ГТП), гориво за дома и бита, автомивка за вашия автомобил — под един покрив.
-      </p>
-    </div>
-
-    <div class="row g-4">
-
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-danger bg-opacity-10 text-danger rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-fuel-pump-fill"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Горивна станция</h5>
-            <p class="text-muted small mb-0">
-              Бензин А95. Работим всеки ден, включително почивни дни. Бързо и удобно зареждане.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-car-front-fill"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Годишен преглед</h5>
-            <p class="text-muted small mb-0">
-              Пълен технически преглед с протокол. Напомняме ви автоматично с SMS седмица преди вашия преглед.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-success bg-opacity-10 text-success rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-fire"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Газ станция</h5>
-            <p class="text-muted small mb-0">
-              Зареждане на газови бутилки на автомобили както и бутилки за домашна употреба. Бързо, безопасно и на достъпни цени.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="bg-info bg-opacity-10 text-info rounded-3 d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:52px;height:52px;font-size:22px;">
-              <i class="bi bi-droplet-fill"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Автомивка</h5>
-            <p class="text-muted small mb-0">
-              Ръчно измиване, вътрешно почистване и полиране. Вашият автомобил блести след всяко посещение.
-            </p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══ CAR SERVICE CALENDAR ══════════════════════════════════════════ -->
-<section id="calendar-section" class="py-5 bg-white">
-  <div class="container py-4">
-
-    <div class="row g-4 g-lg-5 align-items-start">
-
-      <!-- Left: calendar -->
-      <div class="col-12 col-lg-7">
-        <p class="text-danger text-uppercase fw-bold small mb-2">Автосервиз</p>
-        <h2 class="display-6 fw-bold mb-2">Работен календар</h2>
-        
-
-          <!-- Legend -->
-          <div class="card-footer bg-white border-top d-flex flex-wrap gap-3 py-3">
-            <span class="d-flex align-items-center gap-2 small text-muted">
-              <span class="badge bg-success">&nbsp;&nbsp;</span> Работен ден
-            </span>
-            <span class="d-flex align-items-center gap-2 small text-muted">
-              <span class="badge bg-warning text-dark">&nbsp;&nbsp;</span> Официален празник
-            </span>
-            <span class="d-flex align-items-center gap-2 small text-muted">
-              <span class="badge bg-danger bg-opacity-25 text-danger">&nbsp;&nbsp;</span> Почивен ден (неделя и понеделник)
-            </span>
-            <span class="d-flex align-items-center gap-2 small text-muted">
-              <span class="badge bg-primary">&nbsp;&nbsp;</span> Днес
-            </span>
-          </div>
-
-        <!-- Calendar card -->
-        <div class="card border-0 shadow-sm">
-          <!-- Month nav header -->
-          <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between py-3">
-            <button class="btn btn-sm btn-outline-light" onclick="calPrev()">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            <span class="fw-bold fs-5" id="cal-month-label">—</span>
-            <button class="btn btn-sm btn-outline-light" onclick="calNext()">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-          </div>
-
-          <div class="card-body p-3">
-            <div id="cal-grid-wrap" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
-              <!-- DOW headers -->
-              <div class="text-center text-danger fw-semibold text-uppercase py-1" style="font-size:10px;">Пон</div>
-              <div class="text-center text-muted fw-semibold text-uppercase py-1" style="font-size:10px;">Вт</div>
-              <div class="text-center text-muted fw-semibold text-uppercase py-1" style="font-size:10px;">Ср</div>
-              <div class="text-center text-muted fw-semibold text-uppercase py-1" style="font-size:10px;">Чет</div>
-              <div class="text-center text-muted fw-semibold text-uppercase py-1" style="font-size:10px;">Пет</div>
-              <div class="text-center text-muted fw-semibold text-uppercase py-1" style="font-size:10px;">Съб</div>
-              <div class="text-center text-danger fw-semibold text-uppercase py-1" style="font-size:10px;">Нед</div>
-              <!-- Day cells injected by JS -->
-              <div id="cal-grid" style="display:contents;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: hours + checklist -->
-      <div class="col-12 col-lg-5 d-flex flex-column gap-4">
-
-        <!-- Working hours -->
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-bottom d-flex align-items-center gap-2 py-3">
-            <i class="bi bi-clock-fill text-danger"></i>
-            <span class="fw-semibold">Работно време — Годишен технически преглед</span>
-          </div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span class="text-muted">Вторник – Петък</span>
-              <span class="fw-semibold">08:00 – 18:00</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span class="text-muted">Събота</span>
-              <span class="fw-semibold">09:00 – 14:00</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span class="text-muted">Неделя и понеделник</span>
-              <span class="fw-semibold text-danger">Почивен ден</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- What's included -->
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-bottom d-flex align-items-center gap-2 py-3">
-            <i class="bi bi-clipboard2-check-fill text-danger"></i>
-            <span class="fw-semibold">Какво включва прегледът?</span>
-          </div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill text-success"></i> Спирачна система
-            </li>
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill text-success"></i> Ходова и окачване
-            </li>
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill text-success"></i> Осветление и електрика
-            </li>
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill text-success"></i> Компютърна диагностика
-            </li>
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill text-success"></i> Масло и технически течности
-            </li>
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill text-success"></i> Протокол за преглед
-            </li>
-          </ul>
-        </div>
-
-        <!-- SMS note -->
-        <div class="alert alert-primary d-flex align-items-start gap-2 mb-0">
-          <i class="bi bi-phone-fill fs-5 flex-shrink-0 mt-1"></i>
-          <div>
-            <strong>SMS напомняния</strong><br>
-            <small>Напомняме на нашите клиенти автоматично 7 дни преди техния годишен преглед.</small>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ MORE (short; full pages are goriva.html and zemya.html) ═══════ -->
-<section id="more" class="py-5 bg-light border-top">
-  <div class="container py-3">
-    <div class="text-center mb-4">
-      <p class="text-danger text-uppercase fw-bold small mb-2">Още от ЕГЕР ООД</p>
-      <h2 class="h3 fw-bold mb-0">Други дейности</h2>
-    </div>
-    <div class="row g-4">
-      <div class="col-12 col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4 d-flex flex-column">
-            <h3 class="h5 fw-bold mb-2"><i class="bi bi-droplet-fill text-danger me-2"></i>Горива и масла на едро</h3>
-            <p class="text-muted small mb-3">
-              Горива и смазочни продукти за кооперации, фирми и обекти в Южна България.
-            </p>
-            <a href="goriva.html" class="btn btn-outline-danger mt-auto align-self-start">Горива на едро <i class="bi bi-arrow-right ms-1"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4 d-flex flex-column">
-            <h3 class="h5 fw-bold mb-2"><i class="bi bi-flower1 text-success me-2"></i>Земеделска земя</h3>
-            <p class="text-muted small mb-3">
-              Обработка, аренда и покупка на ниви в общините Раковски и Брезово.
-            </p>
-            <a href="zemya.html" class="btn btn-outline-danger mt-auto align-self-start">Земеделска дейност <i class="bi bi-arrow-right ms-1"></i></a>
-          </div>
+        <p class="mb-4">Доверете ни се — ние се грижим за клиентите си.</p>
+        <div class="d-flex flex-wrap gap-5">
+          <div><div class="fact">3 000+</div><div class="fact-label">обслужени клиенти</div></div>
+          <div><div class="fact">29+</div><div class="fact-label">години в бранша</div></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ CONTACT ════════════════════════════════════════════════════════ -->
-<section id="contact" class="py-5 bg-dark text-white">
-  <div class="container py-4">
-
+<!-- ═══ AT THE STATION ═══ -->
+<section id="services" class="band">
+  <div class="container">
+    <h2>На станцията</h2>
+    <p class="lede mb-5">Гориво, газ и автомивка — под един покрив.</p>
     <div class="row g-4 g-lg-5">
+      <div class="col-12 col-md-4">
+        <div class="offer">
+          <i class="bi bi-fuel-pump-fill"></i>
+          <h3>Горивна станция</h3>
+          <p>Бензин А95, дизел и автогаз. Работим всеки ден, включително почивни дни. Бързо и удобно зареждане.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="offer">
+          <i class="bi bi-fire"></i>
+          <h3>Газ станция</h3>
+          <p>Зареждане на газови бутилки на автомобили, както и на бутилки за домашна употреба. Бързо, безопасно и на достъпни цени.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="offer">
+          <i class="bi bi-droplet-fill"></i>
+          <h3>Автомивка</h3>
+          <p>Ръчно измиване, вътрешно почистване и полиране. Вашият автомобил блести след всяко посещение.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ГТП: hours, what is checked, calendar ═══ -->
+<section id="gtp" class="band band-sky">
+  <div class="container">
+    <div class="row g-5">
+
+      <div class="col-12 col-lg-7">
+        <h2>Годишен технически преглед</h2>
+        <p class="lede mb-4">Пълен технически преглед с протокол и диагностика от опитни професионалисти — за автомобили от всички марки.</p>
+
+        <h3 class="mt-4">Работно време</h3>
+        <table class="hours mb-4">
+          <tr><th scope="row">Вторник – петък</th><td>08:00 – 18:00</td></tr>
+          <tr><th scope="row">Събота</th><td>09:00 – 14:00</td></tr>
+          <tr class="off"><th scope="row">Неделя и понеделник</th><td>Почивен ден</td></tr>
+        </table>
+
+        <h3 class="mt-4 mb-2">Какво включва прегледът</h3>
+        <ul class="ticks mb-4">
+          <li>Спирачна система</li>
+          <li>Ходова и окачване</li>
+          <li>Осветление и електрика</li>
+          <li>Компютърна диагностика</li>
+          <li>Масло и технически течности</li>
+          <li>Протокол за преглед</li>
+        </ul>
+
+        <p class="note mb-4"><strong>SMS напомняне.</strong> Напомняме на нашите клиенти с SMS 7 дни преди техния годишен преглед.</p>
+
+        <a class="btn-call" href="tel:+359887979373"><i class="bi bi-telephone-fill"></i>Обадете се: 0887979373</a>
+      </div>
 
       <div class="col-12 col-lg-5">
-        <p class="text-danger text-uppercase fw-bold small mb-2">Контакти</p>
-        <h2 class="display-6 fw-bold mb-4">Намерете ни</h2>
-        <p class="text-white-50 mb-5">
-          Намираме се в Раковски. Заповядайте лично или се обадете — с удоволствие ще отговорим на вашите въпроси.
-        </p>
+        <h3 class="mb-3">Работни дни</h3>
+        <div class="cal">
+          <div class="cal-head">
+            <button type="button" id="cal-prev" aria-label="Предишен месец"><i class="bi bi-chevron-left"></i></button>
+            <span class="cal-month" id="cal-month" aria-live="polite"></span>
+            <button type="button" id="cal-next" aria-label="Следващ месец"><i class="bi bi-chevron-right"></i></button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">Пон</div><div class="cal-dow">Вт</div><div class="cal-dow">Ср</div>
+            <div class="cal-dow">Чет</div><div class="cal-dow">Пет</div><div class="cal-dow">Съб</div><div class="cal-dow">Нед</div>
+            <!-- Day cells come from js/site.js. The tooltip texts are here. -->
+            <div id="cal-grid" style="display:contents"
+                 data-t-today="Днес" data-t-work="Работен ден" data-t-off="Почивен ден"
+                 data-t-holiday="Официален празник — неработен ден"></div>
+          </div>
+          <ul class="cal-legend">
+            <li><span class="cal-work"></span>Работен ден</li>
+            <li><span class="cal-off"></span>Почивен ден</li>
+            <li><span class="cal-holiday"></span>Официален празник</li>
+            <li><span class="cal-today"></span>Днес</li>
+          </ul>
+        </div>
+      </div>
 
-        <div class="d-flex flex-column gap-4">
+    </div>
+  </div>
+</section>
 
-          <div class="d-flex align-items-start gap-3">
-            <div class="bg-danger bg-opacity-25 rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 text-danger"
-                 style="width:42px;height:42px;font-size:18px;">
-              <i class="bi bi-geo-alt-fill"></i>
-            </div>
+<!-- ═══ THE TWO OTHER BUSINESSES (full pages: goriva.html, zemya.html) ═══ -->
+<section id="more" class="band">
+  <div class="container">
+    <h2>Още от ЕГЕР ООД</h2>
+    <p class="lede mb-4">Фирмата има още две дейности. Всяка има своя страница.</p>
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <a class="door" href="goriva.html" style="--door:#e0a100">
+          <img src="images/energy/barrels.jpg" width="1200" height="900" loading="lazy" alt="">
+          <div class="door-body">
+            <h3>Горива и масла на едро</h3>
+            <p>Горива и смазочни продукти за кооперации, фирми и обекти в Южна България.</p>
+            <span class="door-go">Към горива на едро</span>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-6">
+        <a class="door" href="zemya.html" style="--door:#5aa353">
+          <img src="images/land/harvest.jpg" width="1400" height="933" loading="lazy" alt="">
+          <div class="door-body">
+            <h3>Земеделска земя</h3>
+            <p>Обработка, аренда и покупка на ниви в общините Раковски и Брезово.</p>
+            <span class="door-go">Към земеделие</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="band band-navy">
+  <div class="container">
+
+    <h2>Намерете ни</h2>
+    <p class="lede mb-4">Намираме се в Раковски. Заповядайте лично или се обадете — с удоволствие ще отговорим на вашите въпроси.</p>
+
+    <!-- Three columns: contacts, hours board, map. Two columns on a tablet, one on a phone. -->
+    <div class="row g-4">
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <ul class="contact-list">
+          <li><i class="bi bi-telephone-fill"></i>
             <div>
-              <div class="text-white-50 text-uppercase fw-bold mb-1" style="font-size:10px;letter-spacing:.1em;">Адрес</div>
-              <div>ул. Брезовско шосе, Раковски<br>обл. Пловдив</div>
+              <div class="contact-big"><a href="tel:+359887979373">0887979373</a></div>
+              <div class="soft"><a href="tel:+35931514709" class="fw-normal">031514709</a></div>
             </div>
+          </li>
+          <li><i class="bi bi-geo-alt-fill"></i>
+            <div>ул. Брезовско шосе, Раковски<br>обл. Пловдив</div>
+          </li>
+          <li><i class="bi bi-clock-fill"></i>
+            <div>Горивна станция: всеки ден 06:00 – 22:00<br>
+                 ГТП: вторник – петък 08:00 – 18:00, събота 09:00 – 14:00</div>
+          </li>
+          <li><i class="bi bi-envelope-fill"></i>
+            <div><a href="mailto:eger@b-trust.org">eger@b-trust.org</a></div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- The hours board. data-sched: day numbers (0 = Sunday) = open-close.
+           js/site.js shows one of the two status lines. -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="totem">
+          <div class="totem-head">
+            <span class="totem-name">ЕГЕР</span>
+            <span class="totem-today">Работно време</span>
           </div>
 
-          <div class="d-flex align-items-start gap-3">
-            <div class="bg-danger bg-opacity-25 rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 text-danger"
-                 style="width:42px;height:42px;font-size:18px;">
-              <i class="bi bi-telephone-fill"></i>
-            </div>
-            <div>
-              <div class="text-white-50 text-uppercase fw-bold mb-1" style="font-size:10px;letter-spacing:.1em;">Телефон</div>
-              <div><a href="tel:+359887979373" class="text-white text-decoration-none">0887979373</a></div>
-              <div><a href="tel:+35931514709" class="text-white-50 text-decoration-none">031514709</a></div>
-            </div>
-          </div>
+          <a class="totem-row" href="#services" data-sched="0,1,2,3,4,5,6=06:00-22:00">
+            <h3>Гориво</h3>
+            <p>Бензин А95, дизел, автогаз</p>
+            <span class="status status-open" hidden>Отворено сега</span>
+            <span class="status status-closed" hidden>Затворено сега</span>
+            <div class="totem-hours">06–22<small>всеки ден</small></div>
+          </a>
 
-          <div class="d-flex align-items-start gap-3">
-            <div class="bg-danger bg-opacity-25 rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 text-danger"
-                 style="width:42px;height:42px;font-size:18px;">
-              <i class="bi bi-clock-fill"></i>
-            </div>
-            <div>
-              <div class="text-white-50 text-uppercase fw-bold mb-1" style="font-size:10px;letter-spacing:.1em;">Горивна станция</div>
-              <div>Всеки ден: 06:00 – 22:00</div>
-            </div>
-          </div>
+          <a class="totem-row" href="#gtp" data-sched="2,3,4,5=08:00-18:00;6=09:00-14:00" data-holidays="closed">
+            <h3>ГТП</h3>
+            <p>Годишен технически преглед</p>
+            <span class="status status-open" hidden>Отворено сега</span>
+            <span class="status status-closed" hidden>Затворено сега</span>
+            <div class="totem-hours">08–18<small>вторник – петък</small>
+              <span class="second">09–14</span><small>събота</small></div>
+          </a>
 
-          <div class="d-flex align-items-start gap-3">
-            <div class="bg-danger bg-opacity-25 rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 text-danger"
-                 style="width:42px;height:42px;font-size:18px;">
-              <i class="bi bi-envelope-fill"></i>
-            </div>
-            <div>
-              <div class="text-white-50 text-uppercase fw-bold mb-1" style="font-size:10px;letter-spacing:.1em;">Имейл</div>
-              <div><a href="mailto:eger@b-trust.org" class="text-white text-decoration-none">eger@b-trust.org</a></div>
-            </div>
-          </div>
+          <a class="totem-row" href="#services">
+            <h3>Газ за бутилки</h3>
+            <p>За автомобила и за дома</p>
+          </a>
 
+          <a class="totem-row" href="#services">
+            <h3>Автомивка</h3>
+            <p>Ръчно измиване и почистване</p>
+          </a>
         </div>
       </div>
 
       <!-- Map: Leaflet + OpenStreetMap tiles. Visible at once, no cookies, no API key
            (specs.md D15). A Google embed sets cookies.
            TODO(owner): data-lat/data-lon are the centre of Раковски, not the station.
-           Put the exact pin here, and the Google pin link in both buttons (plan/12-seo.md, A1). -->
-      <div class="col-12 col-lg-7 d-flex flex-column gap-2">
-        <div id="map" class="rounded-3 flex-grow-1 bg-secondary bg-opacity-25" style="min-height:340px;"
-             data-lat="42.2873" data-lon="24.9660" data-zoom="15">
-          <noscript><div class="p-4 text-white-50">ул. Брезовско шосе, Раковски, обл. Пловдив</div></noscript>
+           Put the exact pin here, and the Google pin link in the buttons (plan/12-seo.md, A1). -->
+      <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+        <div id="map" class="flex-grow-1" data-lat="42.2873" data-lon="24.9660" data-zoom="15">
+          <noscript><div class="p-4">ул. Брезовско шосе, Раковски, обл. Пловдив</div></noscript>
         </div>
         <div id="map-popup" class="d-none"><strong>ЕГЕР ООД</strong><br>ул. Брезовско шосе, Раковски</div>
         <div class="d-flex flex-wrap gap-2">
-          <a class="btn btn-danger btn-sm" target="_blank" rel="noopener"
+          <a class="btn-call" target="_blank" rel="noopener"
              href="https://www.google.com/maps/search/?api=1&amp;query=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
-            <i class="bi bi-map me-1"></i>Отвори в Google Maps
+            <i class="bi bi-map"></i>Отвори в Google Maps
           </a>
-          <a class="btn btn-outline-light btn-sm" target="_blank" rel="noopener"
+          <a class="btn-ghost" target="_blank" rel="noopener"
              href="https://www.google.com/maps/dir/?api=1&amp;destination=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
-            <i class="bi bi-sign-turn-right me-1"></i>Упътване
+            <i class="bi bi-sign-turn-right-fill"></i>Упътване
           </a>
         </div>
       </div>
@@ -510,129 +369,23 @@
   </div>
 </section>
 
-<!-- ═══ FOOTER ════════════════════════════════════════════════════════ -->
-<footer class="bg-black text-white-50 py-3 border-top border-secondary">
-  <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2">
-    <small>© 2026 ЕГЕР ООД. Всички права запазени.</small>
-    <div class="d-flex gap-3">
-      <a href="#about" class="text-white-50 text-decoration-none small">За нас</a>
-      <a href="#services" class="text-white-50 text-decoration-none small">Услуги</a>
-      <a href="goriva.html" class="text-white-50 text-decoration-none small">Горива</a>
-      <a href="zemya.html" class="text-white-50 text-decoration-none small">Земеделие</a>
-      <a href="#contact" class="text-white-50 text-decoration-none small">Контакти</a>
+</main>
+
+<!-- ═══ FOOTER (the same block is in all three pages) ═══ -->
+<footer class="foot">
+  <div class="container d-flex flex-wrap justify-content-between gap-3">
+    <div>© 2026 ЕГЕР ООД, ул. Брезовско шосе, Раковски</div>
+    <div class="d-flex flex-wrap gap-3">
+      <a href="index.html">Начало</a>
+      <a href="goriva.html">Горива на едро</a>
+      <a href="zemya.html">Земеделие</a>
+      <a href="tel:+359887979373">0887979373</a>
     </div>
   </div>
 </footer>
 
-<!-- ═══ SCRIPTS ════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>
-// ── Map ─────────────────────────────────────────────────────────────
-(function initMap() {
-  const el = document.getElementById('map');
-  if (!el || !window.L) return;
-  const pos = [Number(el.dataset.lat), Number(el.dataset.lon)];
-  // One-finger drag on a phone would trap the page scroll; zoom buttons still work.
-  const map = L.map(el, { scrollWheelZoom: false, dragging: !L.Browser.mobile })
-    .setView(pos, Number(el.dataset.zoom));
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-  }).addTo(map);
-  L.marker(pos).addTo(map)
-    .bindPopup(document.getElementById('map-popup').innerHTML).openPopup();
-})();
-</script>
-<script>
-// ── Calendar ────────────────────────────────────────────────────────
-const BG_MONTHS = [
-  'Януари','Февруари','Март','Април','Май','Юни',
-  'Юли','Август','Септември','Октомври','Ноември','Декември'
-];
-
-let calYear, calMonth, calHolidays = [];
-
-async function initCalendar() {
-  try {
-    const res = await fetch('holidays.json');
-    const data = await res.json();
-    calHolidays = data.holidays || [];
-  } catch(e) {
-    calHolidays = [];
-  }
-  const now = new Date();
-  calYear  = now.getFullYear();
-  calMonth = now.getMonth();
-  renderCalendar();
-}
-
-function calPrev() {
-  if (calMonth === 0) { calMonth = 11; calYear--; } else calMonth--;
-  renderCalendar();
-}
-
-function calNext() {
-  if (calMonth === 11) { calMonth = 0; calYear++; } else calMonth++;
-  renderCalendar();
-}
-
-function isoDate(y, m, d) {
-  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-
-function renderCalendar() {
-  document.getElementById('cal-month-label').textContent =
-    `${BG_MONTHS[calMonth]} ${calYear}`;
-
-  const now = new Date(); now.setHours(0,0,0,0);
-  const todayISO = isoDate(now.getFullYear(), now.getMonth(), now.getDate());
-
-  const firstDow = new Date(calYear, calMonth, 1).getDay();
-  const offset   = firstDow === 0 ? 6 : firstDow - 1;
-  const daysInMo = new Date(calYear, calMonth + 1, 0).getDate();
-
-  const grid = document.getElementById('cal-grid');
-  grid.innerHTML = '';
-
-  // Blank leading cells
-  for (let i = 0; i < offset; i++) {
-    const blank = document.createElement('div');
-    grid.appendChild(blank);
-  }
-
-  for (let d = 1; d <= daysInMo; d++) {
-    const iso  = isoDate(calYear, calMonth, d);
-    const dow  = new Date(calYear, calMonth, d).getDay();
-    const past = iso < todayISO;
-
-    const cell = document.createElement('div');
-    cell.textContent = d;
-    // Base: full square box, centered number, rounded corners
-    cell.style.cssText = 'aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px;font-weight:600;';
-
-    if (iso === todayISO) {
-      cell.className = 'bg-primary text-white';
-      cell.title = 'Днес';
-    } else if (past) {
-      cell.className = 'text-muted bg-light';
-      cell.style.opacity = '.45';
-    } else if (dow === 0 || dow === 1) {
-      cell.className = 'bg-danger bg-opacity-10 text-danger';
-      cell.title = 'Почивен ден';
-    } else if (calHolidays.includes(iso)) {
-      cell.className = 'bg-warning bg-opacity-50 text-dark';
-      cell.title = 'Официален празник — неработен ден';
-    } else {
-      cell.className = 'bg-success bg-opacity-25 text-success';
-      cell.title = dow === 6 ? 'Работен ден — събота (09:00–14:00)' : 'Работен ден (08:00–18:00)';
-    }
-
-    grid.appendChild(cell);
-  }
-}
-
-initCalendar();
-</script>
+<script src="js/site.js"></script>
 </body>
 </html>
