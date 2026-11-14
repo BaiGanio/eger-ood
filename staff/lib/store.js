@@ -49,6 +49,8 @@ const CUSTOMER_COLUMNS = [
   { field: 'carPlate',        header: 'Рег. номер',       width: 14 },
   { field: 'lastServiceDate', header: 'Последен преглед', width: 18, numFmt: 'dd.mm.yyyy' },
   { field: 'smsSentAt',       header: 'SMS изпратен на',  width: 20, numFmt: 'dd.mm.yyyy hh:mm', appOnly: true },
+  // `optional`: a file from before this column still loads. The first write adds it.
+  { field: 'smsSimulated',    header: 'Тестов SMS',       width: 12, appOnly: true, optional: true },
   { field: 'disabled',        header: 'Активен',          width: 10 },
 ];
 
@@ -162,7 +164,7 @@ function addCustomerSheet(wb) {
     if (c.appOnly) col.fill = GREY;
   });
   styleHeader(ws);
-  const letter = ws.getColumn(CUSTOMER_COLUMNS.length).letter;
+  const letter = ws.getColumn(CUSTOMER_COLUMNS.findIndex(c => c.field === 'disabled') + 1).letter;
   ws.dataValidations.add(`${letter}2:${letter}${VALIDATION_ROWS}`, {
     type: 'list',
     allowBlank: true,
@@ -212,7 +214,7 @@ function findCustomerColumns(ws) {
     const known = CUSTOMER_COLUMNS.find(c => sameText(c.header, header));
     if (known && !cols[known.field]) cols[known.field] = colNumber;
   });
-  const missing = CUSTOMER_COLUMNS.filter(c => !cols[c.field]).map(c => `„${c.header}“`);
+  const missing = CUSTOMER_COLUMNS.filter(c => !cols[c.field] && !c.optional).map(c => `„${c.header}“`);
   if (missing.length) {
     throw new StoreError('MISSING_COLUMN',
       `В лист „${SHEETS.customers}“ липсва колона ${missing.join(', ')}. ` +
@@ -223,7 +225,8 @@ function findCustomerColumns(ws) {
 
 /** One sheet row → `{ customer }` or `{ reasons }`. */
 function readCustomerRow(row, cols) {
-  const text = field => cellText(row.getCell(cols[field]));
+  // An optional column can be absent: then the field is empty.
+  const text = field => (cols[field] ? cellText(row.getCell(cols[field])) : '');
   const reasons = [];
 
   const customer = {
@@ -235,6 +238,7 @@ function readCustomerRow(row, cols) {
     carPlate: text('carPlate'),
     lastServiceDate: null,
     smsSentAt: null,
+    smsSimulated: false,
     disabled: false,
   };
 
@@ -256,6 +260,8 @@ function readCustomerRow(row, cols) {
     customer.smsSentAt = readDateTime(sentCell);
     if (!customer.smsSentAt) reasons.push('невалидна дата в „SMS изпратен на“');
   }
+  // The mark has a meaning only together with a send time.
+  customer.smsSimulated = Boolean(customer.smsSentAt) && sameText(text('smsSimulated'), YES);
 
   const active = text('disabled');
   if (sameText(active, NO)) customer.disabled = true;
@@ -279,7 +285,7 @@ function readCustomers(wb, problems) {
 
   ws.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
-    if (CUSTOMER_COLUMNS.every(c => isBlank(row.getCell(cols[c.field])))) return;
+    if (CUSTOMER_COLUMNS.every(c => !cols[c.field] || isBlank(row.getCell(cols[c.field])))) return;
     lastRow = rowNumber;
 
     const { customer, reasons } = readCustomerRow(row, cols);
@@ -422,6 +428,7 @@ function writeCustomerRow(ws, cols, rowNumber, customer) {
     isDateText(customer.lastServiceDate) ? textToExcelDate(customer.lastServiceDate) : (customer.lastServiceDate ?? null),
     fmt('lastServiceDate'));
   set('smsSentAt', customer.smsSentAt ? momentToExcelDateTime(customer.smsSentAt) : null, fmt('smsSentAt'));
+  set('smsSimulated', customer.smsSentAt && customer.smsSimulated ? YES : null);
   set('disabled', customer.disabled ? NO : YES);
 }
 
@@ -430,8 +437,19 @@ function deleteRows(ws, rowNumbers) {
   [...rowNumbers].sort((a, b) => b - a).forEach(n => ws.spliceRows(n, 1));
 }
 
+/** A file from before an optional column gets it after the last used column. */
+function addMissingColumns(ws, cols) {
+  for (const column of CUSTOMER_COLUMNS.filter(c => !cols[c.field])) {
+    const colNumber = ws.columnCount + 1;
+    ws.getRow(1).getCell(colNumber).value = column.header;
+    ws.getColumn(colNumber).width = column.width;
+    cols[column.field] = colNumber;
+  }
+}
+
 function applyCustomers(layout, customers) {
   const { ws, cols, rowById, fileIds } = layout;
+  addMissingColumns(ws, cols);
   const taken = new Set(rowById.keys());
   const wanted = new Set();
   let lastRow = layout.lastRow;

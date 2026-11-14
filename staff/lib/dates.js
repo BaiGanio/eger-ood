@@ -4,8 +4,7 @@
 // toISOString(): Sofia is UTC+2/+3, and toISOString() moves a local midnight
 // to the day before.
 //
-// Chapter 05 put here only what the store and the test-data tool need.
-// Chapter 06 adds the reminder rules.
+// The reminder rules that use these functions are in reminders.js.
 
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -70,6 +69,29 @@ export function weekday(text) {
   const p = parseDateText(text);
   if (!p) throw new RangeError(`Not a date: ${text}`);
   return new Date(Date.UTC(p.year, p.month - 1, p.day)).getUTCDay();
+}
+
+// ─── Work days ───────────────────────────────────────────────────────────────
+
+// A wrong setting (all seven days off) must not make an endless loop.
+const MAX_STEPS_BACK = 60;
+
+/** True when the staff do not work on that day (weekly day off or holiday). */
+export function isDayOff(text, weeklyDaysOff = [], holidays = []) {
+  return weeklyDaysOff.includes(weekday(text)) || holidays.includes(text);
+}
+
+/**
+ * The same day if it is a work day. If not, the nearest work day before it
+ * (specs D7: a reminder moves earlier, never later).
+ */
+export function workDayOnOrBefore(text, weeklyDaysOff = [], holidays = []) {
+  let date = text;
+  for (let step = 0; step < MAX_STEPS_BACK; step++) {
+    if (!isDayOff(date, weeklyDaysOff, holidays)) return date;
+    date = addDays(date, -1);
+  }
+  return text;
 }
 
 // ─── Excel cells ─────────────────────────────────────────────────────────────

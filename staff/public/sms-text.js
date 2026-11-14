@@ -1,5 +1,5 @@
 // ─── SMS text helpers ────────────────────────────────────────────────────────
-// Shared by server.js (ESM import) and the browser (see ati.html).
+// Shared by the engine (lib/sms.js) and the browser (see index.html).
 //
 // Why this exists: a Cyrillic message is sent as UCS-2, so ONE SMS holds only
 // 70 characters, not 160. Go over that and the carrier bills two messages, over
@@ -49,4 +49,26 @@ export function measureSms(text) {
     segments,
     limit: segments === 1 ? single : multi
   };
+}
+
+/** "YYYY-MM-DD" → "DD.MM.YYYY". */
+export function formatDateBg(dateText) {
+  // By hand, not with toLocaleDateString('bg-BG'): that adds " г.", which
+  // reads badly ("2026 г..") and uses 3 of the 70 characters.
+  const [y, m, d] = String(dateText ?? '').split('-');
+  return d ? `${d}.${m}.${y}` : '';
+}
+
+/** Put the customer's values into the template. */
+export function fillTemplate(template, customer) {
+  const values = {
+    name: customer.name,
+    carModel: customer.carModel,
+    carPlate: customer.carPlate,
+    serviceDate: formatDateBg(customer.nextServiceDate),
+    phone: customer.phone,
+  };
+  // One pass: a value that has "{{…}}" in it is not filled a second time.
+  return String(template ?? '').replace(/{{(\w+)}}/g,
+    (whole, key) => (key in values ? String(values[key] ?? '') : whole));
 }

@@ -19,7 +19,6 @@
     "dotenv": "^17.3.1",
     "exceljs": "^4.4.0",
     "express": "^4.22.3",
-    "node-cron": "^3.0.3",
     "twilio": "^4.19.0"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ Last update: 2026-11-14.
 
 ## Where we are
 
-**Now:** chapter 05 (Excel storage) is done in code. It waits for the owner's commit and the checks with real Excel on Windows (list in `05-excel-storage.md`). Chapter 04 still waits for the checks on the live URL. **Next:** chapter 06 (reminder logic).
+**Now:** chapter 06 (reminder logic) is done in code. It waits for the owner's commit, his checks in the browser, and his screenshots about the "Прегледът мина" button. Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 07 (security).
 
 ## Chapters
 
@@ -20,7 +20,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 03 | Split repo into `site/` and `staff/` | ✅ | 2026-11-13. Committed in `d0cdb8d` on `master`. |
 | 04 | Public site: static + GitHub Pages | 🟨 | 2026-11-13. Code is done. Owner must set Pages → "GitHub Actions", push, and check the live URL. |
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
-| 06 | Reminder logic | ⬜ | Must use the days-off rule (`specs.md` D7). |
+| 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (68 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
 | 07 | Security | ⬜ | Any time after 03. |
 | 08 | Dashboard cleanup | ⬜ | |
 | 09 | Packaging | ⬜ | |
@@ -97,3 +97,10 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-14 (ch14): `site/images/eger2.jpg` (870 kB) is not used now; `station.jpg` is its small copy. `eger1.jpeg` and `technical-inspection.jpg` are still not used. `eger1.jpeg` has a Google watermark and `technical-inspection.jpg` looks like a stock photo: do not use them. Owner can delete the three files.
 - 2026-11-14 (ch14): chapter 12 (SEO) must know that the home page `h1` is now "Бензиностанция, ГТП и автомивка в Раковски" and the anchor `#calendar-section` is now `#gtp`.
 - 2026-11-14 (ch14): the owner wants the carousel on top and the about section second. The home page has this order now. Before any layout change: show a proposal and get the owner's OK.
+- 2026-11-14 (ch06): chapter 06 done in code: `lib/reminders.js`, `lib/sms.js`, days-off rule from the settings, true expiry date, manual send only, `force` for a second SMS, test-mode banner, Excel column "Тестов SMS". The cron job and `node-cron` are removed. No `toISOString()` is left in `staff/` code. These "found" items above are closed by it: `toISOString()` and cron in `server.js`, `withComputed` date bug, `weeklyDaysOff` not used, "Изпрати" moves the date, cron with no error handler.
+- 2026-11-14 (ch06): the dashboard was not checked in a browser by the agent. The routes were checked with `curl` on test data.
+- 2026-11-14 (ch06): `staff/server.js` still has the `cors` package and takes any field from the request body (chapter 07). Some route errors are still in English ("Customer not found"). Chapter 07 or 08.
+- 2026-11-14 (ch06): an overdue customer whose expiry date is in the past still gets the text "ГТП изтича ДАТА" with a past date. Ask the owner if a second text ("изтече") is necessary.
+- 2026-11-14 (ch06): the dashboard takes the status from the engine at load time. A page that stays open over midnight shows the status of the day before until a reload. Chapter 08.
+- 2026-11-14 (ch06): `scripts.js` still uses inline `onclick` and `confirm()`, and `previewSms`, `loadTemplate`, `loadHolidays` do not use `readReply`. Chapter 08.
+- 2026-11-14 (ch06): the test data has customer `c001` with a last inspection in the future (2027-12-29). The app accepts a future date. Chapter 07 (input checks) decides.

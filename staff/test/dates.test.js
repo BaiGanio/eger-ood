@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  addDays, addYears, excelDateTimeToText, excelDateToText, isDateText,
+  addDays, addYears, excelDateTimeToText, excelDateToText, isDateText, isDayOff,
   localDateText, localDateTimeText, momentToExcelDateTime, textToExcelDate,
-  toDateText, weekday,
+  toDateText, weekday, workDayOnOrBefore,
 } from '../lib/dates.js';
 
 test('toDateText pads the parts', () => {
@@ -69,4 +69,31 @@ test('Excel date-time: a moment is kept as the local clock time', () => {
 test('Excel date: a cell that is a hair before midnight is still that day', () => {
   // Excel keeps a date as a fraction of a day. It can be off by a millisecond.
   assert.equal(excelDateToText(new Date(Date.UTC(2026, 0, 15) - 1)), '2026-01-15');
+});
+
+test('one year after 13.04.2026 is 13.04.2027 (the old code gave the 12th in Sofia)', () => {
+  assert.equal(addYears('2026-04-13', 1), '2027-04-13');
+  assert.equal(addYears('2024-02-29', 1), '2025-02-28');
+});
+
+test('isDayOff knows the weekly days off and the holidays', () => {
+  assert.equal(isDayOff('2026-11-15', [0, 1], []), true);   // Sunday
+  assert.equal(isDayOff('2026-11-16', [0, 1], []), true);   // Monday
+  assert.equal(isDayOff('2026-11-14', [0, 1], []), false);  // Saturday is a work day
+  assert.equal(isDayOff('2026-11-14', [0, 1], ['2026-11-14']), true);
+});
+
+test('workDayOnOrBefore moves earlier, never later', () => {
+  const off = [0, 1];
+  assert.equal(workDayOnOrBefore('2026-11-17', off, []), '2026-11-17'); // Tuesday stays
+  assert.equal(workDayOnOrBefore('2026-11-15', off, []), '2026-11-14'); // Sunday → Saturday
+  assert.equal(workDayOnOrBefore('2026-11-16', off, []), '2026-11-14'); // Monday → Saturday
+  // Saturday is a holiday too → Friday.
+  assert.equal(workDayOnOrBefore('2026-11-16', off, ['2026-11-14']), '2026-11-13');
+  // Over the border of a year.
+  assert.equal(workDayOnOrBefore('2027-01-01', off, ['2027-01-01']), '2026-12-31');
+});
+
+test('workDayOnOrBefore does not hang when all days are days off', () => {
+  assert.equal(workDayOnOrBefore('2026-11-17', [0, 1, 2, 3, 4, 5, 6], []), '2026-11-17');
 });

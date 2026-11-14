@@ -52,21 +52,37 @@ Old note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS 
 - An edit of `Последен преглед` in Excel has the same effect: if `smsSentAt` is older than `lastServiceDate`, the app treats it as empty.
 
 ## Manual send only
-- [ ] Remove the cron block (`server.js:337–377`) and the `node-cron` package.
-- [ ] One function `sendReminder(customerId)` in `staff/lib/sms.js`. The route calls it.
-- [ ] Order inside it: check active → build text → send → save `smsSentAt`. If the save fails after a real send (Excel has the file open), tell the staff clearly: "SMS е изпратен, но не е записан". Better: check the file lock **before** the send.
-- [ ] No send two times: if `smsSentAt` is set, the route refuses unless the request has `force: true`. The dashboard asks "Вече е изпратен на ДАТА. Изпрати отново?".
-- [ ] Simulated mode: the response has `simulated: true`. The dashboard shows a yellow banner "ТЕСТОВ РЕЖИМ — SMS не се изпращат" at all times when there are no Twilio keys. Add `GET /api/status` that returns `{ smsMode: "live" | "simulated" }`.
-- [ ] Dashboard: default sort puts overdue first, then due today (it does this already). Overdue rows stay until staff send or disable. A missed day loses nothing.
-- [ ] Q5: bulk send is not in this chapter.
+- [x] Remove the cron block (`server.js:337–377`) and the `node-cron` package.
+- [x] One function `sendReminder(customerId)` in `staff/lib/sms.js`. The route calls it.
+- [x] Order inside it: check active → build text → send → save `smsSentAt`. If the save fails after a real send (Excel has the file open), tell the staff clearly: "SMS е изпратен, но не е записан". Better: check the file lock **before** the send.
+- [x] No send two times: if `smsSentAt` is set, the route refuses unless the request has `force: true`. The dashboard asks "Вече е изпратен на ДАТА. Изпрати отново?".
+- [x] Simulated mode: the response has `simulated: true`. The dashboard shows a yellow banner "ТЕСТОВ РЕЖИМ — SMS не се изпращат" at all times when there are no Twilio keys. Add `GET /api/status` that returns `{ smsMode: "live" | "simulated" }`.
+- [x] Dashboard: default sort puts overdue first, then due today (it does this already). Overdue rows stay until staff send or disable. A missed day loses nothing.
+- [x] Q5: bulk send is not in this chapter.
 
 ## Tests (`node --test`, file `staff/test/dates.test.js` and `reminders.test.js`)
-- [ ] `2026-04-13` → next `2027-04-13`, with `TZ=Europe/Sofia` and with `TZ=UTC`.
-- [ ] `2024-02-29` → next `2025-02-28`.
-- [ ] Reminder on a Sunday moves to Saturday. Reminder on a holiday moves earlier.
-- [ ] Each status rule, one test each.
-- [ ] "Прегледът мина" clears `smsSentAt` and moves the dates one year.
-- [ ] Send when disabled → refused. Second send without `force` → refused.
+- [x] `2026-04-13` → next `2027-04-13`, with `TZ=Europe/Sofia` and with `TZ=UTC`.
+- [x] `2024-02-29` → next `2025-02-28`.
+- [x] Reminder on a Sunday moves to Saturday. Reminder on a holiday moves earlier.
+- [x] Each status rule, one test each.
+- [x] "Прегледът мина" clears `smsSentAt` and moves the dates one year.
+- [x] Send when disabled → refused. Second send without `force` → refused.
+
+## Result (2026-11-14)
+
+- Done in code. 68 tests pass with `TZ=Europe/Sofia`, `TZ=UTC` and `TZ=America/Los_Angeles`.
+- New files: `staff/lib/reminders.js`, `staff/lib/sms.js`, `staff/test/reminders.test.js`, `staff/test/sms.test.js`.
+- **Not built: the "Прегледът мина" button.** The owner said that a change of the last inspection date is enough (dashboard pencil or Excel). The logic is there (`startNewCycle`), and the edit route uses it. The owner will show screenshots before a decision on a button.
+- Changed from the text above: an SMS from the **same day** as `lastServiceDate` also counts as old (not only an older one). Reason: SMS in the morning, inspection the same day, date typed in Excel. With "older" only, the customer shows "sent" for the whole next year and gets no reminder.
+- `smsSimulated` is a new Excel column, "Тестов SMS" (optional on a read).
+- The template fill is in `staff/public/sms-text.js` (`fillTemplate`). The engine and the settings preview use the same function.
+
+## Owner checks
+
+- [ ] Open the dashboard on test data (commands in `CLAUDE.md`). The yellow banner "ТЕСТОВ РЕЖИМ" shows.
+- [ ] "Изпрати" on a row: the row shows "Изпратен (тест)" and goes down the list.
+- [ ] "Изпрати отново" asks first.
+- [ ] Pencil → new inspection date: the row shows "Очаква" with dates one year later.
 
 ## Done when
 - All tests pass in both time zones.

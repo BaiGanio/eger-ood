@@ -5,7 +5,8 @@ let pricePerSegment = 0.1466;
 let holidays = [];
 let pendingSendId = null;
 
-const TODAY = new Date().toISOString().split('T')[0];
+// Order of the rows: what the staff must do first is on top.
+const STATUS_ORDER = { overdue: 0, due: 1, pending: 2, sent: 3, disabled: 4 };
 
 // Bootstrap modal instances (initialised after DOM ready)
 let bsCustomerModal, bsSmsPreviewModal;
@@ -18,7 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function init() {
-  await Promise.all([loadCustomers(), loadTemplate(), loadHolidays()]);
+  await Promise.all([loadCustomers(), loadTemplate(), loadHolidays(), loadSmsMode()]);
+}
+
+// With no Twilio keys the app only pretends to send. The banner says so.
+async function loadSmsMode() {
+  try {
+    const data = await readReply(await fetch('/api/status'));
+    document.getElementById('sms-test-mode').classList.toggle('d-none', data.smsMode !== 'simulated');
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function loadCustomers() {
@@ -105,10 +116,12 @@ function showView(name) {
 // ─── Stats ───────────────────────────────────────────────────────────
 function renderStats() {
   const total    = customers.length;
-  const pending  = customers.filter(c => !c.disabled && c.status === 'pending').length;
-  const sent     = customers.filter(c => c.status === 'sent').length;
-  const overdue  = customers.filter(c => !c.disabled && c.status === 'pending' && c.nextReminderDate < TODAY).length;
-  const dueToday = customers.filter(c => !c.disabled && c.status === 'pending' && c.nextReminderDate === TODAY).length;
+  // The engine computes the status (lib/reminders.js). "Waiting" = not sent yet.
+  const count    = (...statuses) => customers.filter(c => statuses.includes(c.status)).length;
+  const pending  = count('pending', 'due', 'overdue');
+  const sent     = count('sent');
+  const overdue  = count('overdue');
+  const dueToday = count('due');
 
   document.getElementById('stat-total').textContent   = total;
   document.getElementById('stat-pending').textContent = pending;
@@ -128,18 +141,14 @@ function renderTable() {
       c.carPlate.toLowerCase().includes(search) ||
       c.carModel.toLowerCase().includes(search);
 
-    const effStatus = effectiveStatus(c);
-    const matchStatus = !filterStatus || effStatus === filterStatus;
+    const matchStatus = !filterStatus || c.status === filterStatus;
     return matchText && matchStatus;
   });
 
-  // Sort: overdue first, then by reminder date ascending
-  filtered.sort((a, b) => {
-    const ra = a.nextReminderDate, rb = b.nextReminderDate;
-    if (ra < TODAY && rb >= TODAY) return -1;
-    if (ra >= TODAY && rb < TODAY) return  1;
-    return ra.localeCompare(rb);
-  });
+  // Sort: overdue first, then due today, then by reminder date ascending
+  filtered.sort((a, b) =>
+    (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
+    a.nextReminderDate.localeCompare(b.nextReminderDate));
 
   const tbody = document.getElementById('table-body');
 
@@ -150,13 +159,16 @@ function renderTable() {
   }
 
   tbody.innerHTML = filtered.map(c => {
-    const eff = effectiveStatus(c);
+    const eff = c.status;
 
     const badge = {
       pending:  `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
                    <i class="bi bi-clock me-1"></i>Очаква</span>`,
-      sent:     `<span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
-                   <i class="bi bi-check-circle me-1"></i>Изпратен</span>`,
+      due:      `<span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+                   <i class="bi bi-bell me-1"></i>За днес</span>`,
+      sent:     `<span class="badge bg-success-subtle text-success-emphasis border border-success-subtle"
+                       title="Изпратен на ${formatDateTime(c.smsSentAt)}">
+                   <i class="bi bi-check-circle me-1"></i>Изпратен${c.smsSimulated ? ' (тест)' : ''}</span>`,
       disabled: `<span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">
                    <i class="bi bi-pause-circle me-1"></i>Деактивиран</span>`,
       overdue:  `<span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">
@@ -164,16 +176,17 @@ function renderTable() {
     }[eff] || '';
 
     const rDate   = c.nextReminderDate;
-    const rdClass = rDate === TODAY ? 'date-today'
-                  : (rDate < TODAY && eff !== 'sent') ? 'date-overdue'
-                  : (daysDiff(rDate) <= 7 ? 'date-soon' : '');
-    const rdLabel = rDate === TODAY
+    const rdClass = eff === 'due' ? 'date-today'
+                  : eff === 'overdue' ? 'date-overdue'
+                  : (eff === 'pending' && daysDiff(rDate) <= 7 ? 'date-soon' : '');
+    const rdLabel = eff === 'due'
       ? `<strong>${formatDate(rDate)}</strong> <span class="badge bg-primary ms-1">днес</span>`
       : formatDate(rDate);
 
-    const canSend = !c.disabled && eff !== 'sent';
-
-    const sendTitle = c.disabled ? 'Клиентът е деактивиран' : 'Вече е изпратен';
+    const canSend = !c.disabled;
+    // A second SMS is possible, but it must look like a second choice.
+    const sendClass = eff === 'sent' ? 'btn-outline-primary' : 'btn-primary';
+    const sendLabel = eff === 'sent' ? 'Изпрати отново' : 'Изпрати';
 
     return `
     <tr class="${c.disabled ? 'row-disabled' : ''}" id="row-${c.id}">
@@ -194,12 +207,12 @@ function renderTable() {
       <td>
         <div class="d-flex gap-1 flex-wrap">
           ${canSend
-            ? `<button class="btn btn-primary btn-sm d-flex align-items-center gap-1"
+            ? `<button class="btn ${sendClass} btn-sm d-flex align-items-center gap-1"
                        onclick="previewSms('${c.id}')">
-                 <i class="bi bi-send"></i> Изпрати
+                 <i class="bi bi-send"></i> ${sendLabel}
                </button>`
             : `<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                       disabled title="${sendTitle}">
+                       disabled title="Клиентът е деактивиран">
                  <i class="bi bi-send"></i> Изпрати
                </button>`
           }
@@ -253,6 +266,9 @@ function renderSettingsTable() {
 
 // ─── SMS send flow ────────────────────────────────────────────────────
 async function previewSms(id) {
+  const customer = customers.find(c => c.id === id);
+  if (customer && customer.status === 'sent' &&
+      !confirm(`Вече е изпратен на ${formatDateTime(customer.smsSentAt)}. Изпрати отново?`)) return;
   try {
     const res  = await fetch(`/api/preview-sms/${id}`, { method: 'POST' });
     const data = await res.json();
@@ -281,18 +297,27 @@ async function confirmSend() {
   btn.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Изпращане…`;
 
   try {
-    const data = await readReply(await fetch(`/api/customers/${pendingSendId}/send-sms`, { method: 'POST' }));
-
     const idx = customers.findIndex(c => c.id === pendingSendId);
+    // The staff said yes to a second SMS before this window opened.
+    const force = idx !== -1 && customers[idx].status === 'sent';
+    const data = await readReply(await fetch(`/api/customers/${pendingSendId}/send-sms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ force })
+    }));
+
     if (idx !== -1) customers[idx] = data.customer;
 
     closeSmsPreviewModal();
     renderTable();
     renderStats();
     renderSettingsTable();
-    toast(`SMS изпратен до ${data.customer.name}!`, 'success');
+    if (data.simulated) toast(`ТЕСТОВ РЕЖИМ: до ${data.customer.name} не е изпратен истински SMS.`, 'warning');
+    else toast(`SMS изпратен до ${data.customer.name}!`, 'success');
   } catch (e) {
     toast('Грешка при изпращане: ' + e.message, 'danger');
+    // The file can hold more than this page shows (example: sent, not saved).
+    loadCustomers();
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<i class="bi bi-send"></i> Изпрати SMS`;
@@ -415,15 +440,11 @@ function updatePreview() {
     name:            'Иван Петров',
     carModel:        'VW Golf 7',
     carPlate:        'PB 1234 AB',
-    nextServiceDate: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
+    nextServiceDate: localDateInDays(7),
     phone:           '+359881234567'
   };
-  const preview = tmpl
-    .replace(/{{name}}/g,        sample.name)
-    .replace(/{{carModel}}/g,    sample.carModel)
-    .replace(/{{carPlate}}/g,    sample.carPlate)
-    .replace(/{{serviceDate}}/g, formatDate(sample.nextServiceDate))
-    .replace(/{{phone}}/g,       sample.phone);
+  // The same function fills the real SMS in the engine.
+  const preview = window.SmsText.fillTemplate(tmpl, sample);
 
   document.getElementById('sms-preview-box').textContent = preview || '—';
   renderCounter(document.getElementById('sms-counter'), preview, pricePerSegment);
@@ -534,10 +555,20 @@ async function saveHolidays() {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────
-function effectiveStatus(c) {
-  if (c.disabled) return 'disabled';
-  if (c.status === 'pending' && c.nextReminderDate < TODAY) return 'overdue';
-  return c.status;
+// "YYYY-MM-DD" of today + `days`, from local date parts. Not toISOString():
+// that gives the day before in Sofia after midnight.
+function localDateInDays(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// "YYYY-MM-DDTHH:mm:ss" → "DD.MM.YYYY HH:mm"
+function formatDateTime(str) {
+  if (!str) return '—';
+  const [date, time = ''] = str.split('T');
+  return `${formatDate(date)} ${time.slice(0, 5)}`.trim();
 }
 
 function formatDate(str) {

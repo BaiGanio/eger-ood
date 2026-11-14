@@ -7,7 +7,7 @@ Two apps for ЕГЕР ООД, a family car service in Bulgaria. They share nothi
 - **Public site** (`site/index.html`): static, Bulgarian, mobile first. GitHub Pages now, Cloudflare + domain later.
 - **Staff app** (`staff/public/index.html` + `staff/server.js`): local Node server on `127.0.0.1`. Staff keep customers and send ГТП (annual inspection) reminder SMS by hand through Twilio. Data goes to one Excel file (`exceljs`, only through `staff/lib/store.js`).
 
-The repo is in the middle of a restructure. The split into `site/` and `staff/` is done (`plan/03-split-repo.md`). `staff/lib/store.js`, `paths.js` and the start of `dates.js` exist (chapter 05). `reminders.js` and `sms.js` come in chapter 06.
+The repo is in the middle of a restructure. The split into `site/` and `staff/` is done (`plan/03-split-repo.md`). `staff/lib/` has `store.js`, `paths.js`, `dates.js` (chapter 05) and `reminders.js`, `sms.js` (chapter 06).
 
 ## Read before any work
 
