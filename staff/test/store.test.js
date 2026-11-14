@@ -30,7 +30,6 @@ function customer(n, extra = {}) {
     carPlate: `PB 000${n} TT`,
     lastServiceDate: '2026-01-15',
     smsSentAt: null,
-    smsSimulated: false,
     disabled: false,
     ...extra,
   };
@@ -82,7 +81,7 @@ test('a missing file is created with three sheets and headers', async t => {
   assert.deepEqual(wb.worksheets.map(ws => ws.name), [SHEETS.customers, SHEETS.settings, SHEETS.holidays]);
   const headers = wb.getWorksheet(SHEETS.customers).getRow(1).values.slice(1);
   assert.deepEqual(headers, ['ID', 'Име', 'Телефон', 'Адрес', 'Автомобил', 'Рег. номер',
-    'Последен преглед', 'SMS изпратен на', 'Тестов SMS', 'Активен']);
+    'Последен преглед', 'SMS изпратен на', 'Активен']);
 });
 
 test('the file does not hold computed values', async t => {
@@ -92,7 +91,7 @@ test('the file does not hold computed values', async t => {
   })] });
   const data = await readData();
   assert.deepEqual(Object.keys(data.customers[0]).sort(), ['address', 'carModel', 'carPlate',
-    'disabled', 'id', 'lastServiceDate', 'name', 'phone', 'smsSentAt', 'smsSimulated']);
+    'disabled', 'id', 'lastServiceDate', 'name', 'phone', 'smsSentAt']);
 });
 
 test('round trip: write then read gives the same data', async t => {
@@ -295,10 +294,10 @@ test('a delete moves a whole row, so a column added by the staff stays with its 
   await writeData(sample());
   await editInExcel(wb => {
     const ws = wb.getWorksheet(SHEETS.customers);
-    ws.getRow(1).getCell(11).value = 'Бележки';
-    ws.getRow(2).getCell(11).value = 'бележка 1';
-    ws.getRow(3).getCell(11).value = 'бележка 2';
-    ws.getRow(4).getCell(11).value = 'бележка 3';
+    ws.getRow(1).getCell(10).value = 'Бележки';
+    ws.getRow(2).getCell(10).value = 'бележка 1';
+    ws.getRow(3).getCell(10).value = 'бележка 2';
+    ws.getRow(4).getCell(10).value = 'бележка 3';
   });
   const data = await readData();
   data.customers = data.customers.filter(c => c.id !== 'c002');
@@ -307,8 +306,8 @@ test('a delete moves a whole row, so a column added by the staff stays with its 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(dataFile());
   const ws = wb.getWorksheet(SHEETS.customers);
-  assert.equal(ws.getRow(1).getCell(11).value, 'Бележки');
-  assert.deepEqual([2, 3].map(n => [ws.getRow(n).getCell(1).value, ws.getRow(n).getCell(11).value]),
+  assert.equal(ws.getRow(1).getCell(10).value, 'Бележки');
+  assert.deepEqual([2, 3].map(n => [ws.getRow(n).getCell(1).value, ws.getRow(n).getCell(10).value]),
     [['c001', 'бележка 1'], ['c003', 'бележка 3']]);
   assert.equal(ws.getRow(4).getCell(1).value, null);
   assert.equal((await readData()).customers.length, 2);
@@ -396,37 +395,4 @@ test('backup: only the last 30 stay', async t => {
   assert.ok(names.includes(path.basename(today && backupFile(today)).normalize('NFC')));
   assert.ok(!names.includes(path.basename(backupFile(addDays(today, -35))).normalize('NFC')));
   assert.ok(names.includes('бележки.txt'));
-});
-
-test('the test-SMS mark is saved, and it needs a send time', async t => {
-  await freshFolder(t);
-  await writeData({ ...sample(), customers: [
-    customer(1, { smsSentAt: '2026-11-14T10:00:00', smsSimulated: true }),
-    customer(2, { smsSentAt: '2026-11-14T10:00:00' }),
-    customer(3, { smsSimulated: true }),
-  ] });
-  const data = await readData();
-  assert.deepEqual(data.customers.map(c => c.smsSimulated), [true, false, false]);
-});
-
-test('a file from before the "Тестов SMS" column loads, and a write adds the column', async t => {
-  await freshFolder(t);
-  await writeData(sample());
-  await editInExcel(wb => {
-    const ws = wb.getWorksheet(SHEETS.customers);
-    ws.spliceColumns(columnOf(ws, 'Тестов SMS'), 1);
-  });
-
-  const data = await readData();
-  assert.deepEqual(data.problems, []);
-  assert.equal(data.customers.length, 3);
-  assert.equal(data.customers[0].smsSimulated, false);
-
-  data.customers[0].smsSentAt = '2026-11-14T10:00:00';
-  data.customers[0].smsSimulated = true;
-  await writeData(data);
-  const again = await readData();
-  assert.equal(again.customers[0].smsSimulated, true);
-  assert.equal(again.customers[1].disabled, true);
-  assert.deepEqual(again.problems, []);
 });

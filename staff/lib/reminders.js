@@ -1,7 +1,7 @@
 // Status and due rules. Pure functions (specs section 5).
 //
 // The file stores only what the staff or the app enter: `lastServiceDate`,
-// `smsSentAt`, `smsSimulated`, `disabled`. All other values are computed here
+// `smsSentAt`, `disabled`. All other values are computed here
 // on each read, so they can never go out of step with the file.
 
 import { addDays, addYears, workDayOnOrBefore } from './dates.js';
@@ -47,7 +47,6 @@ export function withComputed(customer, settings, today) {
   return {
     ...customer,
     smsSentAt: sent ? customer.smsSentAt : null,
-    smsSimulated: sent && Boolean(customer.smsSimulated),
     nextServiceDate: serviceDate,
     nextReminderDate: reminderDate,
     status: statusOf(customer, reminderDate, today),
@@ -56,12 +55,12 @@ export function withComputed(customer, settings, today) {
 
 /** A new inspection date starts the next year: no SMS went out for it yet. */
 export function startNewCycle(customer, inspectionDate) {
-  return { ...customer, lastServiceDate: inspectionDate, smsSentAt: null, smsSimulated: false };
+  return { ...customer, lastServiceDate: inspectionDate, smsSentAt: null };
 }
 
 /** A send changes only the SMS mark. The inspection date stays. */
-export function markSent(customer, sentAt, simulated) {
-  return { ...customer, smsSentAt: sentAt, smsSimulated: Boolean(simulated) };
+export function markSent(customer, sentAt) {
+  return { ...customer, smsSentAt: sentAt };
 }
 
 /**

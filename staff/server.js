@@ -93,7 +93,6 @@ app.post('/api/customers', route(async (req, res) => {
     carModel, carPlate,
     lastServiceDate,
     smsSentAt: null,
-    smsSimulated: false,
     disabled: false
   }, data, localDateText());
 
@@ -111,10 +110,7 @@ app.put('/api/customers/:id', route(async (req, res) => {
   const existing = data.customers[idx];
   // The ID is the key of the row in the Excel file. A request cannot change it.
   // The SMS mark is the app's own. Only a send or a new cycle changes it.
-  let merged = {
-    ...existing, ...req.body,
-    id: existing.id, smsSentAt: existing.smsSentAt, smsSimulated: existing.smsSimulated,
-  };
+  let merged = { ...existing, ...req.body, id: existing.id, smsSentAt: existing.smsSentAt };
 
   // The reminder rules cannot compute from a value that is not a date.
   if (!isDateText(merged.lastServiceDate)) return res.status(400).json({ error: BAD_DATE });
@@ -157,7 +153,7 @@ app.patch('/api/customers/:id/toggle-disabled', route(async (req, res) => {
   res.json(withComputed(data.customers[idx], data, localDateText()));
 }));
 
-// GET the SMS mode. The dashboard shows a banner in simulated mode.
+// GET the SMS mode: "live" or "off" (no Twilio keys). The dashboard shows a banner when it is off.
 app.get('/api/status', (req, res) => {
   res.json({ smsMode: smsMode() });
 });
@@ -230,7 +226,7 @@ app.use((err, req, res, next) => {
     return res.status(err.code === 'LOCKED' ? 423 : 500).json({ error: err.message, code: err.code });
   }
   if (err instanceof SendError) {
-    const status = { NOT_FOUND: 404, DISABLED: 400, ALREADY_SENT: 409, SEND_FAILED: 502 }[err.code] || 500;
+    const status = { NOT_FOUND: 404, DISABLED: 400, ALREADY_SENT: 409, NO_KEYS: 503, SEND_FAILED: 502 }[err.code] || 500;
     return res.status(status).json({ error: err.message, code: err.code, sentAt: err.sentAt });
   }
   if (err.type === 'entity.parse.failed') {

@@ -1,5 +1,5 @@
 // The send flow against a real (temporary) Excel file. No SMS goes out:
-// each test gives its own `send` function or uses the simulated mode.
+// each test gives its own `send` function, and the Twilio keys are taken away.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -22,8 +22,7 @@ async function freshFolder(t) {
     saved.forEach(([key, value]) => { if (value !== undefined) process.env[key] = value; });
     await fs.rm(dir, { recursive: true, force: true });
   });
-  // The simulated mode prints the SMS. Keep the test output clean.
-  t.mock.method(console, 'log', () => {});
+  // A failed send prints to the console. Keep the test output clean.
   t.mock.method(console, 'error', () => {});
 }
 
@@ -31,7 +30,7 @@ function customer(extra = {}) {
   return {
     id: 'c001', name: 'Тест Клиент', phone: '+359880000001', address: '',
     carModel: 'Тест Модел', carPlate: 'PB 0001 TT',
-    lastServiceDate: '2025-11-24', smsSentAt: null, smsSimulated: false, disabled: false,
+    lastServiceDate: '2025-11-24', smsSentAt: null, disabled: false,
     ...extra,
   };
 }
@@ -47,19 +46,19 @@ async function seed(...customers) {
 }
 
 /** A `send` function that records its calls and sends nothing. */
-function fakeSend(simulated = false) {
+function fakeSend() {
   const calls = [];
-  const send = async (c, text) => { calls.push({ id: c.id, text }); return { sid: 'SM_TEST', simulated }; };
+  const send = async (c, text) => { calls.push({ id: c.id, text }); return { sid: 'SM_TEST' }; };
   return { calls, send };
 }
 
 const at = (y, m, d, h = 10) => new Date(y, m - 1, d, h, 0, 0);
 
-test('smsMode is simulated with no keys or with placeholder keys', () => {
-  assert.equal(smsMode({}), 'simulated');
-  assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'AC_your_sid', TWILIO_AUTH_TOKEN: 'x', TWILIO_PHONE_NUMBER: '+1' }), 'simulated');
-  assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', TWILIO_AUTH_TOKEN: 'x', TWILIO_PHONE_NUMBER: '+1' }), 'simulated');
-  assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'AC0123456789abcdef', TWILIO_AUTH_TOKEN: '' , TWILIO_PHONE_NUMBER: '+1' }), 'simulated');
+test('smsMode is off with no keys or with placeholder keys', () => {
+  assert.equal(smsMode({}), 'off');
+  assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'AC_your_sid', TWILIO_AUTH_TOKEN: 'x', TWILIO_PHONE_NUMBER: '+1' }), 'off');
+  assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', TWILIO_AUTH_TOKEN: 'x', TWILIO_PHONE_NUMBER: '+1' }), 'off');
+  assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'AC0123456789abcdef', TWILIO_AUTH_TOKEN: '' , TWILIO_PHONE_NUMBER: '+1' }), 'off');
   assert.equal(smsMode({ TWILIO_ACCOUNT_SID: 'AC0123456789abcdef', TWILIO_AUTH_TOKEN: 'x', TWILIO_PHONE_NUMBER: '+1' }), 'live');
 });
 
@@ -77,23 +76,20 @@ test('a send saves the SMS mark and does not move the inspection date', async t 
   const result = await sendReminder('c001', { now: at(2026, 11, 17), send });
 
   assert.deepEqual(calls, [{ id: 'c001', text: 'ГТП на PB 0001 TT изтича 24.11.2026' }]);
-  assert.equal(result.simulated, false);
+  assert.equal(result.sid, 'SM_TEST');
   assert.equal(result.customer.status, 'sent');
   const saved = (await readData()).customers[0];
   assert.equal(saved.smsSentAt, '2026-11-17T10:00:00');
-  assert.equal(saved.smsSimulated, false);
   assert.equal(saved.lastServiceDate, '2025-11-24');
 });
 
-test('with no Twilio keys the send is simulated and marked as a test', async t => {
+test('with no Twilio keys the send is refused, and the customer is not marked', async t => {
   await freshFolder(t);
   await seed(customer());
 
-  const result = await sendReminder('c001', { now: at(2026, 11, 17) });
-
-  assert.equal(result.simulated, true);
-  assert.equal(result.customer.smsSimulated, true);
-  assert.equal((await readData()).customers[0].smsSimulated, true);
+  await assert.rejects(sendReminder('c001', { now: at(2026, 11, 17) }),
+    err => err instanceof SendError && err.code === 'NO_KEYS');
+  assert.equal((await readData()).customers[0].smsSentAt, null);
 });
 
 test('send to a disabled customer is refused, and nothing goes out', async t => {
@@ -153,7 +149,7 @@ test('the file locks during the send: the message says sent but not saved', asyn
   await freshFolder(t);
   await seed(customer());
   // Excel opens the file in the moment between the check and the save.
-  const send = async () => { await fs.writeFile(lockFile(), ''); return { sid: 'SM_TEST', simulated: false }; };
+  const send = async () => { await fs.writeFile(lockFile(), ''); return { sid: 'SM_TEST' }; };
 
   await assert.rejects(sendReminder('c001', { now: at(2026, 11, 17), send }),
     err => err instanceof SendError && err.code === 'NOT_SAVED' && err.message.includes('SMS е изпратен, но не е записан'));

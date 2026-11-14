@@ -13,7 +13,7 @@ const SETTINGS = { weeklyDaysOff: [0, 1], holidays: [] };
 function customer(extra = {}) {
   return {
     id: 'c001', name: 'Тест Клиент', phone: '+359880000001', carModel: 'Тест', carPlate: 'PB 0001 TT',
-    lastServiceDate: '2025-11-24', smsSentAt: null, smsSimulated: false, disabled: false,
+    lastServiceDate: '2025-11-24', smsSentAt: null, disabled: false,
     ...extra,
   };
 }
@@ -88,12 +88,11 @@ test('an overdue customer stays overdue until a send: a missed day loses nothing
 
 test('a new date typed in Excel makes the old SMS mark empty', () => {
   // The SMS of 2026 stays in the file. The staff typed the new inspection date.
-  const c = customer({ lastServiceDate: '2026-11-27', smsSentAt: '2026-11-17T10:00:00', smsSimulated: true });
+  const c = customer({ lastServiceDate: '2026-11-27', smsSentAt: '2026-11-17T10:00:00' });
   assert.equal(sentInThisCycle(c), false);
   const view = withComputed(c, SETTINGS, '2026-12-01');
   assert.equal(view.status, 'pending');
   assert.equal(view.smsSentAt, null);
-  assert.equal(view.smsSimulated, false);
   assert.equal(view.nextServiceDate, '2027-11-27');
 });
 
@@ -104,16 +103,15 @@ test('an SMS from the day of the inspection is for the old cycle', () => {
 
 test('a send changes only the SMS mark', () => {
   const before = customer();
-  const after = markSent(before, '2026-11-17T10:00:00', true);
-  assert.deepEqual(after, { ...before, smsSentAt: '2026-11-17T10:00:00', smsSimulated: true });
+  const after = markSent(before, '2026-11-17T10:00:00');
+  assert.deepEqual(after, { ...before, smsSentAt: '2026-11-17T10:00:00' });
   assert.equal(after.lastServiceDate, before.lastServiceDate);
 });
 
 test('a new inspection date clears the SMS mark and moves the dates one year', () => {
-  const sent = customer({ smsSentAt: '2026-11-17T10:00:00', smsSimulated: true });
+  const sent = customer({ smsSentAt: '2026-11-17T10:00:00' });
   const next = withComputed(startNewCycle(sent, '2026-11-24'), SETTINGS, '2026-11-24');
   assert.equal(next.smsSentAt, null);
-  assert.equal(next.smsSimulated, false);
   assert.equal(next.nextServiceDate, '2027-11-24');
   assert.equal(next.nextReminderDate, '2027-11-17');
   assert.equal(next.status, 'pending');

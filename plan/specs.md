@@ -68,7 +68,7 @@ Last update: 2026-11-14.
 | `staff/lib/store.js` | The only code that touches the Excel file (repository pattern). |
 | `staff/lib/dates.js` | All date math. Pure functions. |
 | `staff/lib/reminders.js` | Status and due rules. Pure functions. |
-| `staff/lib/sms.js` | Build text, send through Twilio, simulated mode. |
+| `staff/lib/sms.js` | Build text, send through Twilio. |
 | `staff/lib/paths.js` | Data folder, backup folder, `.env` path. |
 | `staff/public/sms-text.js` | SMS length, cost, template fill. Shared by engine and browser. |
 
@@ -86,9 +86,9 @@ Last update: 2026-11-14.
 - Status, in this order: `disabled` → `sent` (`smsSentAt` is set, for the present cycle) → `overdue` (reminder date before today) → `due` (today) → `pending`.
 - An SMS belongs to the present cycle only if its day is **after** `lastServiceDate`. An SMS from the day of the inspection or before it counts as empty. So a new date typed in Excel starts the next year with no other step (chapter 06, 2026-11-14).
 - An overdue customer stays on the list until staff send or disable. A missed day loses nothing.
-- "Изпрати" sets `smsSentAt` and `smsSimulated` only. A new `lastServiceDate` (dashboard edit or Excel) clears them. That starts the next year. A separate "Прегледът мина" button is not built: the owner said on 2026-11-14 that the date edit is enough. He will show screenshots before a decision on the button.
+- "Изпрати" sets `smsSentAt` only. A new `lastServiceDate` (dashboard edit or Excel) clears it. That starts the next year. A separate "Прегледът мина" button is not built: the owner said on 2026-11-14 that the date edit is enough. He will show screenshots before a decision on the button.
 - A second SMS in one cycle needs `force: true`. The dashboard asks first ("Вече е изпратен на ДАТА. Изпрати отново?").
-- A simulated send (no Twilio keys) is saved with `smsSimulated` = true (Excel column "Тестов SMS", app only). The dashboard shows "Изпратен (тест)" and a banner in simulated mode (owner, 2026-11-14).
+- There is no simulated send. With no Twilio keys in `.env` the send is refused, nothing is saved, and the dashboard shows a banner. Tests of the real flow use the owner's Twilio developer account (owner, 2026-11-14).
 
 ## 6. Security rules
 
@@ -109,7 +109,6 @@ Last update: 2026-11-14.
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash.
 - `Телефон` is a text column.
 - A write changes the workbook in place. Rows that did not load (bad rows) and columns that the staff added stay in the file.
-- The column "Тестов SMS" is optional on a read. A file from before chapter 06 loads, and the first write adds the column.
 - The file holds no computed column. "Следващ преглед" and "Напомняне на" show in the dashboard only (owner, 2026-11-13).
 
 ## 8. Code rules

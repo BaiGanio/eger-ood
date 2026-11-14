@@ -1,4 +1,4 @@
-// Build the SMS text, send it through Twilio, simulated mode.
+// Build the SMS text and send it through Twilio.
 //
 // `sendReminder` is the one way an SMS goes out. A person starts it with a
 // click. Nothing here runs on a timer (specs D4).
@@ -13,20 +13,23 @@ export class SendError extends Error {
   constructor(code, message, extra = {}) {
     super(message);
     this.name = 'SendError';
-    // 'NOT_FOUND' | 'DISABLED' | 'ALREADY_SENT' | 'SEND_FAILED' | 'NOT_SAVED'
+    // 'NOT_FOUND' | 'DISABLED' | 'ALREADY_SENT' | 'NO_KEYS' | 'SEND_FAILED' | 'NOT_SAVED'
     this.code = code;
     Object.assign(this, extra);
   }
 }
 
-/** 'live' with Twilio keys in `.env`, 'simulated' with none. */
+/**
+ * 'live' with Twilio keys in `.env`, 'off' with none.
+ * There is no pretend send: an SMS that did not go out must never look sent.
+ */
 export function smsMode(env = process.env) {
   const sid = (env.TWILIO_ACCOUNT_SID || '').trim();
   const token = (env.TWILIO_AUTH_TOKEN || '').trim();
   const from = (env.TWILIO_PHONE_NUMBER || '').trim();
   // "AC_…" and "ACxxx…" are the placeholders of .env.example files.
   const placeholder = sid.startsWith('AC_') || /^ACx+$/i.test(sid);
-  return sid && token && from && !placeholder ? 'live' : 'simulated';
+  return sid && token && from && !placeholder ? 'live' : 'off';
 }
 
 export function buildSmsText(template, customer) {
@@ -34,10 +37,6 @@ export function buildSmsText(template, customer) {
 }
 
 async function deliver(customer, text) {
-  if (smsMode() === 'simulated') {
-    console.log(`[ТЕСТ] SMS до ${customer.phone}: ${text}`);
-    return { sid: 'TEST_' + Date.now(), simulated: true };
-  }
   const { default: twilio } = await import('twilio');
   const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
   const message = await client.messages.create({
@@ -45,7 +44,7 @@ async function deliver(customer, text) {
   });
   // Live mode logs the ID and the SID only, never the phone with the text.
   console.log(`[SMS] Sent to customer ${customer.id}, SID ${message.sid}`);
-  return { sid: message.sid, simulated: false };
+  return { sid: message.sid };
 }
 
 /**
@@ -53,10 +52,10 @@ async function deliver(customer, text) {
  *
  * Options: `force` sends again when an SMS already went out in this cycle.
  * `now` and `send` exist for the tests.
- * Returns `{ customer, sid, simulated }`. Throws a `SendError`, or a
+ * Returns `{ customer, sid }`. Throws a `SendError`, or a
  * `StoreError` when Excel has the file open.
  */
-export async function sendReminder(customerId, { force = false, now = new Date(), send = deliver } = {}) {
+export async function sendReminder(customerId, { force = false, now = new Date(), send = null } = {}) {
   const data = await readData();
   const today = localDateText(now);
   const index = data.customers.findIndex(c => c.id === customerId);
@@ -71,6 +70,10 @@ export async function sendReminder(customerId, { force = false, now = new Date()
     throw new SendError('ALREADY_SENT', 'На този клиент вече е изпратен SMS.', { sentAt: customer.smsSentAt });
   }
 
+  if (!send && smsMode() !== 'live') {
+    throw new SendError('NO_KEYS', 'SMS не може да се изпрати: липсват ключовете за Twilio във файла .env.');
+  }
+
   // Before the send, not after: a sent SMS is paid, and a locked file cannot
   // record it (specs section 7).
   await assertWritable();
@@ -78,13 +81,13 @@ export async function sendReminder(customerId, { force = false, now = new Date()
   const text = buildSmsText(data.smsTemplate, customer);
   let result;
   try {
-    result = await send(customer, text);
+    result = await (send || deliver)(customer, text);
   } catch (err) {
     console.error(`[SMS] Send failed for customer ${customer.id}:`, err.message);
     throw new SendError('SEND_FAILED', 'SMS не е изпратен. Twilio върна грешка. Вижте черния прозорец на програмата.');
   }
 
-  data.customers[index] = markSent(data.customers[index], localDateTimeText(now), result.simulated);
+  data.customers[index] = markSent(data.customers[index], localDateTimeText(now));
   try {
     await writeData(data);
   } catch (err) {
@@ -96,6 +99,5 @@ export async function sendReminder(customerId, { force = false, now = new Date()
   return {
     customer: withComputed(data.customers[index], data, today),
     sid: result.sid,
-    simulated: result.simulated,
   };
 }

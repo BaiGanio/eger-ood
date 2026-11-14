@@ -20,7 +20,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 03 | Split repo into `site/` and `staff/` | ✅ | 2026-11-13. Committed in `d0cdb8d` on `master`. |
 | 04 | Public site: static + GitHub Pages | 🟨 | 2026-11-13. Code is done. Owner must set Pages → "GitHub Actions", push, and check the live URL. |
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
-| 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (68 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
+| 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
 | 07 | Security | ⬜ | Any time after 03. |
 | 08 | Dashboard cleanup | ⬜ | |
 | 09 | Packaging | ⬜ | |
@@ -104,3 +104,7 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-14 (ch06): the dashboard takes the status from the engine at load time. A page that stays open over midnight shows the status of the day before until a reload. Chapter 08.
 - 2026-11-14 (ch06): `scripts.js` still uses inline `onclick` and `confirm()`, and `previewSms`, `loadTemplate`, `loadHolidays` do not use `readReply`. Chapter 08.
 - 2026-11-14 (ch06): the test data has customer `c001` with a last inspection in the future (2027-12-29). The app accepts a future date. Chapter 07 (input checks) decides.
+- 2026-11-14 (ch06, part 2): the owner removed the simulated mode. No "Тестов SMS" column, no `smsSimulated`, no "Изпратен (тест)". With no Twilio keys the send is refused and a banner shows. Tests of the real flow use the owner's Twilio developer account. The entry above that names the test-mode banner and the "Тестов SMS" column is old.
+- 2026-11-14 (ch06, part 2): the test data (`npm run test-data`) has invented phone numbers. With real Twilio keys, a send to them is a paid SMS to a number of a stranger. Put your own number in the row before a send. Chapter 07 or 09 can add a safer way.
+- 2026-11-14 (ch06, part 2): a data file that the app wrote between the two parts can have the column "Тестов SMS". The app ignores it. Delete the column by hand in Excel, or make the test data again with `--force`.
+- 2026-11-14 (ch06, part 2): `staff/.env.example` does not exist (`specs.md` section 6 wants it, with empty values). Chapter 07.

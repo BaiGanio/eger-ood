@@ -42,7 +42,7 @@ npm start          # http://localhost:3000/  (staff dashboard)
 
 The public site has no server. Open `site/index.html` in a browser.
 
-No Twilio keys in `.env` = simulated SMS (logged to the console).
+No Twilio keys in `.env` = no SMS. The send is refused and the dashboard shows a banner. There is no simulated send. With keys, each send is a real, paid SMS: use your own phone number in the test data.
 
 Tests (in `staff/`, both time zones must pass):
 

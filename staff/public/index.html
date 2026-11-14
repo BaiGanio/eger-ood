@@ -55,9 +55,9 @@
   <!-- ─── Main ─────────────────────────────────────────────────── -->
   <main class="flex-grow-1 p-4" style="margin-left:220px;">
 
-    <!-- No Twilio keys: the app only pretends to send. Always visible then. -->
-    <div id="sms-test-mode" class="alert alert-warning fw-semibold d-none" role="alert">
-      <i class="bi bi-exclamation-triangle me-1"></i> ТЕСТОВ РЕЖИМ — SMS не се изпращат
+    <!-- No Twilio keys: no SMS can go out. Always visible then. -->
+    <div id="sms-off" class="alert alert-warning fw-semibold d-none" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i> SMS не могат да се изпращат: липсват ключовете за Twilio във файла .env
     </div>
 
     <!-- The Excel file cannot be read (example: a missing column). -->

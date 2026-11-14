@@ -22,11 +22,11 @@ async function init() {
   await Promise.all([loadCustomers(), loadTemplate(), loadHolidays(), loadSmsMode()]);
 }
 
-// With no Twilio keys the app only pretends to send. The banner says so.
+// With no Twilio keys no SMS can go out. The banner says so.
 async function loadSmsMode() {
   try {
     const data = await readReply(await fetch('/api/status'));
-    document.getElementById('sms-test-mode').classList.toggle('d-none', data.smsMode !== 'simulated');
+    document.getElementById('sms-off').classList.toggle('d-none', data.smsMode === 'live');
   } catch (e) {
     console.error(e);
   }
@@ -168,7 +168,7 @@ function renderTable() {
                    <i class="bi bi-bell me-1"></i>За днес</span>`,
       sent:     `<span class="badge bg-success-subtle text-success-emphasis border border-success-subtle"
                        title="Изпратен на ${formatDateTime(c.smsSentAt)}">
-                   <i class="bi bi-check-circle me-1"></i>Изпратен${c.smsSimulated ? ' (тест)' : ''}</span>`,
+                   <i class="bi bi-check-circle me-1"></i>Изпратен</span>`,
       disabled: `<span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">
                    <i class="bi bi-pause-circle me-1"></i>Деактивиран</span>`,
       overdue:  `<span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">
@@ -312,8 +312,7 @@ async function confirmSend() {
     renderTable();
     renderStats();
     renderSettingsTable();
-    if (data.simulated) toast(`ТЕСТОВ РЕЖИМ: до ${data.customer.name} не е изпратен истински SMS.`, 'warning');
-    else toast(`SMS изпратен до ${data.customer.name}!`, 'success');
+    toast(`SMS изпратен до ${data.customer.name}!`, 'success');
   } catch (e) {
     toast('Грешка при изпращане: ' + e.message, 'danger');
     // The file can hold more than this page shows (example: sent, not saved).
