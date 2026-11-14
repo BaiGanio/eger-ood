@@ -34,6 +34,7 @@ Last update: 2026-11-14.
 | D10 | No framework and no build step. Plain HTML, CSS, JavaScript. Bootstrap from the CDN. | 2026-11-13 |
 | D11 | The form of the staff guide (help page in the app, or one file) is decided with the staff at the end. | 2026-11-13 |
 | D14 | The agricultural land work gets its own page, `site/zemya.html`, with a link from the main page. Not a section on the main page. | 2026-11-14 |
+| D15 | The map on the public site is links only ("Отвори в Google Maps", "Упътване"). No embedded map, because it sets cookies (section 4). | 2026-11-14 |
 
 ## 3. Open questions
 

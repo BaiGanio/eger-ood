@@ -2,23 +2,26 @@
 
 Needs: chapter 04. Decision: `specs.md` D14.
 
+**Status 2026-11-14: demo page built.** The text is invented by the developer. The photos are stock photos (manufacturer and web photos), not the company's own. The owner chose this so that the owners see a demo and then give real text and photos. The page has `<meta name="robots" content="noindex">`, so Google does not list it. Replace text and photos before chapter 12 removes `noindex`.
+
 ЕГЕР ООД also cultivates and buys agricultural land. This work gets its own page, `site/zemya.html`. The main page gets a short section with a link to it.
 
 ## Owner gives first
 
-- [ ] The text: what the company offers (cultivation, buying land, rent/аренда, other), the area (villages, municipalities), who to call.
+- [ ] The real text (demo text is in place): what the company offers (cultivation, buying land, rent/аренда, other), the area (villages, municipalities), who to call.
 - [ ] Phone and email for land questions, if they are not the ones in `specs.md` D8.
-- [ ] Image rights. Each photo in `site/images/land/` must be the company's own photo, or have a licence that allows use on a website. The repo is public, so a photo there is published. Two file names look like downloads from other sites: `780x440.jpg`, `fenix-fo-5000_2013-hnojice_img_1976_830x470px.jpg`. Replace them if they are not the company's own.
+- [ ] Real photos (stock photos are in place for the demo). Each photo in `site/images/land/` must be the company's own photo, or have a licence that allows use on a website. The repo is public, so a photo there is published. All three demo photos (`harvest.jpg`, `tillage.jpg`, `field-check.jpg`) are not the company's own. Replace them all.
 
 ## Steps
 
-- [ ] Rename the photos to plain Latin names (`specs.md` section 4). Example: `site/images/land/tractor.jpg`.
-- [ ] Resize the photos (chapter 12, B3). `CIH_Magnum_405_DJI_.jpg` is 2272 × 1515 px, 950 kB.
-- [ ] Make `site/zemya.html`. Same navbar, footer, and look as `index.html`. Its own `<title>` and description.
-- [ ] Navbar on both pages: a link `Земеделие` to `zemya.html`. Link back to `index.html`.
-- [ ] Main page: a short section with 1–2 sentences and a button to `zemya.html`.
-- [ ] All paths relative. Check at 360 px width.
-- [ ] Add the page to the Pages workflow check (the workflow publishes all of `site/`, so no change is expected).
+- [x] Rename the photos to plain Latin names (`specs.md` section 4). Example: `site/images/land/tractor.jpg`.
+- [x] Resize the photos (chapter 12, B3). `harvest.jpg` is now 1400 × 933 px, 320 kB.
+- [x] Make `site/zemya.html`. Same navbar, footer, and look as `index.html`. Its own `<title>` and description.
+- [x] Navbar on both pages: a link `Земеделие` to `zemya.html`. Link back to `index.html`.
+- [x] Main page: a short section with 1–2 sentences and a button to `zemya.html`.
+- [x] All paths relative. Check at 360 px width.
+- [x] Pages workflow: no change. It publishes all of `site/`.
+- [ ] Owner opens the live URL and shows the demo to the owners.
 
 ## Done when
 

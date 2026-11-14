@@ -39,6 +39,29 @@ Use **one Google account for the company** (not a private one). Give the develop
 6. Add real photos: front, sign, station, inspection hall, car wash. At least 5.
 7. Ask happy customers for a review. Answer every review, also the bad ones, politely and in Bulgarian.
 8. The land work (chapter 11) is a different service. Add it as a "Service" or a "Product" on the same card. Make a second card only if the land office has its own address and staff (Google rule).
+9. Send the developer the **pin link**: Google Maps → open the company card → "Share" (Сподели) → "Copy link" (Копиране на връзката). It looks like `https://maps.app.goo.gl/...`. Paste it in a chat or an email. It is not a secret. The developer puts it in the two map buttons of `site/index.html` (search for `google.com/maps`) and in `sameAs` (B4).
+
+### A1 — Text to send to the owners (Bulgarian)
+
+The owners make the profile with their own Google account. Copy this text to them.
+
+> **Как да направите профил на ЕГЕР ООД в Google (Google Business Profile)**
+>
+> Профилът показва фирмата в Google Търсене и Google Maps: точка на картата, работно време, телефон, снимки и отзиви. Безплатен е. Отнема около 20 минути, плюс няколко дни за проверка от Google.
+>
+> 1. Използвайте Google акаунт (Gmail) на фирмата, не личен. Ако няма — направете нов на https://accounts.google.com.
+> 2. Отворете Google Maps и потърсете „ЕГЕР ООД Раковски“. Ако фирмата вече излиза, натиснете „Заявете собственост върху този бизнес“. Не правете втори профил.
+> 3. Ако не излиза: отворете https://business.google.com и натиснете „Управление на сега“ / „Добавяне на бизнес“.
+> 4. Име: **ЕГЕР ООД**. Основна категория: пункт за технически преглед на МПС. Добавете и: бензиностанция, автомивка, газови бутилки.
+> 5. Адрес: **ул. Брезовско шосе, 4150 Раковски, обл. Пловдив**. Сложете точката на картата точно на входа.
+> 6. Телефон: **0887979373**. Уебсайт: адресът, който ще ви даде разработчикът.
+> 7. Работно време (ГТП): вторник – петък 08:00 – 18:00, събота 09:00 – 14:00, неделя и понеделник — почивни. Горивната станция: всеки ден 06:00 – 22:00 (ако е различно, пишете).
+> 8. Проверка: Google ще поиска кратко видео на място (табела, вход, работно място) или ще изпрати писмо с код по пощата. Следвайте указанията.
+> 9. Качете поне 5 истински снимки: фасада, табела, станция, пункт за преглед, автомивка.
+> 10. Добавете разработчика като **Мениджър** (Настройки → Хора и достъп). Не като Собственик.
+> 11. Изпратете на разработчика връзката към фирмата в Google Maps: отворете профила → „Сподели“ → „Копиране на връзката“.
+>
+> Отговаряйте учтиво на всеки отзив — и на добрите, и на лошите.
 
 ### A2 — Search Console, how to
 

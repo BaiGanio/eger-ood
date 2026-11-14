@@ -28,6 +28,7 @@
         <li class="nav-item"><a class="nav-link text-secondary" href="#about">За нас</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#services">Услуги</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#calendar-section">Автосервиз</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="zemya.html">Земеделие</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#contact">Контакти</a></li>
       </ul>
     </div>
@@ -384,6 +385,24 @@
   </div>
 </section>
 
+<!-- ═══ LAND (short; full page is zemya.html) ═══════════════════════ -->
+<section id="land" class="py-5 bg-light border-top">
+  <div class="container py-3">
+    <div class="row g-4 align-items-center">
+      <div class="col-12 col-lg-8">
+        <p class="text-danger text-uppercase fw-bold small mb-2">Земеделие</p>
+        <h2 class="h3 fw-bold mb-2">Обработваме и купуваме земеделска земя</h2>
+        <p class="text-muted mb-0">
+          В общините Раковски и Брезово. Аренда, наем и покупка на ниви с ясен договор.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <a href="zemya.html" class="btn btn-outline-danger btn-lg">Земеделска дейност <i class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ CONTACT ════════════════════════════════════════════════════════ -->
 <section id="contact" class="py-5 bg-dark text-white">
   <div class="container py-4">
@@ -447,16 +466,26 @@
         </div>
       </div>
 
-      <!-- Map placeholder — paste Google Maps iframe here -->
+      <!-- Map: links only, no embed. An embedded Google map sets cookies (specs.md section 4).
+           The links search by name and address. Replace both with the exact pin link
+           from Google Business Profile when the owners have it (plan/12-seo.md, A1). -->
       <div class="col-12 col-lg-7">
-        <div class="bg-secondary bg-opacity-25 rounded-3 d-flex align-items-center justify-content-center flex-column gap-3 text-white-50"
-             style="min-height:380px;">
-          <i class="bi bi-map fs-1 opacity-25"></i>
-          <div class="text-center small">
-            <div class="mb-1">Вмъкнете Google Maps iframe тук:</div>
-            <code class="text-white-50" style="font-size:11px;">
-              &lt;iframe src="https://maps.google.com/..." width="100%" height="380" ...&gt;
-            </code>
+        <div class="bg-secondary bg-opacity-25 rounded-3 d-flex align-items-center justify-content-center flex-column gap-3 p-4 text-center"
+             style="min-height:300px;">
+          <i class="bi bi-geo-alt-fill text-danger" style="font-size:48px;"></i>
+          <div>
+            <div class="fw-bold fs-5">ЕГЕР ООД</div>
+            <div class="text-white-50">ул. Брезовско шосе, Раковски, обл. Пловдив</div>
+          </div>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a class="btn btn-danger" target="_blank" rel="noopener"
+               href="https://www.google.com/maps/search/?api=1&amp;query=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
+              <i class="bi bi-map me-1"></i>Отвори в Google Maps
+            </a>
+            <a class="btn btn-outline-light" target="_blank" rel="noopener"
+               href="https://www.google.com/maps/dir/?api=1&amp;destination=ЕГЕР+ООД+ул.+Брезовско+шосе+Раковски">
+              <i class="bi bi-sign-turn-right me-1"></i>Упътване
+            </a>
           </div>
         </div>
       </div>
@@ -472,7 +501,9 @@
     <div class="d-flex gap-3">
       <a href="#about" class="text-white-50 text-decoration-none small">За нас</a>
       <a href="#services" class="text-white-50 text-decoration-none small">Услуги</a>
-      <a href="#contact" class="text-white-50 text-decoration-none small">Контакти</a>    </div>
+      <a href="zemya.html" class="text-white-50 text-decoration-none small">Земеделие</a>
+      <a href="#contact" class="text-white-50 text-decoration-none small">Контакти</a>
+    </div>
   </div>
 </footer>
 

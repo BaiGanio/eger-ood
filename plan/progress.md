@@ -25,8 +25,8 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 08 | Dashboard cleanup | ⬜ | |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
-| 11 | Public site: land page (`zemya.html`) | ⬜ | `specs.md` D14. Waits for the owner's text and the image rights. |
-| 12 | SEO | ⬜ | Last on the public site. Owner can start part A (Google Business Profile) now. |
+| 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
+| 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
 
 ## Later (not planned yet)
 
@@ -53,7 +53,8 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-13: chapters 05 and 06 were written before decision D7 (days off) and D9 (holidays script). Read `specs.md` first.
 - 2026-11-13 (ch04): the map block shows developer text to visitors ("Вмъкнете Google Maps iframe тук"). Waits for the owner: map link or embed.
 - 2026-11-13 (ch04): text errors on the public site. 2026-11-14: four fixed ("Раковски", "продукти на едро", "горивна станция", "автомобилни"). Still open: turnover "€ 2 100 00" (owner gives the right number; 2020 was in leva). "29+ години" stays until the owners give real data.
-- 2026-11-14: map block. `specs.md` section 4 says no cookies. A Google Maps iframe sets cookies. Waits for the owner: map image + "Отвори в Google Maps" link (no cookies), or the iframe (rule change).
+- 2026-11-14: map block done as links only (`specs.md` D15). The links search by name and address. Swap in the exact pin link when the owners have Google Business Profile (`12-seo.md`, A1 step 9).
+- 2026-11-14: the ГТП service card on `index.html` says "Напомняме ви автоматично с SMS". `specs.md` D4 says no automatic SMS. Change the text ("Напомняме ви с SMS") in a site session.
 - 2026-11-14: slides 1 and 2 show the same photo. It stays until the owner has more photos.
 - 2026-11-14: ImgBot is not installed on the repo. It only compresses without loss. Resize is in chapter 12, B3.
 - 2026-11-13 (ch04): each carousel slide sets `background-image` two times in one `style`. The first value is dead. Slides 1 and 2 show the same photo. `site/images/eger2.jpg` is 870 kB, heavy for a phone.
@@ -85,3 +86,4 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-13 | Dependabot PRs #5–#8 done by hand in `staff/`: express 4.22.3, body-parser 1.20.9, qs 6.16.2, axios 1.21.1, proxy-addr 2.0.8, brace-expansion. PRs #2–#4 point at the old root `package-lock.json` (gone). Still open in `npm audit`: minimatch (nodemon), uuid (exceljs), need major bumps. |
 | 2026-11-13 | `npm audit` = 0. `overrides.uuid ^11.1.1` in `staff/package.json` (exceljs and node-cron use only `v4()`). `npm audit fix` set nodemon to 3.1.11 (safe minimatch). The override stays for exceljs (4.4.0 still asks for uuid 8). Remove it only if a new exceljs uses uuid 11. |
 | 2026-11-14 | Four text errors fixed on the public site. Chapter 11 (land page) and 12 (SEO) written. D14 in `specs.md`. |
+| 2026-11-14 | Map block: links to Google Maps, no embed (D15). Demo land page `site/zemya.html` (invented text, stock photos, `noindex`), link from the main page. Land photos renamed, `harvest.jpg` resized. Bulgarian Google Business Profile guide for the owners in `12-seo.md`. Checked at 360 px: no side scroll, no broken image. |
