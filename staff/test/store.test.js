@@ -27,7 +27,7 @@ function customer(n, extra = {}) {
     phone: `+35988000000${n}`,
     address: `ул. Тестова ${n}`,
     carModel: 'Тест Модел',
-    carPlate: `PB 000${n} TT`,
+    carPlate: `PB000${n}TT`,
     lastServiceDate: '2026-01-15',
     smsSentAt: null,
     disabled: false,
@@ -285,8 +285,19 @@ test('a hand-made row with no ID gets one, and it stays', async t => {
   assert.equal(made.name, 'На Ръка');
   assert.equal(made.lastServiceDate, '2026-05-06');
   assert.equal(made.disabled, false);
+  assert.equal(made.carPlate, 'PB0009TT');
   assert.ok(made.id);
   assert.equal((await readData()).customers.at(-1).id, made.id);
+});
+
+test('a plate typed in Excel with spaces and small letters loads as one word in capitals', async t => {
+  await freshFolder(t);
+  await writeData(sample());
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.getRow(2).getCell(columnOf(ws, 'Рег. номер')).value = ' pb 1234  ab ';
+  });
+  assert.equal((await readData()).customers[0].carPlate, 'PB1234AB');
 });
 
 test('a delete moves a whole row, so a column added by the staff stays with its customer', async t => {

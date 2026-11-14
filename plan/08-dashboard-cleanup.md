@@ -14,7 +14,7 @@ Needs: chapter 06.
 | The price `0.1466` is written 4 times. | `server.js:40`, `scripts.js:4`, `42`, `ati.html:196` |
 | All buttons use inline `onclick="..."`. This blocks a strict Content-Security-Policy. | `ati.html`, `scripts.js` |
 | The page title and the sidebar say "АвтоСервиз", not "ЕГЕР ООД". | `ati.html:6`, `:28` |
-| The sidebar is fixed at 220 px. The page is hard to use on a narrow window. | `ati.html:19` |
+| ~~The sidebar is fixed at 220 px. The page is hard to use on a narrow window.~~ Done 2026-11-14: it closes to 64 px. | `index.html` |
 | Customers show two times: the dashboard table and the settings table. | `ati.html:234` |
 
 ## Steps
@@ -31,8 +31,11 @@ Needs: chapter 06.
 - [ ] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it.
 
 ### Staff requests (screenshot, 2026-11-14)
-- [ ] Bulgarian template variables: `{{име}}`, `{{модел}}`, `{{номер}}`, `{{дата}}`, `{{телефон}}`. The chips show and insert these. `fillTemplate` accepts them. The old English tokens (`{{name}}`, `{{carModel}}`, `{{carPlate}}`, `{{serviceDate}}`, `{{phone}}`) still work, so a saved template does not break. Note: the regex `\w` does not match Cyrillic. Change it. Add tests.
-- [ ] Plate with no spaces ("PB1234AB"). Remove the spaces and use capitals when a customer is saved (dashboard and Excel read). `fillTemplate` also removes spaces, for old rows. Change the placeholder and the test data. Add tests.
+- [x] Bulgarian template variables: `{{име}}`, `{{модел}}`, `{{номер}}`, `{{дата}}`, `{{телефон}}`. The chips show and insert these. `fillTemplate` accepts them. The old English tokens (`{{name}}`, `{{carModel}}`, `{{carPlate}}`, `{{serviceDate}}`, `{{phone}}`) still work, so a saved template does not break. Note: the regex `\w` does not match Cyrillic. Change it. Add tests.
+- [x] Plate with no spaces ("PB1234AB"). Remove the spaces and use capitals when a customer is saved (dashboard and Excel read). `fillTemplate` also removes spaces, for old rows. Change the placeholder and the test data. Add tests.
+- [x] Server state (staff, 2026-11-14): the page showed "Сървърът е активен" also with the server window closed. The page now asks `/api/status` every 5 s and on window focus. Each failed request also marks the server as stopped. Stopped = red box in the sidebar + red banner on top of the main area. When the server comes back, the page loads the data again.
+- [x] Bigger server dot (staff, 2026-11-14): 12 px dot in a coloured box with 13 px text (green "Сървърът работи", red "Сървърът е спрян", grey "Проверка…").
+- [x] Sidebar opens and closes (staff, 2026-11-14): button "Скрий менюто" / "Покажи менюто". Closed = 64 px, icons only, the name shows on hover. The browser keeps the choice (localStorage). Owner chose icons only and the top banner.
 
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.

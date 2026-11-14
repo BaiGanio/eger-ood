@@ -1,14 +1,41 @@
 /* ── Fonts ───────────────────────────────────────────────────────── */
 body { font-family: 'DM Sans', sans-serif; font-size: 14px; }
 
-/* ── Sidebar status dot ──────────────────────────────────────────── */
-.status-dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #198754;
-  animation: pulse 2s infinite;
+/* ── Sidebar: open 220px, closed 64px (icons only) ───────────────── */
+.sidebar {
+  width: 220px; min-height: 100vh;
+  position: fixed; top: 0; left: 0; z-index: 100;
+  transition: width .15s;
 }
+.main { margin-left: 220px; transition: margin-left .15s; min-width: 0; }
+
+body.sidebar-closed .sidebar { width: 64px; }
+body.sidebar-closed .main    { margin-left: 64px; }
+body.sidebar-closed .sidebar-label { display: none; }
+body.sidebar-closed .sidebar .nav-link,
+body.sidebar-closed #sidebar-toggle,
+body.sidebar-closed .server-state { justify-content: center; }
+body.sidebar-closed #sidebar-toggle i { transform: rotate(180deg); }
+
+/* ── Server state box (the staff must see it at a glance) ────────── */
+.server-state {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 13px; font-weight: 600;
+}
+.status-dot {
+  flex-shrink: 0;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+.server-ok      { background: #d1e7dd; border-color: #a3cfbb; color: #0a3622; }
+.server-ok .status-dot      { background: #198754; animation: pulse 2s infinite; }
+.server-down    { background: #f8d7da; border-color: #f1aeb5; color: #58151c; }
+.server-down .status-dot    { background: #dc3545; }
+.server-unknown { background: #f8f9fa; border-color: #dee2e6; color: #6c757d; }
+.server-unknown .status-dot { background: #adb5bd; }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }

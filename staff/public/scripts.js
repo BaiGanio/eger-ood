@@ -11,31 +11,108 @@ const STATUS_ORDER = { overdue: 0, due: 1, pending: 2, sent: 3, disabled: 4 };
 // Bootstrap modal instances (initialised after DOM ready)
 let bsCustomerModal, bsSmsPreviewModal;
 
+// The sidebar state is set here, before the first paint, so the page does not jump.
+applySidebar(readSidebarClosed());
+
 // ─── Init ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   bsCustomerModal   = new bootstrap.Modal(document.getElementById('customer-modal'));
   bsSmsPreviewModal = new bootstrap.Modal(document.getElementById('sms-preview-modal'));
+  document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+  document.getElementById('var-chips').addEventListener('click', e => {
+    const chip = e.target.closest('[data-var]');
+    if (chip) insertVar(chip.dataset.var);
+  });
   init();
+  setInterval(checkServer, SERVER_CHECK_MS);
+  // A browser slows down timers in a hidden tab. Check at once when the staff come back.
+  window.addEventListener('focus', checkServer);
 });
 
 async function init() {
-  await Promise.all([loadCustomers(), loadTemplate(), loadHolidays(), loadSmsMode()]);
+  await Promise.all([loadCustomers(), loadTemplate(), loadHolidays(), checkServer()]);
 }
 
-// With no Twilio keys no SMS can go out. The banner says so.
-async function loadSmsMode() {
+// ─── Server state ─────────────────────────────────────────────────────
+// The page stays open when the server window is closed. Only a request to the
+// server shows if it still runs, so the page asks every few seconds.
+const SERVER_CHECK_MS = 5000;
+let serverUp = null;   // null = not checked yet
+
+// fetch() that also updates the server state. A server that does not answer
+// gives a Bulgarian error, so each action shows a red toast.
+async function serverFetch(url, options) {
+  let res;
   try {
-    const data = await readReply(await fetch('/api/status'));
+    res = await fetch(url, options);
+  } catch (e) {
+    console.error(e);
+    setServerUp(false);
+    throw new Error('Сървърът е спрян. Стартирайте програмата отново.');
+  }
+  setServerUp(true);
+  return res;
+}
+
+async function checkServer() {
+  try {
+    const res = await serverFetch('/api/status', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+    const data = await readReply(res);
+    // With no Twilio keys no SMS can go out. The banner says so.
     document.getElementById('sms-off').classList.toggle('d-none', data.smsMode === 'live');
   } catch (e) {
     console.error(e);
   }
 }
 
+function setServerUp(up) {
+  const wasDown = serverUp === false;
+  if (up === serverUp) return;
+  serverUp = up;
+
+  const box  = document.getElementById('server-state');
+  const text = up ? 'Сървърът работи' : 'Сървърът е спрян';
+  box.classList.remove('server-unknown', 'server-ok', 'server-down');
+  box.classList.add(up ? 'server-ok' : 'server-down');
+  box.title = text;
+  document.getElementById('server-state-text').textContent = text;
+  document.getElementById('server-down').classList.toggle('d-none', up);
+
+  // The staff started the server again: show the data of now.
+  if (up && wasDown) {
+    toast('Сървърът работи отново', 'success');
+    init();
+  }
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────
+function readSidebarClosed() {
+  try { return localStorage.getItem('sidebar') === 'closed'; }
+  catch (e) { console.error(e); return false; }
+}
+
+function applySidebar(closed) {
+  document.body.classList.toggle('sidebar-closed', closed);
+  const btn = document.getElementById('sidebar-toggle');
+  if (!btn) return;
+  const label = closed ? 'Покажи менюто' : 'Скрий менюто';
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
+  btn.setAttribute('aria-expanded', String(!closed));
+  btn.querySelector('.sidebar-label').textContent = label;
+}
+
+function toggleSidebar() {
+  const closed = !document.body.classList.contains('sidebar-closed');
+  applySidebar(closed);
+  try { localStorage.setItem('sidebar', closed ? 'closed' : 'open'); }
+  catch (e) { console.error(e); }
+}
+
 async function loadCustomers() {
   const errorBox = document.getElementById('data-error');
   try {
-    const data = await readReply(await fetch('/api/customers'));
+    const data = await readReply(await serverFetch('/api/customers'));
     customers  = data.customers || [];
     errorBox.classList.add('d-none');
     renderTable();
@@ -62,7 +139,7 @@ async function readReply(res) {
 // Rows of the Excel file that did not load. The staff correct them in Excel.
 async function loadDataProblems() {
   try {
-    const data = await readReply(await fetch('/api/data-problems'));
+    const data = await readReply(await serverFetch('/api/data-problems'));
     renderDataProblems(data.problems || []);
   } catch (e) {
     console.error(e);
@@ -79,7 +156,7 @@ function renderDataProblems(problems) {
 
 async function loadTemplate() {
   try {
-    const res  = await fetch('/api/template');
+    const res  = await serverFetch('/api/template');
     const data = await res.json();
     smsTemplate     = data.template || '';
     pricePerSegment = Number.isFinite(data.pricePerSegment) ? data.pricePerSegment : 0.1466;
@@ -92,7 +169,7 @@ async function loadTemplate() {
 
 async function loadHolidays() {
   try {
-    const res  = await fetch('/api/holidays');
+    const res  = await serverFetch('/api/holidays');
     const data = await res.json();
     holidays = data.holidays || [];
     renderHolidays();
@@ -270,7 +347,7 @@ async function previewSms(id) {
   if (customer && customer.status === 'sent' &&
       !confirm(`Вече е изпратен на ${formatDateTime(customer.smsSentAt)}. Изпрати отново?`)) return;
   try {
-    const res  = await fetch(`/api/preview-sms/${id}`, { method: 'POST' });
+    const res  = await serverFetch(`/api/preview-sms/${id}`, { method: 'POST' });
     const data = await res.json();
     document.getElementById('preview-modal-body').textContent = data.body;
     renderCounter(
@@ -300,7 +377,7 @@ async function confirmSend() {
     const idx = customers.findIndex(c => c.id === pendingSendId);
     // The staff said yes to a second SMS before this window opened.
     const force = idx !== -1 && customers[idx].status === 'sent';
-    const data = await readReply(await fetch(`/api/customers/${pendingSendId}/send-sms`, {
+    const data = await readReply(await serverFetch(`/api/customers/${pendingSendId}/send-sms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ force })
@@ -326,7 +403,7 @@ async function confirmSend() {
 // ─── Toggle disabled ──────────────────────────────────────────────────
 async function toggleDisabled(id) {
   try {
-    const updated = await readReply(await fetch(`/api/customers/${id}/toggle-disabled`, { method: 'PATCH' }));
+    const updated = await readReply(await serverFetch(`/api/customers/${id}/toggle-disabled`, { method: 'PATCH' }));
     const idx = customers.findIndex(c => c.id === id);
     if (idx !== -1) customers[idx] = updated;
     renderTable();
@@ -342,7 +419,7 @@ async function toggleDisabled(id) {
 async function deleteCustomer(id, name) {
   if (!confirm(`Изтриване на клиент "${name}"? Действието е необратимо.`)) return;
   try {
-    await readReply(await fetch(`/api/customers/${id}`, { method: 'DELETE' }));
+    await readReply(await serverFetch(`/api/customers/${id}`, { method: 'DELETE' }));
     customers = customers.filter(c => c.id !== id);
     renderTable();
     renderStats();
@@ -400,7 +477,7 @@ async function saveCustomer() {
   try {
     let res, data;
     if (id) {
-      res  = await fetch(`/api/customers/${id}`, {
+      res  = await serverFetch(`/api/customers/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -410,7 +487,7 @@ async function saveCustomer() {
       if (idx !== -1) customers[idx] = data;
       toast('Клиентът е обновен', 'success');
     } else {
-      res  = await fetch('/api/customers', {
+      res  = await serverFetch('/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -438,7 +515,7 @@ function updatePreview() {
   const sample = {
     name:            'Иван Петров',
     carModel:        'VW Golf 7',
-    carPlate:        'PB 1234 AB',
+    carPlate:        'PB1234AB',
     nextServiceDate: localDateInDays(7),
     phone:           '+359881234567'
   };
@@ -493,7 +570,7 @@ function insertVar(v) {
 async function saveTemplate() {
   const template = document.getElementById('sms-template-input').value;
   try {
-    await readReply(await fetch('/api/template', {
+    await readReply(await serverFetch('/api/template', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ template, pricePerSegment })
@@ -541,7 +618,7 @@ async function removeHoliday(date) {
 
 async function saveHolidays() {
   try {
-    await readReply(await fetch('/api/holidays', {
+    await readReply(await serverFetch('/api/holidays', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ holidays })

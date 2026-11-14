@@ -23,7 +23,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { measureSms } from './public/sms-text.js';
+import { measureSms, normalizePlate } from './public/sms-text.js';
 import { isDateText, localDateText } from './lib/dates.js';
 import { startNewCycle, withComputed } from './lib/reminders.js';
 import { SendError, buildSmsText, sendReminder, smsMode } from './lib/sms.js';
@@ -80,7 +80,8 @@ app.get('/api/customers/:id', route(async (req, res) => {
 // POST create customer
 app.post('/api/customers', route(async (req, res) => {
   const data = await loadData();
-  const { name, phone, address, carModel, carPlate, lastServiceDate } = req.body;
+  const { name, phone, address, carModel, lastServiceDate } = req.body;
+  const carPlate = normalizePlate(req.body.carPlate);
 
   if (!name || !phone || !carModel || !carPlate || !lastServiceDate) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -111,6 +112,8 @@ app.put('/api/customers/:id', route(async (req, res) => {
   // The ID is the key of the row in the Excel file. A request cannot change it.
   // The SMS mark is the app's own. Only a send or a new cycle changes it.
   let merged = { ...existing, ...req.body, id: existing.id, smsSentAt: existing.smsSentAt };
+  merged.carPlate = normalizePlate(merged.carPlate);
+  if (!merged.carPlate) return res.status(400).json({ error: 'Missing required fields' });
 
   // The reminder rules cannot compute from a value that is not a date.
   if (!isDateText(merged.lastServiceDate)) return res.status(400).json({ error: BAD_DATE });

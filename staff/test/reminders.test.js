@@ -12,7 +12,7 @@ const SETTINGS = { weeklyDaysOff: [0, 1], holidays: [] };
 
 function customer(extra = {}) {
   return {
-    id: 'c001', name: 'Тест Клиент', phone: '+359880000001', carModel: 'Тест', carPlate: 'PB 0001 TT',
+    id: 'c001', name: 'Тест Клиент', phone: '+359880000001', carModel: 'Тест', carPlate: 'PB0001TT',
     lastServiceDate: '2025-11-24', smsSentAt: null, disabled: false,
     ...extra,
   };

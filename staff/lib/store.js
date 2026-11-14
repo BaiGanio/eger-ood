@@ -18,13 +18,15 @@ import {
 import {
   backupDir, backupFile, dataDir, dataFile, lockFile, DATA_FILE_NAME,
 } from './paths.js';
+import { normalizePlate } from '../public/sms-text.js';
 
 // ─── Defaults (their one home) ───────────────────────────────────────────────
 
 // Cyrillic is billed as UCS-2, so one SMS is 70 characters. This default is a
-// fixed 59 characters whatever the customer's name, i.e. always one message.
+// 57 characters with an 8-character plate, whatever the customer's name, i.e.
+// one message.
 export const DEFAULT_TEMPLATE =
-  'ЕГЕР ООД: ГТП на {{carPlate}} изтича {{serviceDate}}. Запазете час';
+  'ЕГЕР ООД: ГТП на {{номер}} изтича {{дата}}. Запазете час';
 export const DEFAULT_PRICE = 0.1466;          // Twilio price per segment to a BG number
 export const DEFAULT_WEEKLY_DAYS_OFF = [0, 1]; // Sunday, Monday (specs D7)
 
@@ -232,7 +234,7 @@ function readCustomerRow(row, cols) {
     phone: text('phone').replace(/[\s-]/g, ''),
     address: text('address'),
     carModel: text('carModel'),
-    carPlate: text('carPlate'),
+    carPlate: normalizePlate(text('carPlate')),
     lastServiceDate: null,
     smsSentAt: null,
     disabled: false,

@@ -42,44 +42,44 @@ const base = { address: '', smsSentAt: null, disabled: false };
 const customers = [
   // 1–5: the five customers of the old customers.json, as they were.
   { ...base, id: 'c001', name: 'Иван Петров', phone: '+359881234567', address: 'ul. Vasil Levski 12, Plovdiv',
-    carModel: 'VW Golf 7', carPlate: 'PB 1234 AB', lastServiceDate: '2027-12-29', disabled: true },
+    carModel: 'VW Golf 7', carPlate: 'PB1234AB', lastServiceDate: '2027-12-29', disabled: true },
   { ...base, id: 'c002', name: 'Мария Георгиева', phone: '+359887654321', address: 'bul. Bulgaria 45, Plovdiv',
-    carModel: 'Toyota Yaris', carPlate: 'PB 5678 CD', lastServiceDate: '2026-01-15',
+    carModel: 'Toyota Yaris', carPlate: 'PB5678CD', lastServiceDate: '2026-01-15',
     smsSentAt: '2026-03-19T21:21:01', disabled: true },
   { ...base, id: 'c003', name: 'Георги Иванов', phone: '+359889998877', address: 'ul. Hristo Botev 7, Rakovski',
-    carModel: 'Opel Astra H', carPlate: 'PB 9012 EF', lastServiceDate: '2025-03-10',
+    carModel: 'Opel Astra H', carPlate: 'PB9012EF', lastServiceDate: '2025-03-10',
     smsSentAt: '2026-03-03T11:15:00' },
   { ...base, id: 'c004', name: 'Елена Иванова', phone: '+359882223344', address: 'ul. Shipka 3, Asenovgrad',
-    carModel: 'Skoda Octavia', carPlate: 'PB 3456 GH', lastServiceDate: '2025-03-19' },
+    carModel: 'Skoda Octavia', carPlate: 'PB3456GH', lastServiceDate: '2025-03-19' },
   { ...base, id: 'c005', name: 'Николай Стоянов', phone: '+359885556677', address: 'bul. Maritsa 22, Plovdiv',
-    carModel: 'Ford Focus', carPlate: 'PB 7890 IJ', lastServiceDate: '2025-04-02', disabled: true },
+    carModel: 'Ford Focus', carPlate: 'PB7890IJ', lastServiceDate: '2025-04-02', disabled: true },
 
   // 6: the reminder is due today (expiry in 7 days).
   { ...base, id: 'c006', name: 'Тест Днес', phone: '+359880000006',
-    carModel: 'Dacia Logan', carPlate: 'PB 0006 TT', lastServiceDate: inspectedFor(addDays(today, 7)) },
+    carModel: 'Dacia Logan', carPlate: 'PB0006TT', lastServiceDate: inspectedFor(addDays(today, 7)) },
   // 7: the reminder was due 10 days ago (overdue).
   { ...base, id: 'c007', name: 'Тест Просрочен', phone: '+359880000007',
-    carModel: 'Renault Clio', carPlate: 'PB 0007 TT', lastServiceDate: inspectedFor(addDays(today, -3)) },
+    carModel: 'Renault Clio', carPlate: 'PB0007TT', lastServiceDate: inspectedFor(addDays(today, -3)) },
   // 8: expiry − 7 days is a Monday (day off). The reminder must show on Saturday.
   { ...base, id: 'c008', name: 'Тест Понеделник', phone: '+359880000008',
-    carModel: 'Peugeot 308', carPlate: 'PB 0008 TT', lastServiceDate: inspectedFor(nextWeekday(addDays(today, 30), 1)) },
+    carModel: 'Peugeot 308', carPlate: 'PB0008TT', lastServiceDate: inspectedFor(nextWeekday(addDays(today, 30), 1)) },
   // 9: a disabled customer.
   { ...base, id: 'c009', name: 'Тест Неактивен', phone: '+359880000009',
-    carModel: 'Fiat Punto', carPlate: 'PB 0009 TT', lastServiceDate: inspectedFor(addDays(today, 60)), disabled: true },
+    carModel: 'Fiat Punto', carPlate: 'PB0009TT', lastServiceDate: inspectedFor(addDays(today, 60)), disabled: true },
   // 10: a very long name and car model (an SMS with them goes over 70 characters).
   { ...base, id: 'c010', name: 'Александра-Константина Христодулова-Papadopoulos', phone: '+359880000010',
-    carModel: 'Mercedes-Benz Sprinter 316 CDI Extra Long High Roof', carPlate: 'PB 0010 TT',
+    carModel: 'Mercedes-Benz Sprinter 316 CDI Extra Long High Roof', carPlate: 'PB0010TT',
     lastServiceDate: inspectedFor(addDays(today, 20)) },
   // 11: the expiry date (the anniversary) is a Sunday.
   { ...base, id: 'c011', name: 'Тест Неделя', phone: '+359880000011',
-    carModel: 'Seat Ibiza', carPlate: 'PB 0011 TT', lastServiceDate: inspectedFor(nextWeekday(addDays(today, 45), 0)) },
+    carModel: 'Seat Ibiza', carPlate: 'PB0011TT', lastServiceDate: inspectedFor(nextWeekday(addDays(today, 45), 0)) },
   // 12: the last inspection was on 29 February.
   { ...base, id: 'c012', name: 'Тест Високосен', phone: '+359880000012',
-    carModel: 'Honda Civic', carPlate: 'PB 0012 TT', lastServiceDate: lastLeapDay() },
+    carModel: 'Honda Civic', carPlate: 'PB0012TT', lastServiceDate: lastLeapDay() },
 
   // A bad row: no phone. The dashboard must report it and load the other rows.
   { ...base, id: 'c013', name: 'Тест Без Телефон', phone: '',
-    carModel: 'Lada Niva', carPlate: 'PB 0013 TT', lastServiceDate: inspectedFor(addDays(today, 90)) },
+    carModel: 'Lada Niva', carPlate: 'PB0013TT', lastServiceDate: inspectedFor(addDays(today, 90)) },
 ];
 
 // Fixed-date public holidays, this year and the next. Enough for a test file.

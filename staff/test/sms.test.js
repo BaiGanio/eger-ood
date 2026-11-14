@@ -29,7 +29,7 @@ async function freshFolder(t) {
 function customer(extra = {}) {
   return {
     id: 'c001', name: 'Тест Клиент', phone: '+359880000001', address: '',
-    carModel: 'Тест Модел', carPlate: 'PB 0001 TT',
+    carModel: 'Тест Модел', carPlate: 'PB0001TT',
     lastServiceDate: '2025-11-24', smsSentAt: null, disabled: false,
     ...extra,
   };
@@ -65,7 +65,7 @@ test('smsMode is off with no keys or with placeholder keys', () => {
 test('the SMS text shows the true expiry date', () => {
   const c = withComputed(customer({ lastServiceDate: '2025-11-15' }), { weeklyDaysOff: [0, 1], holidays: [] }, '2026-11-01');
   // 15.11.2026 is a Sunday. The date in the SMS does not move.
-  assert.equal(buildSmsText('ГТП на {{carPlate}} изтича {{serviceDate}}', c), 'ГТП на PB 0001 TT изтича 15.11.2026');
+  assert.equal(buildSmsText('ГТП на {{carPlate}} изтича {{serviceDate}}', c), 'ГТП на PB0001TT изтича 15.11.2026');
 });
 
 test('a send saves the SMS mark and does not move the inspection date', async t => {
@@ -75,7 +75,7 @@ test('a send saves the SMS mark and does not move the inspection date', async t 
 
   const result = await sendReminder('c001', { now: at(2026, 11, 17), send });
 
-  assert.deepEqual(calls, [{ id: 'c001', text: 'ГТП на PB 0001 TT изтича 24.11.2026' }]);
+  assert.deepEqual(calls, [{ id: 'c001', text: 'ГТП на PB0001TT изтича 24.11.2026' }]);
   assert.equal(result.sid, 'SM_TEST');
   assert.equal(result.customer.status, 'sent');
   const saved = (await readData()).customers[0];
@@ -191,7 +191,7 @@ test('two yearly cycles with no hand fix', async t => {
   assert.equal((await view('2027-11-20')).status, 'due');
   await sendReminder('c001', { now: at(2027, 11, 20), send });
   assert.equal((await view('2027-11-20')).status, 'sent');
-  assert.equal(calls[1].text, 'ГТП на PB 0001 TT изтича 29.11.2027');
+  assert.equal(calls[1].text, 'ГТП на PB0001TT изтича 29.11.2027');
 
   await inspectionPassed('2027-11-26');
   c = await view('2027-11-26');

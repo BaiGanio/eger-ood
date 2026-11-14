@@ -59,16 +59,35 @@ export function formatDateBg(dateText) {
   return d ? `${d}.${m}.${y}` : '';
 }
 
+/** "pb 1234 ab" → "PB1234AB". The staff want the plate written as one word. */
+export function normalizePlate(plate) {
+  return String(plate ?? '').replace(/\s+/g, '').toUpperCase();
+}
+
+// The staff see and type the Bulgarian names. The English names stay, so a
+// template that was saved before the change still fills.
+const TEMPLATE_KEYS = {
+  'име': 'name',      name: 'name',
+  'модел': 'carModel', carModel: 'carModel',
+  'номер': 'carPlate', carPlate: 'carPlate',
+  'дата': 'serviceDate', serviceDate: 'serviceDate',
+  'телефон': 'phone',  phone: 'phone',
+};
+
 /** Put the customer's values into the template. */
 export function fillTemplate(template, customer) {
   const values = {
     name: customer.name,
     carModel: customer.carModel,
-    carPlate: customer.carPlate,
+    // Old rows can still have spaces in the plate.
+    carPlate: normalizePlate(customer.carPlate),
     serviceDate: formatDateBg(customer.nextServiceDate),
     phone: customer.phone,
   };
   // One pass: a value that has "{{…}}" in it is not filled a second time.
-  return String(template ?? '').replace(/{{(\w+)}}/g,
-    (whole, key) => (key in values ? String(values[key] ?? '') : whole));
+  // Not `\w`: it does not match Cyrillic letters.
+  return String(template ?? '').replace(/{{([^{}\s]+)}}/g, (whole, key) => {
+    const field = Object.hasOwn(TEMPLATE_KEYS, key) ? TEMPLATE_KEYS[key] : null;
+    return field ? String(values[field] ?? '') : whole;
+  });
 }

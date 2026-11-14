@@ -6,7 +6,7 @@ Last update: 2026-11-14.
 
 ## Where we are
 
-**Now:** chapter 06 (reminder logic) is done in code. It waits for the owner's commit, his checks in the browser, and his screenshots about the "Прегледът мина" button. Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 07 (security).
+**Now:** chapter 08 staff requests are done in code. Chapter 06 (reminder logic) is done in code. It waits for the owner's commit, his checks in the browser, and his screenshots about the "Прегледът мина" button. Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 07 (security).
 
 ## Chapters
 
@@ -22,7 +22,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
 | 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
 | 07 | Security | ⬜ | Any time after 03. |
-| 08 | Dashboard cleanup | ⬜ | |
+| 08 | Dashboard cleanup | 🟨 | 2026-11-14. Staff requests done: Bulgarian template names, plates with no spaces, server state that shows a stopped server, sidebar that closes. 74 tests. The rest of the chapter is not started. Owner must check the page in a browser. |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
@@ -91,6 +91,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-14 | Four text errors fixed on the public site. Chapter 11 (land page) and 12 (SEO) written. D14 in `specs.md`. |
 | 2026-11-14 | Map block: links to Google Maps, no embed (D15). Demo land page `site/zemya.html` (invented text, stock photos, `noindex`), link from the main page. Land photos renamed, `harvest.jpg` resized. Bulgarian Google Business Profile guide for the owners in `12-seo.md`. Checked at 360 px: no side scroll, no broken image. |
 | 2026-11-14 | Map: Leaflet + OpenStreetMap, visible, no cookies (D15 changed). Demo fuel page `site/goriva.html` (D16, chapter 13). "Още от ЕГЕР ООД" section on the main page links both extra pages. Stay on plain HTML (D17). Checked at 360 px. |
+| 2026-11-14 | Chapter 08, staff requests only: Bulgarian template names (`{{име}}`, `{{модел}}`, `{{номер}}`, `{{дата}}`, `{{телефон}}`; English still works), `normalizePlate` on save, on Excel read and in the SMS, server state check every 5 s with red box and banner, sidebar closes to 64 px. 74 tests pass in Sofia and UTC. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.
@@ -110,3 +111,8 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-14 (ch06, part 2): `staff/.env.example` does not exist (`specs.md` section 6 wants it, with empty values). Chapter 07.
 - 2026-11-14: staff requests from a screenshot: Bulgarian template variables and plates with no spaces. Owner chose: Bulgarian tokens (old English tokens still work), spaces removed on save and in the SMS. Added to chapter 08 steps.
 - 2026-11-14: new test rule (`specs.md` §9): a real SMS send test uses only short English words. Bulgarian (UCS-2) uses up the Twilio test limit fast.
+- 2026-11-14 (ch08, staff requests): the agent did not check the page in a browser (Chrome extension not connected). Routes checked with `curl` on test data. Owner checks: chips insert the Bulgarian names; the sidebar closes and stays closed after a reload; close the server window → red box and banner in about 5 s; start it again → green, data reloads.
+- 2026-11-14 (ch08, staff requests): a plate can be typed with Cyrillic letters that look Latin ("РВ" instead of "PB"). The app keeps them as typed. Then search and the SMS have Cyrillic. Ask the owner if the app must change them to Latin.
+- 2026-11-14 (ch08, staff requests): there is no test for the routes in `server.js` (the plate fix on save). `server.js` starts the server on import. Chapter 07 or 08 can move the routes so that a test can load them.
+- 2026-11-14 (ch08, staff requests): a template saved in the Excel file before this change still has `{{carPlate}}` and `{{serviceDate}}`. It still works. The staff can type the Bulgarian names in "Настройки" if they want.
+- 2026-11-14 (ch08, staff requests): all browser calls now go through `serverFetch()` in `scripts.js`. The `api()` helper of chapter 08 can build on it.
