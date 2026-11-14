@@ -2,7 +2,7 @@
 
 Update this file at the end of each work session. Rules are in `specs.md`.
 
-Last update: 2026-11-13.
+Last update: 2026-11-14.
 
 ## Where we are
 
@@ -25,13 +25,15 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 08 | Dashboard cleanup | ⬜ | |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
+| 11 | Public site: land page (`zemya.html`) | ⬜ | `specs.md` D14. Waits for the owner's text and the image rights. |
+| 12 | SEO | ⬜ | Last on the public site. Owner can start part A (Google Business Profile) now. |
 
 ## Later (not planned yet)
 
 - Move the public site to Cloudflare with a dedicated domain.
 - Automatic holiday update: a GitHub Action can run `tools/update-holidays.mjs` on a timer and commit `site/holidays.json`. It works with Cloudflare too, because Cloudflare publishes from the repo. Owner was not sure on 2026-11-13. Until a decision, the script runs by hand (D9).
 - English version of the public site.
-- More pages and images on the public site. Better UI design.
+- More images on the public site (owner sends them). Better UI design.
 - Extra staff pages after the talks with the staff.
 - Bulk send. Automatic daily send. Twilio delivery status. Sender name "EGER".
 
@@ -50,7 +52,10 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-13: `staff/package.json` has the name `car-service-sms`. The dashboard title is "АвтоСервиз — SMS Напомняния". Chapter 08 or 09 can rename them.
 - 2026-11-13: chapters 05 and 06 were written before decision D7 (days off) and D9 (holidays script). Read `specs.md` first.
 - 2026-11-13 (ch04): the map block shows developer text to visitors ("Вмъкнете Google Maps iframe тук"). Waits for the owner: map link or embed.
-- 2026-11-13 (ch04): text errors on the public site: "Ракovski" (mixed alphabets), "продуктина едро", "модерна горивни станция", "автобомилни", turnover "€ 2 100 00". "29+ години" does not match "more than 30 years" in `specs.md`.
+- 2026-11-13 (ch04): text errors on the public site. 2026-11-14: four fixed ("Раковски", "продукти на едро", "горивна станция", "автомобилни"). Still open: turnover "€ 2 100 00" (owner gives the right number; 2020 was in leva). "29+ години" stays until the owners give real data.
+- 2026-11-14: map block. `specs.md` section 4 says no cookies. A Google Maps iframe sets cookies. Waits for the owner: map image + "Отвори в Google Maps" link (no cookies), or the iframe (rule change).
+- 2026-11-14: slides 1 and 2 show the same photo. It stays until the owner has more photos.
+- 2026-11-14: ImgBot is not installed on the repo. It only compresses without loss. Resize is in chapter 12, B3.
 - 2026-11-13 (ch04): each carousel slide sets `background-image` two times in one `style`. The first value is dead. Slides 1 and 2 show the same photo. `site/images/eger2.jpg` is 870 kB, heavy for a phone.
 - 2026-11-13 (ch04): the calendar script builds user text in JavaScript (month names, cell titles) and uses inline `onclick`. `specs.md` section 4 wants all visible text in the HTML. Fix it with the English version.
 - 2026-11-13 (ch04): no API has all the moved days off. The script now computes them from the law and adds the API days. It cannot know a one-time day off before the API has it. `staff/` holidays (chapter 06) are a separate setting in the Excel file.
@@ -79,3 +84,4 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-13 | Chapter 05: `exceljs` store (`lib/store.js`, `lib/paths.js`, start of `lib/dates.js`). In-place write, temp file + rename, daily backup, lock check before send, bad-row report + banner. Tools for test data. 31 tests. `customers.json` removed. Computed columns are not in the file (owner). |
 | 2026-11-13 | Dependabot PRs #5–#8 done by hand in `staff/`: express 4.22.3, body-parser 1.20.9, qs 6.16.2, axios 1.21.1, proxy-addr 2.0.8, brace-expansion. PRs #2–#4 point at the old root `package-lock.json` (gone). Still open in `npm audit`: minimatch (nodemon), uuid (exceljs), need major bumps. |
 | 2026-11-13 | `npm audit` = 0. `overrides.uuid ^11.1.1` in `staff/package.json` (exceljs and node-cron use only `v4()`). `npm audit fix` set nodemon to 3.1.11 (safe minimatch). The override stays for exceljs (4.4.0 still asks for uuid 8). Remove it only if a new exceljs uses uuid 11. |
+| 2026-11-14 | Four text errors fixed on the public site. Chapter 11 (land page) and 12 (SEO) written. D14 in `specs.md`. |

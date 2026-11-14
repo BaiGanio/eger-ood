@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-13.
+Last update: 2026-11-14.
 
 ## 1. The product
 
@@ -33,6 +33,7 @@ Last update: 2026-11-13.
 | D9 | Holidays for the public site are made by a script **one time per year**. The script joins two sources: the law (fixed dates, Orthodox Easter, the weekend rule of Labour Code art. 154) and the Nager.Date API (one-time days off). It saves them to `site/holidays.json`. The site reads only that file. | 2026-11-13 |
 | D10 | No framework and no build step. Plain HTML, CSS, JavaScript. Bootstrap from the CDN. | 2026-11-13 |
 | D11 | The form of the staff guide (help page in the app, or one file) is decided with the staff at the end. | 2026-11-13 |
+| D14 | The agricultural land work gets its own page, `site/zemya.html`, with a link from the main page. Not a section on the main page. | 2026-11-14 |
 
 ## 3. Open questions
 
