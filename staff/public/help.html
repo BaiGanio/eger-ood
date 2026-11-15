@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide (plan/10-staff-guide.md). One section for each task.
+     Each step is one click. The red numbers in a picture match the
+     numbers in the steps. Screenshots: staff/tools/guide-shots.mjs. -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <a href="/" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <h1 class="guide-title">Помощ</h1>
+  <p class="text-muted">Как се работи с програмата „SMS Напомняния“. Стъпка по стъпка.</p>
+
+  <div class="alert alert-warning">
+    <i class="bi bi-cone-striped me-1"></i>
+    <strong>Ръководството още се пише.</strong> Готова е само първата тема. Другите идват скоро.
+  </div>
+
+  <!-- ── Contents ─────────────────────────────────────────── -->
+  <nav class="card border-0 shadow-sm mb-4" aria-label="Съдържание">
+    <div class="card-body">
+      <h2 class="h6 fw-bold mb-2">Съдържание</h2>
+      <ol class="mb-0">
+        <li><a href="#send-sms">Как да изпратя SMS напомняне</a></li>
+        <li class="text-muted">Как да добавя клиент <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">Как да променя или изтрия клиент <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">Кой трябва да получи SMS днес <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">Какво значи „Просрочени“ <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">Почивни дни и защо SMS идва по-рано <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">SMS шаблон и цена <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">Къде е файлът с клиентите <span class="badge text-bg-light border">скоро</span></li>
+        <li class="text-muted">Ако нещо не работи <span class="badge text-bg-light border">скоро</span></li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- ── Task 1: send an SMS ──────────────────────────────── -->
+  <section id="send-sms" class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h2 class="task-title"><span class="task-no">1</span> Как да изпратя SMS напомняне</h2>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Всяко SMS е истинско и струва пари. Програмата не праща нищо сама.
+          SMS отива само когато вие щракнете „Изпрати SMS“.
+          Всеки клиент получава <strong>едно</strong> SMS за година.
+        </div>
+      </div>
+
+      <h3 class="step-group">Преди да започнете</h3>
+      <ol class="steps">
+        <li>Щракнете два пъти върху иконата <strong>„ЕГЕР-Сервиз“</strong> на работния плот.</li>
+        <li>Изчакайте. Браузърът се отваря сам и показва таблото.</li>
+        <li>Погледнете долу вляво. Трябва да пише <span class="ui-green">● Сървърът работи</span>.</li>
+      </ol>
+
+      <h3 class="step-group">Изберете клиента</h3>
+      <figure class="shot">
+        <img src="help/sms-1-list.png" width="1280" height="760"
+             alt="Таблото. Картата „Очакващи SMS“ е отбелязана с 1. Бутонът „Изпрати“ на първия ред е отбелязан с 2.">
+      </figure>
+      <ol class="steps" start="4">
+        <li>Щракнете веднъж върху картата <span class="ui-btn">Очакващи SMS</span>. <span class="mark">1</span>
+          <div class="hint">Под картите се показват клиентите, на които трябва да пратите SMS днес.</div>
+        </li>
+        <li>Намерете клиента в списъка.
+          <div class="hint">Списъкът е дълъг? Напишете името или номера на колата в полето „Търси…“.</div>
+        </li>
+        <li>На реда на клиента щракнете синия бутон <span class="ui-btn ui-blue"><i class="bi bi-send"></i> Изпрати</span>. <span class="mark">2</span></li>
+      </ol>
+
+      <h3 class="step-group">Проверете и изпратете</h3>
+      <figure class="shot">
+        <img src="help/sms-2-preview.png" width="1280" height="760"
+             alt="Прозорецът „Преглед на SMS“. Текстът на съобщението е отбелязан с 3. Бутонът „Изпрати SMS“ е отбелязан с 4.">
+      </figure>
+      <ol class="steps" start="7">
+        <li>Отваря се прозорец <strong>„Преглед на SMS“</strong>. Прочетете текста. <span class="mark">3</span>
+          <div class="hint">Проверете регистрационния номер и датата. Това е точно текстът, който клиентът ще получи.</div>
+        </li>
+        <li>Всичко е вярно? Щракнете <span class="ui-btn ui-blue"><i class="bi bi-send"></i> Изпрати SMS</span>. <span class="mark">4</span>
+          <div class="hint">Нещо не е вярно? Щракнете <span class="ui-btn">Отказ</span>. Нищо не се изпраща.</div>
+        </li>
+        <li>Изчакайте 1–2 секунди. Долу вдясно излиза зелено съобщение <span class="ui-green">SMS изпратен до …!</span></li>
+      </ol>
+
+      <h3 class="step-group">Готово. Какво стана?</h3>
+      <ul class="done-list">
+        <li>Клиентът изчезва от „Очакващи SMS“.</li>
+        <li>Клиентът се появява в картата „Изпратени SMS“.</li>
+        <li>На този клиент не може да се прати второ SMS тази година.</li>
+      </ul>
+
+      <h3 class="step-group">Ако нещо не стане</h3>
+      <dl class="trouble">
+        <dt>Няма бутон „Изпрати“.</dt>
+        <dd>Бутонът е само в картата „Очакващи SMS“. Щракнете първо картата (стъпка 4).</dd>
+        <dt>Излиза червено съобщение „Грешка при изпращане…“.</dt>
+        <dd>SMS не е изпратено. Прочетете текста на грешката. Опитайте още веднъж след минута. Ако пак не стане, обадете се на <strong>[име и телефон]</strong>.</dd>
+        <dt>Горе има жълта лента „SMS не могат да се изпращат…“.</dt>
+        <dd>Програмата няма връзка с услугата за SMS. Не можете да поправите това сами. Обадете се на <strong>[име и телефон]</strong>.</dd>
+      </dl>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

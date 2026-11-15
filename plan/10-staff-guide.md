@@ -1,0 +1,57 @@
+# 10 — Staff guide
+
+Needs: chapter 08 done (the screenshots must show the final dashboard). Decision: `specs.md` D11.
+
+## Decisions (owner, 2026-11-15)
+
+- Form: a help page in the staff app, `staff/public/help.html`. Staff print it or save it as PDF from the browser (Ctrl + P). No separate PDF file. No paper cheat sheet. No video.
+- Each click is written out. One step = one action.
+- Screenshots with red numbers. The numbers in the text match the numbers in the picture.
+- Fake data only in the screenshots (`npm run test-data`).
+- Staff start the app with a double-click on a desktop icon (chapter 09). The guide never says `npm`, `start.bat` or "server" as a task.
+- Staff use "Настройки" too. The guide covers it.
+- The example (task 1) comes first, to fix the style. The other tasks wait for the end of chapter 08.
+
+## Files
+
+| File | What |
+|---|---|
+| `staff/public/help.html` | The guide. Bulgarian. One `<section>` per task. |
+| `staff/public/help.css` | Look of the guide, and the print rules (each task on a new page). |
+| `staff/public/help/*.png` | Screenshots. |
+| `staff/tools/guide-shots.mjs` | Makes the screenshots again. Uses Playwright, installed with `--no-save` (not in `package.json`). Never clicks "Изпрати SMS". |
+
+## Style of a task
+
+1. Title with a number.
+2. Blue box: the one thing to know before you start (only if needed).
+3. Groups of steps with a grey heading ("Преди да започнете", "Изберете клиента", ...).
+4. Picture first, then the steps for that picture.
+5. Button names look like the button (`.ui-btn`). The red number (`.mark`) after the step.
+6. Grey hint under a step: why, or what to do if the screen is not as shown.
+7. "Готово. Какво стана?" — what changed.
+8. "Ако нещо не стане" — the errors of this task, and who to call.
+
+## Steps
+
+- [x] Example task: "Как да изпратя SMS напомняне", 2 screenshots. "In progress" note on the page.
+- [ ] Owner approves the style of the example.
+- [ ] Owner gives the name and phone for "[име и телефон]" (who the staff call).
+- [ ] Owner confirms the name of the desktop icon ("ЕГЕР-Сервиз") after chapter 09.
+- [ ] Link "Помощ" in the dashboard menu. Needs the owner's OK on the place.
+- [ ] After chapter 08: make all screenshots again (`tools/guide-shots.mjs`).
+- [ ] Task 2: Как да добавя клиент.
+- [ ] Task 3: Как да променя или изтрия клиент.
+- [ ] Task 4: Кой трябва да получи SMS днес (cards and periods).
+- [ ] Task 5: Какво значи „Просрочени“.
+- [ ] Task 6: Почивни дни и защо SMS идва по-рано.
+- [ ] Task 7: SMS шаблон и цена.
+- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`).
+- [ ] Task 9: Ако нещо не работи (all banners).
+- [ ] Remove the "Ръководството още се пише" note.
+
+## Owner checks
+
+1. Start the app. Open `http://localhost:3000/help.html`.
+2. Read task 1. Is the style good? Is each step clear?
+3. Press Ctrl + P. Is the print good?

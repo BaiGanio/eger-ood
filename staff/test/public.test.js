@@ -8,8 +8,11 @@ import { fileURLToPath } from 'node:url';
 
 const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
+// Only the text files at the top. Pictures (example: the guide's public/help/) are not code.
+const TEXT_FILE = /\.(html|css|js|svg)$/;
+
 async function publicFiles() {
-  const names = await fs.readdir(PUBLIC_DIR);
+  const names = (await fs.readdir(PUBLIC_DIR)).filter(name => TEXT_FILE.test(name));
   return Promise.all(names.map(async name => ({
     name, text: await fs.readFile(path.join(PUBLIC_DIR, name), 'utf8'),
   })));
