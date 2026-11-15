@@ -7,7 +7,7 @@ import {
 } from './card-lists.js';
 import { PAGE_SIZES, clampPage, pageButtons, pageCount } from './pages.js';
 import {
-  DAY_NAMES, MONTH_NAMES, WEEKDAY_SHORT, dayKind, monthWeeks, movedReminders,
+  DAY_NAMES, MONTH_NAMES, WEEKDAY_SHORT, dayKind, monthWeeks, movedReminders, weekdayOf,
 } from './calendar.js';
 
 // ─── State ──────────────────────────────────────────────────────────
@@ -18,9 +18,10 @@ let pricePerSegment = 0;
 // The day of the statuses on the page. See reloadOnNewDay().
 let dataDay = null;
 let holidays = [];
-// The year of the calendar in Настройки, and the server answer for it.
-let calYear = Number(localDateInDays(0).slice(0, 4));
-let calData = null;
+// The month of the calendar in Настройки, and the server answer for its year.
+let calYear  = Number(localDateInDays(0).slice(0, 4));
+let calMonth = Number(localDateInDays(0).slice(5, 7));   // 1 to 12
+let calData  = null;
 // The engine computes the official days for these years (lib/holidays.js).
 const CAL_FIRST_YEAR = 2000;
 const CAL_LAST_YEAR = 2099;
@@ -114,8 +115,8 @@ async function api(method, path, body) {
 const ACTIONS = {
   showView, openAddModal, openEditModal, closeModal, saveCustomer,
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
-  saveTemplate, addHoliday, removeHoliday, showCardList, showAllCustomers, setPeriod,
-  closeBanner, goToPage, changeCalYear, toggleDay, checkHolidaysNow,
+  saveTemplate, showCardList, showAllCustomers, setPeriod,
+  closeBanner, goToPage, changeCalMonth, toggleDay, checkHolidaysNow,
 };
 
 async function tick() {
@@ -252,7 +253,6 @@ async function loadHolidays() {
   try {
     calData  = await api('GET', `/api/holidays?year=${calYear}`);
     holidays = calData.holidays || [];
-    renderHolidays();
     renderCalendar();
   } catch (e) {
     toast('Грешка при зареждане на почивните дни: ' + e.message, 'danger');
@@ -770,23 +770,6 @@ async function saveTemplate() {
 }
 
 // ─── Holidays ─────────────────────────────────────────────────────────
-// The list of the days that the staff added, all years.
-function renderHolidays() {
-  const list = document.getElementById('holiday-list');
-  if (!holidays.length) {
-    list.innerHTML = `<p class="text-muted small mb-0">Няма добавени почивни дни</p>`;
-    return;
-  }
-  list.innerHTML = [...holidays].sort().map(h => `
-    <div class="d-flex align-items-center justify-content-between bg-light border rounded px-3 py-2">
-      <span class="small"><i class="bi bi-calendar2-x cal-staff-icon me-2"></i>${formatDate(h)}</span>
-      <button class="btn btn-link btn-sm text-danger p-0 ms-2" data-action="removeHoliday" data-arg="${escHtml(h)}" title="Премахни">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-  `).join('');
-}
-
 // What the calendar needs to know about each day.
 function calendarDays() {
   return {
@@ -796,100 +779,65 @@ function calendarDays() {
   };
 }
 
-function weeklyDaysText(days) {
-  const names = days.map(d => DAY_NAMES[d]);
-  if (!names.length) return 'Няма';
-  const text = names.length > 1
-    ? `${names.slice(0, -1).join(', ')} и ${names.at(-1)}` : names[0];
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
 function dayTitle(date, kind, days) {
-  const day = `${formatDate(date)}, ${DAY_NAMES[new Date(date + 'T00:00:00').getDay()]}`;
-  if (kind === 'staff')    return `${day}: добавен от вас. Кликнете, за да го махнете.`;
+  const day = `${formatDate(date)}, ${DAY_NAMES[weekdayOf(date)]}`;
+  if (kind === 'staff')    return `${day}: добавен от вас`;
   if (kind === 'official') return `${day}: ${days.official.get(date).name}`;
-  if (kind === 'weekly')   return `${day}: почивен ден всяка седмица`;
-  return `${day}: работен ден. Кликнете, за да го направите почивен.`;
+  if (kind === 'weekly')   return `${day}: почивен ден`;
+  return day;
 }
 
 function renderCalendar() {
   if (!calData) return;
   const days  = calendarDays();
   const today = localDateInDays(0);
-  document.getElementById('cal-year').textContent = calYear;
-  document.getElementById('cal-list-year').textContent = calYear;
-  document.getElementById('cal-weekly-label').textContent = weeklyDaysText(days.weeklyDaysOff);
+  document.getElementById('cal-title').textContent = `${MONTH_NAMES[calMonth - 1]} ${calYear}`;
+  document.getElementById('cal-weekly-label').textContent =
+    days.weeklyDaysOff.map(d => WEEKDAY_SHORT[(d + 6) % 7]).join('/') || '—';
 
   const head = WEEKDAY_SHORT.map(d => `<span class="cal-head">${d}</span>`).join('');
-  document.getElementById('cal-grid').innerHTML = MONTH_NAMES.map((name, i) => {
-    const cells = monthWeeks(calYear, i + 1).flat().map(date => {
-      if (!date) return '<span></span>';
-      const kind = dayKind(date, days);
-      const cls = `cal-day cal-${kind}${date === today ? ' cal-today' : ''}${date < today ? ' cal-past' : ''}`;
-      return `<button type="button" class="${cls}" data-action="toggleDay" data-arg="${date}"
-                title="${escHtml(dayTitle(date, kind, days))}">${Number(date.slice(8))}</button>`;
-    }).join('');
-    return `<div class="cal-month"><div class="cal-month-name">${name}</div>
-              <div class="cal-days">${head}${cells}</div></div>`;
+  const cells = monthWeeks(calYear, calMonth).flat().map(date => {
+    if (!date) return '<span></span>';
+    const kind = dayKind(date, days);
+    const cls = `cal-day cal-${kind}${date === today ? ' cal-today' : ''}`;
+    return `<button type="button" class="${cls}" data-action="toggleDay" data-arg="${date}"
+              title="${escHtml(dayTitle(date, kind, days))}">${Number(date.slice(8))}</button>`;
   }).join('');
+  document.getElementById('cal-days').innerHTML = head + cells;
 
-  document.getElementById('cal-official-list').innerHTML = calData.official.map(h => `
-    <li class="d-flex gap-2 py-1 border-bottom">
-      <span class="cal-list-date">${formatDate(h.date)}</span>
-      <span>${escHtml(h.name)}${h.fromCheck ? ' <span class="badge text-bg-light border">от проверката</span>' : ''}</span>
-    </li>`).join('');
-
-  renderCheck();
+  const check = document.getElementById('cal-check');
+  check.textContent = calData.lastCheck ? `Проверено: ${formatDate(calData.lastCheck)}` : 'Още не е проверено';
+  check.title = calData.checkError || 'Празниците се проверяват в интернет веднъж месечно.';
+  check.classList.toggle('text-danger', Boolean(calData.checkError));
 }
 
-// How the app knows the official days of the shown year.
-function renderCheck() {
-  const checked = (calData.checkedYears || []).includes(calYear);
-  const parts = [
-    calData.lastCheck
-      ? `Последна проверка в интернет: <b>${formatDate(calData.lastCheck)}</b>. Проверката е автоматична, веднъж месечно.`
-      : 'Още няма проверка в интернет. Проверката е автоматична, веднъж месечно.',
-    checked
-      ? `Празниците за ${calYear} са по закона и са потвърдени с проверката.`
-      : `Празниците за ${calYear} са по закона. Еднократни почивни дни (по решение на правителството) ще се добавят, когато проверката ги намери. Ако е нужно, добавете ги сами.`,
-  ];
-  if (calData.checkError) {
-    parts.push(`<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ${escHtml(calData.checkError)}</span>`);
-  }
-  document.getElementById('cal-check').innerHTML = parts.map(p => `<div>${p}</div>`).join('');
-}
-
-function changeCalYear(step) {
-  const next = calYear + Number(step);
-  if (next < CAL_FIRST_YEAR || next > CAL_LAST_YEAR) return;
-  calYear = next;
+function changeCalMonth(step) {
+  let month = calMonth + Number(step);
+  let year  = calYear;
+  if (month < 1)  { month = 12; year--; }
+  if (month > 12) { month = 1;  year++; }
+  if (year < CAL_FIRST_YEAR || year > CAL_LAST_YEAR) return;
+  calMonth = month;
+  if (year === calYear) { renderCalendar(); return; }
+  calYear = year;
   loadHolidays();
 }
 
 async function toggleDay(date) {
   const days = calendarDays();
   const kind = dayKind(date, days);
-  if (kind === 'official') {
-    toast(`${formatDate(date)} е официален празник (${days.official.get(date).name}). Той вече е почивен ден.`, 'info');
+  if (kind === 'official' && days.staff.has(date)) {
+    // An old staff entry for an official day: remove it. The day stays off.
+    await saveHolidays(holidays.filter(h => h !== date), `${formatDate(date)}: ${days.official.get(date).name}. Остава почивен ден.`);
+  } else if (kind === 'official') {
+    toast(`${formatDate(date)}: ${days.official.get(date).name}. Вече е почивен ден.`, 'info');
   } else if (kind === 'weekly') {
     toast(`${formatDate(date)} е почивен ден всяка седмица.`, 'info');
   } else if (kind === 'staff') {
-    await saveHolidays(holidays.filter(h => h !== date), `${formatDate(date)} вече е работен ден.`);
+    await saveHolidays(holidays.filter(h => h !== date), `${formatDate(date)} е работен ден.`);
   } else {
     await saveHolidays([...holidays, date], `${formatDate(date)} е почивен ден.`);
   }
-}
-
-async function addHoliday() {
-  const input = document.getElementById('new-holiday-input');
-  const val   = input.value;
-  if (!val) { toast('Изберете дата', 'warning'); return; }
-  if (holidays.includes(val)) { toast('Датата вече е в списъка', 'info'); return; }
-  if (await saveHolidays([...holidays, val], `${formatDate(val)} е почивен ден.`)) input.value = '';
-}
-
-async function removeHoliday(date) {
-  await saveHolidays(holidays.filter(h => h !== date), `${formatDate(date)} вече е работен ден.`);
 }
 
 function movedText(count) {
@@ -910,7 +858,6 @@ async function saveHolidays(next, doneText) {
     toast('Грешка при запазване на почивните дни: ' + e.message, 'danger');
     return false;
   }
-  renderHolidays();
   renderCalendar();
   await loadCustomers();
   toast(`${doneText} ${movedText(movedReminders(before, customers))}`, 'success');

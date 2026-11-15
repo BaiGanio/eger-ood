@@ -17,13 +17,14 @@ test('weekdayOf does not depend on the time zone', () => {
   assert.equal(weekdayOf('2026-11-14'), 6);
 });
 
-test('dayKind: staff day, then official, then weekly day off, then work day', () => {
+test('dayKind: official, then staff day, then weekly day off, then work day', () => {
   const days = {
     staff: new Set(['2026-12-24', '2026-11-18']),
     official: new Map([['2026-12-24', {}], ['2026-12-25', {}]]),
     weeklyDaysOff: [0, 1],
   };
-  assert.equal(dayKind('2026-12-24', days), 'staff');
+  assert.equal(dayKind('2026-12-24', days), 'official');
+  assert.equal(dayKind('2026-11-18', days), 'staff');
   assert.equal(dayKind('2026-12-25', days), 'official');
   assert.equal(dayKind('2026-11-15', days), 'weekly');
   assert.equal(dayKind('2026-11-17', days), 'work');

@@ -36,14 +36,13 @@ export function monthWeeks(year, month) {
 }
 
 /**
- * What one day is: 'staff' (a day the staff added), 'official', 'weekly'
- * (a weekly day off) or 'work'. A day the staff added wins, so they can see
- * and remove it. An official day wins over a weekly day off: its name is
- * more useful.
+ * What one day is: 'official', 'staff' (a day the staff added), 'weekly'
+ * (a weekly day off) or 'work'. An official day always shows as one, also
+ * when the staff added it too: the staff must see that the app knows it.
  */
 export function dayKind(date, { staff, official, weeklyDaysOff }) {
-  if (staff.has(date)) return 'staff';
   if (official.has(date)) return 'official';
+  if (staff.has(date)) return 'staff';
   if (weeklyDaysOff.includes(weekdayOf(date))) return 'weekly';
   return 'work';
 }

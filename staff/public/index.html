@@ -325,58 +325,37 @@
           </div>
         </div>
 
-        <!-- Holidays: a year calendar (public/calendar.js) -->
-        <div class="col-12 col-lg-6">
+        <!-- Holidays: one month of the calendar (public/calendar.js) -->
+        <div class="col-12 col-md-6 col-xl-4">
           <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom d-flex align-items-center gap-2 py-3">
               <i class="bi bi-calendar-x text-primary"></i>
-              <span class="fw-semibold">Почивни дни (без SMS)</span>
+              <span class="fw-semibold">Почивни дни</span>
               <div class="ms-auto d-flex align-items-center gap-1">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-action="changeCalYear" data-arg="-1"
-                        title="Предишна година" aria-label="Предишна година">
+                <button type="button" class="btn btn-link btn-sm p-1 text-secondary" data-action="changeCalMonth" data-arg="-1"
+                        title="Предишен месец" aria-label="Предишен месец">
                   <i class="bi bi-chevron-left"></i>
                 </button>
-                <span id="cal-year" class="cal-year">—</span>
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-action="changeCalYear" data-arg="1"
-                        title="Следваща година" aria-label="Следваща година">
+                <span id="cal-title" class="cal-title">—</span>
+                <button type="button" class="btn btn-link btn-sm p-1 text-secondary" data-action="changeCalMonth" data-arg="1"
+                        title="Следващ месец" aria-label="Следващ месец">
                   <i class="bi bi-chevron-right"></i>
                 </button>
               </div>
             </div>
             <div class="card-body">
-              <p class="small text-muted mb-2">
-                Напомняне, което се пада в почивен ден, се премества по-рано — в първия работен ден преди него.
-                Кликнете на работен ден, за да го направите почивен. Кликнете отново, за да го махнете.
-              </p>
-              <div class="cal-legend small mb-3">
-                <span><span class="cal-swatch cal-weekly"></span> <span id="cal-weekly-label">Почивен ден всяка седмица</span></span>
-                <span><span class="cal-swatch cal-official"></span> Официален празник</span>
+              <div id="cal-days" class="cal-days"></div>
+              <div class="cal-legend small mt-3">
+                <span><span class="cal-swatch cal-weekly"></span> <span id="cal-weekly-label">Нд/Пн</span></span>
+                <span><span class="cal-swatch cal-official"></span> Празник</span>
                 <span><span class="cal-swatch cal-staff"></span> Добавен от вас</span>
               </div>
-
-              <div id="cal-grid" class="cal-grid"></div>
-
-              <details class="mt-3 small">
-                <summary class="fw-semibold">Официални празници през <span id="cal-list-year">—</span></summary>
-                <ul id="cal-official-list" class="list-unstyled mt-2 mb-0"></ul>
-              </details>
-
-              <div class="mt-3 p-2 bg-light border rounded small d-flex flex-wrap align-items-center gap-2">
-                <div id="cal-check" class="flex-grow-1"></div>
-                <button type="button" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
-                        id="cal-check-btn" data-action="checkHolidaysNow">
-                  <i class="bi bi-arrow-repeat"></i> Провери сега
-                </button>
-              </div>
-
-              <hr />
-              <div class="col-header mb-2">Добавени от вас (всички години)</div>
-              <div id="holiday-list" class="d-flex flex-column gap-2 mb-3"
-                   style="max-height:280px;overflow-y:auto;"></div>
-              <div class="input-group">
-                <input type="date" class="form-control" id="new-holiday-input" />
-                <button class="btn btn-primary d-flex align-items-center gap-1" data-action="addHoliday">
-                  <i class="bi bi-plus-lg"></i> Добави
+              <div class="small text-muted mt-1">Клик на ден = добави / махни</div>
+              <div class="small text-muted mt-2 d-flex align-items-center gap-1">
+                <span id="cal-check">—</span>
+                <button type="button" class="btn btn-link btn-sm p-0 ms-1" id="cal-check-btn"
+                        data-action="checkHolidaysNow" title="Провери сега" aria-label="Провери сега">
+                  <i class="bi bi-arrow-repeat"></i>
                 </button>
               </div>
             </div>
