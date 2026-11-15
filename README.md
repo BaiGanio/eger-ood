@@ -110,7 +110,6 @@ staff/                   staff app (local only)
   app.js                 the API routes
   .env.example           copy to .env (or настройки.env on the staff PC), fill in the Twilio keys
   ИНСТРУКЦИЯ.md          install and use, for the staff PC (Bulgarian)
-  start.sh, start.bat    developer start with Node (not for the staff)
   public/
     index.html           staff dashboard
     scripts.js           staff dashboard logic

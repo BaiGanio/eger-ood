@@ -55,6 +55,7 @@ Last update: 2026-11-15 (D27 design, chapter 09).
 | O2 | "Send to all due today" button? | No. One SMS at a time. |
 | O3 | Where is the Excel file on the staff PC? | `Documents\ЕГЕР-Сервиз\клиенти.xlsx`. `EGER_DATA_DIR` overrides it. |
 | O5 | Extra pages that the staff want. | Wait for the talks with the staff. |
+| O6 | "Отвори папката" in "Настройки": a card "Файл с данни" with the path of `клиенти.xlsx` and a button that opens the folder (chapter 09 proposal). | Not built. `staff/ИНСТРУКЦИЯ.md` gives the path. |
 
 ## 4. Architecture rules
 

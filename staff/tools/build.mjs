@@ -19,7 +19,6 @@ const DIST_DIR = path.join(STAFF_DIR, 'dist');
 export const EXCLUDE = [
   'dist', 'data', 'backups', 'test', 'tools',
   '.env', '*.env', '.env.*', '*.xlsx', '~$*',
-  'start.bat', 'start.sh', 'check-node.bat',
   '.DS_Store', 'Thumbs.db',
 ];
 

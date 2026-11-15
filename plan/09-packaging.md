@@ -51,8 +51,8 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 
 - [x] Banner "Сървърът е спрян": the text names the desktop icon, not `start.bat` (found in ch10).
 - [x] `staff/package.json` name `eger-staff` (found in ch05/ch08).
-- [ ] "Отвори папката" in "Настройки" with the path of the data file (Design section). Layout change: show the owner a proposal first.
-- [ ] `start.bat`, `start.sh`, `check-node.bat`: owner decides (keep as developer tools, or delete). Not in the built file.
+- [ ] "Отвори папката" in "Настройки" with the path of the data file (Design section). **Not decided** (owner, 2026-11-15; specs O6). Proposal: card "Файл с данни" at the end of "Настройки", full path + button. Do not build before the owner's OK.
+- [x] `start.bat`, `start.sh`, `check-node.bat` deleted (owner, 2026-11-15): `npm start` for developers, `npm run build` for the staff file.
 
 ### Windows test (owner, on the real PC)
 
