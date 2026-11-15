@@ -85,6 +85,9 @@ Needs: chapter 06.
 - [x] No "Действия" column in this list.
 - [x] "Изпратен SMS" (day and time of the send) in place of "Напомняне". The newest send is on top. No change in the file: `smsSentAt` is there already.
 
+### Staff requests 10 (owner, 2026-11-15): "Просрочени" columns (`specs.md` D22)
+- [x] The "Просрочени" card list has the columns of "Изпратени SMS": no "Действия", "Изпратен SMS" in place of "Напомняне". A row with no SMS shows "—".
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -104,5 +107,6 @@ Needs: chapter 06.
 5b. With the test data: five cards. Close the yellow banners with × → they stay closed. Click "Очаквани за преглед" → the card has a blue ring and tint, rows with expiry today, row "Преглед до". Click it again → all customers, no ring. Click "Изпратени SMS" → SMS of today; "12 месеца" → more rows. The text under each count says the period.
 5d. Click "Очаквани за преглед", then "1 месец" → only "Изпратен" rows. Columns: Клиент, Автомобил, Телефон, Следващ преглед, Статус. "Йордан Кирилов" and "Димитър Славов" are not in it. Click the card again → all 7 columns are back.
 5e. Click "Изпратени SMS", then "1 месец" → columns: Клиент, Автомобил, Телефон, Изпратен SMS, Следващ преглед, Статус. Example: "Христо Динев" shows 12.11.2026 10:43 (his reminder day is 17.11). The newest send is on top. Click the card again → "Напомняне" and "Действия" are back.
+5f. Click "Просрочени", then "12 месеца" → columns: Клиент, Автомобил, Телефон, Изпратен SMS, Следващ преглед, Статус. A row with no SMS shows "—". Click the card again → all 7 columns are back.
 5c. With the test data: the table has 25 rows and the page buttons under it. Click "2" → rows 26–50, the page shows the top of the table. "Редове: 50" → page 1, 50 rows. Type a name in the search → page 1. On page 2, edit a row → still page 2.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

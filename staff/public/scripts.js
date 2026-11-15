@@ -426,10 +426,11 @@ function renderTable() {
                 a.nextReminderDate.localeCompare(b.nextReminderDate));
 
   // "Очаквани за преглед": the staff only wait. No reminder day, no buttons.
-  // "Очаквани за преглед" and "Изпратени SMS": the staff only look. No buttons.
-  // "Изпратени SMS" shows the day of the send in place of the reminder day:
-  // before a holiday the staff send in advance, so the two days differ.
-  const sentList = filterStatus === 'sentin';
+  // "Очаквани за преглед", "Изпратени SMS" and "Просрочени" (card): the staff
+  // only look. No buttons. The last two show the day of the send in place of
+  // the reminder day: before a holiday the staff send in advance, so the two
+  // days differ. A row with no SMS shows "—".
+  const sentList = filterStatus === 'sentin' || filterStatus === 'expired';
   const waitList = filterStatus === 'coming';
   const noAction = sentList || waitList;
   const cols     = 7 - (waitList ? 1 : 0) - (noAction ? 1 : 0);
