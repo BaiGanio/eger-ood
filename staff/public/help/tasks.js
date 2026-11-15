@@ -16,6 +16,6 @@ export const HELP_TASKS = [
   { page: 'overdue.html',  ready: true, short: 'Просрочени',            title: 'Какво значи „Просрочени“' },
   { page: 'days-off.html', ready: true, short: 'Почивни дни',           title: 'Почивни дни и защо SMS идва по-рано' },
   { page: 'template.html', ready: true, short: 'SMS шаблон и цена',     title: 'SMS шаблон и цена' },
-  { page: 'file.html',     ready: false, short: 'Файл и копия',          title: 'Къде е файлът с клиентите' },
+  { page: 'file.html',     ready: true,  short: 'Файл и копия',         title: 'Къде е файлът с клиентите' },
   { page: 'errors.html',   ready: false, short: 'Ако нещо не работи',    title: 'Ако нещо не работи' },
 ];

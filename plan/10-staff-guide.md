@@ -67,7 +67,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] Task 7: Почивни дни и защо SMS идва по-рано (`help/days-off.html`, 2 screenshots: "Настройки" and the calendar, next month with a work day and the colours). The script clicks no day (a click saves at once). Three examples of the reminder day, checked with `nextReminderDate`. Weekly days off: "обадете се за помощ", no Excel steps. Waits for the owner's check.
 - [x] Task 8: SMS шаблон и цена (`help/template.html`, 3 screenshots: text and name buttons, a text of 71 letters = 2 SMS, price and save). The script types in the page only and never clicks "Запази шаблона". The staff may change the price; the price is only for the "≈ $" estimate. Waits for the owner's check.
 - [x] Chapter 09 made the screenshots `help/sms-1-list.png` and `help/sms-2-preview.png` old if they show the sidebar or a banner: the sidebar has a new block "Копие на USB" (under "Помощ"), the yellow "no keys" banner now names `„настройки.env“`, and the red "Сървърът е спрян" banner names the desktop icon. Make them again (`tools/guide-shots.mjs`).
-- [ ] Task 9: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. Text for it is in `staff/ИНСТРУКЦИЯ.md`, part 4. No "Копие на USB" (removed, D27).
+- [x] Task 9: Къде е файлът с клиентите (`help/file.html`, text only: no dashboard screen shows the file, owner choice A). Path, Excel and the app, the lock file `~$клиенти.xlsx` (hidden on Windows: turn on "Скрити елементи"), the daily copy (made before the first save of a day; 30 days with a save, not 30 calendar days). Restore of a copy in a new grey box `.help-box` (owner OK), first line "обадете се за помощ". No "Копие на USB" (D27). No "Отвори папката" (O6). Waits for the owner's check.
 - [ ] Task 10: Ако нещо не работи (all banners).
 - [ ] Remove the "Ръководството още се пише" note.
 
@@ -86,3 +86,4 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 11. Read task 6 (`help/overdue.html`). Do the steps match the dashboard?
 12. Read task 7 (`help/days-off.html`). Click a day in "Настройки": does the page match? Click it again to undo.
 13. Read task 8 (`help/template.html`). Do the steps match "Настройки"?
+14. Read task 9 (`help/file.html`). Is the grey box good on screen and in print (Ctrl + P)? On the staff PC: do the Explorer names "Изглед" → "Покажи" → "Скрити елементи" match Windows there?

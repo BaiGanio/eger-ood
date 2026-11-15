@@ -50,6 +50,15 @@
 }
 .info-box > i { font-size: 1.3rem; line-height: 1.2; }
 
+/* Steps that only the person who helps does (example: restore a copy). */
+.help-box {
+  display: flex; gap: .75rem; padding: .9rem 1rem; margin: 1rem 0; border-radius: .5rem;
+  background: var(--bs-secondary-bg); border-left: 4px solid var(--bs-secondary-color);
+}
+.help-box > i { font-size: 1.3rem; line-height: 1.2; }
+.help-box-title { font-weight: 700; margin-bottom: .4rem; }
+.help-box ol { padding-left: 1.3rem; margin-bottom: .5rem; }
+
 .done-list { padding-left: 1.3rem; }
 .done-list li { margin-bottom: .3rem; }
 
@@ -63,6 +72,7 @@
   .no-print, .alert { display: none !important; }
   .guide { max-width: none; padding: 0 !important; font-size: 12pt; }
   .card { box-shadow: none !important; }
-  .shot, .steps > li, .trouble dd { break-inside: avoid; }
+  .shot, .steps > li, .trouble dd, .help-box { break-inside: avoid; }
+  .help-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   a { color: inherit; text-decoration: none; }
 }
