@@ -273,5 +273,39 @@ await mark('#guide-cal-card .cal-legend', '5');
 await page.screenshot({ path: `${OUT}days-off-2-month.png` });
 await clearMarks();
 
+// ── Task 8 (template.html) ────────────────────────────────────────────
+// The script changes the text in the page only. It never clicks
+// "Запази шаблона": a reload shows the saved text again.
+await openDashboard();
+
+// Shot 1: "Настройки", the text field and the name buttons.
+await page.click('#nav-settings');
+await page.waitForSelector('#sms-template-input');
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await mark('#nav-settings .sidebar-label', '1');
+await mark('#sms-template-input', '2');
+await mark('#var-chips', '3');
+await page.screenshot({ path: `${OUT}template-1-text.png` });
+await clearMarks();
+
+// Shot 2: a text one word too long: 2 SMS and the warning under the preview.
+const savedText = await page.inputValue('#sms-template-input');
+await page.fill('#sms-template-input', 'ЕГЕР ООД: ГТП на {{номер}} изтича {{дата}}. Запазете час на 0887979373');
+await page.locator('#sms-template-input').blur();
+await page.waitForTimeout(200); await page.mouse.move(0, 0);
+await mark('#sms-preview-box', '4');
+await mark('#sms-counter', '5');
+await page.screenshot({ path: `${OUT}template-2-long.png` });
+await clearMarks();
+
+// Shot 3: the saved text again (1 SMS), the price and the save button.
+await page.fill('#sms-template-input', savedText);
+await page.locator('#sms-template-input').blur();
+await page.waitForTimeout(200); await page.mouse.move(0, 0);
+await mark('#f-price', '6');
+await mark('[data-action="saveTemplate"]', '7');
+await page.screenshot({ path: `${OUT}template-3-save.png` });
+await clearMarks();
+
 await browser.close();
 server.close();

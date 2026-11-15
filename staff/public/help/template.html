@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: SMS шаблон и цена</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D6, section 6 "Input"). Each step is one
+     click. The red numbers in a picture match the numbers in the steps.
+     Screenshots: staff/tools/guide-shots.mjs. The task number and the links
+     at the bottom come from tasks.js (help-nav.js). Owner: the staff may
+     change the SMS price. -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> SMS шаблон и цена</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Шаблонът е текстът на всяко SMS. Програмата слага в него данните на клиента.
+          На кирилица едно SMS е до 70 знака. По-дълъг текст = 2 SMS и двойна цена.
+        </div>
+      </div>
+
+      <h2 class="step-group">Променете текста</h2>
+      <figure class="shot">
+        <img src="template-1-text.png" width="1280" height="760"
+             alt="Страницата „Настройки“. „Настройки“ в лявото меню е отбелязано с 1. Полето „Текст на шаблона“ е отбелязано с 2. Бутоните „Променливи“ са отбелязани с 3.">
+      </figure>
+      <ol class="steps">
+        <li>В лявото меню щракнете <span class="ui-btn"><i class="bi bi-gear"></i> Настройки</span>. <span class="mark">1</span></li>
+        <li>В полето <strong>„Текст на шаблона“</strong> променете текста. <span class="mark">2</span>
+          <div class="hint">Не трийте думите в двойни скоби, например <code>{{дата}}</code>. На тяхно място програмата пише данните на клиента.</div>
+        </li>
+        <li>Искате данни на клиента в текста? Щракнете в текста, където да са. После щракнете бутон под полето. <span class="mark">3</span>
+          <div class="hint"><code>{{име}}</code> = името на клиента. <code>{{модел}}</code> = моделът на колата. <code>{{номер}}</code> = номерът на колата. <code>{{дата}}</code> = датата, на която изтича прегледът. <code>{{телефон}}</code> = телефонът на клиента.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Проверете дължината</h2>
+      <figure class="shot">
+        <img src="template-2-long.png" width="1280" height="760"
+             alt="Шаблон с по-дълъг текст. Полето „Преглед“ е отбелязано с 4. Под него жълт брояч „2 SMS“, „71 / 134 знака“ и текст „Над 70 знака — съобщението се таксува като 2 SMS“, отбелязани с 5.">
+      </figure>
+      <ol class="steps" start="4">
+        <li>Погледнете <strong>„Преглед“</strong>. Така ще изглежда SMS-ът. <span class="mark">4</span>
+          <div class="hint">Прегледът е с примерен клиент, „Иван Петров“. Истинското SMS е с данните на всеки клиент.</div>
+        </li>
+        <li>Погледнете брояча под прегледа. <span class="mark">5</span>
+          <div class="hint">Зелено <strong>„1 SMS“</strong>: добре. Жълто или червено <strong>„2 SMS“</strong> и текст „Над 70 знака …“: съкратете текста, докато стане „1 SMS“.</div>
+          <div class="hint">Дълго име или модел правят SMS-а по-дълъг. Оставете няколко знака резерв.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Цена и запазване</h2>
+      <figure class="shot">
+        <img src="template-3-save.png" width="1280" height="760"
+             alt="Шаблонът е пак 1 SMS. Полето „Цена за 1 SMS (USD)“ е отбелязано с 6. Синият бутон „Запази шаблона“ е отбелязан с 7.">
+      </figure>
+      <ol class="steps" start="6">
+        <li>Цената на SMS е сменена? Напишете новата цена за 1 SMS в долари в <strong>„Цена за 1 SMS (USD)“</strong>. <span class="mark">6</span>
+          <div class="hint">Цената не е сменена? Не пипайте полето. Не знаете цената? Обадете се за помощ.</div>
+        </li>
+        <li>Щракнете синия бутон <span class="ui-btn ui-blue"><i class="bi bi-floppy"></i> Запази шаблона</span>. <span class="mark">7</span>
+          <div class="hint">Бутонът запазва и текста, и цената.</div>
+        </li>
+        <li>Долу вдясно излиза зелено съобщение <span class="ui-green">Шаблонът е запазен!</span></li>
+      </ol>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>Всяко следващо SMS е с новия текст. Пратените SMS не се променят.</li>
+        <li>Цената служи само за сметката „≈ $“ под прегледа и в прозореца „Преглед на SMS“ (тема 1). Тя не променя колко плаща фирмата.</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Не щракнахте „Запази шаблона“.</dt>
+        <dd>SMS-ът е със стария текст. Презареждане (<kbd>F5</kbd>) връща стария текст в полето. Направете стъпки 2–8 пак.</dd>
+        <dt>Излиза жълто съобщение „Непознати променливи: …“.</dt>
+        <dd>Текстът е запазен, но дума в двойни скоби има грешка. Тя ще излезе в SMS-а така, както е написана. Изтрийте я и сложете вярната с бутон под полето (стъпка 3). Щракнете пак „Запази шаблона“.</dd>
+        <dt>Излиза червено съобщение „… Шаблонът е празен.“</dt>
+        <dd>Нищо не е запазено. Напишете текст.</dd>
+        <dt>Излиза червено съобщение „… е отворен в Excel“.</dt>
+        <dd>Нищо не е запазено. Затворете файла „клиенти.xlsx“ в Excel. Щракнете пак „Запази шаблона“.</dd>
+        <dt>Полето за цена е празно или с грешно число.</dt>
+        <dd>Програмата пази старата цена. Напишете число, например <code>0,15</code>.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>
