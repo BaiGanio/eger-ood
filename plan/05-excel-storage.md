@@ -23,7 +23,7 @@ Do not use the `xlsx` (SheetJS) package from npm. The npm copy is old and has kn
 | Рег. номер | `carPlate` | text | Staff |
 | Последен преглед | `lastServiceDate` | Excel date | Staff |
 | SMS изпратен на | `smsSentAt` | Excel date-time | App |
-| Активен | `disabled` (inverted) | `Да` / `Не` | Staff |
+| ~~Активен~~ | — | Removed on 2026-11-15 (`specs.md` D19). The app ignores the column in an old file. | — |
 
 **Owner decision, 2026-11-13:** "Следващ преглед" and "Напомняне на" are **not** in the file. `specs.md` section 4 says: do not store what can be computed. The app computes them (and the status) on each read. The staff see them in the dashboard.
 
@@ -75,7 +75,7 @@ The 5 present ones plus 7 new ones. All names and phones are invented. Each one 
 | 6 | Reminder is due **today** |
 | 7 | Reminder was due 10 days ago (overdue) |
 | 8 | Reminder date falls on a **Monday** (day off, must show on Saturday) |
-| 9 | Disabled customer |
+| 9 | Reminder is far away (was: disabled customer, removed on 2026-11-15) |
 | 10 | Very long name and car model (SMS goes over 70 characters) |
 | 11 | Inspection anniversary falls on a **Sunday** |
 | 12 | Last inspection on **29 February**, and one row with a missing phone (bad-row test) |

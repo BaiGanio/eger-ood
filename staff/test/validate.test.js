@@ -50,7 +50,7 @@ test('the inspection date must be real and not in the future', () => {
 });
 
 test('an edit keeps the saved value of a field that the body does not have', () => {
-  const existing = { ...good(), id: 'c001', smsSentAt: null, disabled: false };
+  const existing = { ...good(), id: 'c001', smsSentAt: null };
   const { value } = checkCustomer({ name: 'New Name' }, { existing, today: TODAY });
   assert.equal(value.name, 'New Name');
   assert.equal(value.phone, existing.phone);

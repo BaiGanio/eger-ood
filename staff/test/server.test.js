@@ -17,7 +17,7 @@ function customer(extra = {}) {
   return {
     id: 'c001', name: 'Test Client', phone: '+359880000001', address: '',
     carModel: 'Test Model', carPlate: 'PB0001TT',
-    lastServiceDate: '2025-11-24', smsSentAt: '2025-11-25T10:00:00', disabled: false,
+    lastServiceDate: '2025-11-24', smsSentAt: '2025-11-25T10:00:00',
     ...extra,
   };
 }
@@ -130,10 +130,16 @@ test('our own page can read and write', async t => {
   const read = await call('GET', '/api/customers');
   assert.equal(read.status, 200);
   assert.equal(read.json.customers.length, 1);
-  const write = await call('PATCH', '/api/customers/c001/toggle-disabled',
-    { body: {}, headers: { Host: `127.0.0.1:${port}`, Origin: `http://127.0.0.1:${port}` } });
+  const write = await call('PUT', '/api/customers/c001',
+    { body: { name: 'New Name' }, headers: { Host: `127.0.0.1:${port}`, Origin: `http://127.0.0.1:${port}` } });
   assert.equal(write.status, 200);
-  assert.equal(write.json.disabled, true);
+  assert.equal(write.json.name, 'New Name');
+});
+
+test('the old "disabled" route is gone', async t => {
+  const { call } = await start(t);
+  const res = await call('PATCH', '/api/customers/c001/toggle-disabled', { body: {} });
+  assert.equal(res.status, 404);
 });
 
 test('each answer has the security headers', async t => {
@@ -165,7 +171,7 @@ test('only public/ is served', async t => {
 
 // ─── The input checks, on the server ─────────────────────────────────────────
 
-test('PUT cannot change the ID, the SMS mark, or `disabled`', async t => {
+test('PUT cannot change the ID or the SMS mark, and saves no other field', async t => {
   const { call } = await start(t);
   const res = await call('PUT', '/api/customers/c001',
     { body: { id: 'x', smsSentAt: '2000-01-01', disabled: true, name: 'New Name' } });
@@ -173,7 +179,7 @@ test('PUT cannot change the ID, the SMS mark, or `disabled`', async t => {
   const saved = (await readData()).customers[0];
   assert.equal(saved.id, 'c001');
   assert.equal(saved.smsSentAt, '2025-11-25T10:00:00');
-  assert.equal(saved.disabled, false);
+  assert.equal('disabled' in saved, false);
   assert.equal(saved.name, 'New Name');
 });
 
@@ -207,7 +213,7 @@ test('POST makes a customer with its own ID and no SMS mark', async t => {
   assert.equal(res.status, 201);
   assert.notEqual(res.json.id, 'c001');
   assert.equal(res.json.smsSentAt, null);
-  assert.equal(res.json.disabled, false);
+  assert.equal('disabled' in res.json, false);
 });
 
 test('a future inspection date gets 400', async t => {

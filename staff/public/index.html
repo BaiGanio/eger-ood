@@ -152,7 +152,6 @@
           <option value="due">За днес</option>
           <option value="pending">Очакващи</option>
           <option value="sent">Изпратени</option>
-          <option value="disabled">Деактивирани</option>
         </select>
       </div>
 
@@ -188,7 +187,7 @@
 
       <div class="mb-4">
         <h1 class="h4 fw-bold mb-0" style="font-family:'Syne',sans-serif;">Настройки</h1>
-        <p class="text-muted small mb-0">SMS шаблон, почивни дни и управление на клиенти</p>
+        <p class="text-muted small mb-0">SMS шаблон и почивни дни</p>
       </div>
 
       <div class="row g-4">
@@ -256,41 +255,6 @@
                   <i class="bi bi-plus-lg"></i> Добави
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- All customers -->
-        <div class="col-12">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between py-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-people text-primary"></i>
-                <span class="fw-semibold">Всички клиенти</span>
-              </div>
-              <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" data-action="openAddModal">
-                <i class="bi bi-person-plus"></i> Добави клиент
-              </button>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th class="col-header">Клиент</th>
-                    <th class="col-header">Автомобил</th>
-                    <th class="col-header">Телефон</th>
-                    <th class="col-header">Последен преглед</th>
-                    <th class="col-header">Действия</th>
-                  </tr>
-                </thead>
-                <tbody id="settings-table-body">
-                  <tr>
-                    <td colspan="5" class="text-center text-muted py-5">
-                      <i class="bi bi-hourglass d-block mb-2 fs-3 opacity-25"></i> Зареждане…
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>

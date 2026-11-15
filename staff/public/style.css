@@ -69,9 +69,6 @@ body.sidebar-closed #sidebar-toggle i { transform: rotate(180deg); }
 .date-soon    { color: #fd7e14; font-weight: 500; }
 .date-overdue { color: #dc3545; font-weight: 500; }
 
-/* ── Disabled table row ──────────────────────────────────────────── */
-tr.row-disabled { opacity: .45; }
-
 /* ── Variable chips (clickable badges in template editor) ────────── */
 .var-chip { cursor: pointer; font-family: 'Courier New', monospace; font-size: 11px; }
 .var-chip:hover { filter: brightness(.92); }

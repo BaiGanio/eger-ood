@@ -52,7 +52,6 @@ const CUSTOMER_COLUMNS = [
   { field: 'carPlate',        header: 'Рег. номер',       width: 14 },
   { field: 'lastServiceDate', header: 'Последен преглед', width: 18, numFmt: 'dd.mm.yyyy' },
   { field: 'smsSentAt',       header: 'SMS изпратен на',  width: 20, numFmt: 'dd.mm.yyyy hh:mm', appOnly: true },
-  { field: 'disabled',        header: 'Активен',          width: 10 },
 ];
 
 const SETTING_KEYS = {
@@ -61,13 +60,9 @@ const SETTING_KEYS = {
   weeklyDaysOff: 'Почивни дни от седмицата',
 };
 
-const YES = 'Да';
-const NO = 'Не';
 // Index = Date.getDay() number.
 const DAY_NAMES = ['неделя', 'понеделник', 'вторник', 'сряда', 'четвъртък', 'петък', 'събота'];
 const GREY = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE7E6E6' } };
-// The drop-down covers the present rows and room for rows added by hand.
-const VALIDATION_ROWS = 2000;
 
 // ─── Errors ──────────────────────────────────────────────────────────────────
 
@@ -165,15 +160,6 @@ function addCustomerSheet(wb) {
     if (c.appOnly) col.fill = GREY;
   });
   styleHeader(ws);
-  const letter = ws.getColumn(CUSTOMER_COLUMNS.length).letter;
-  ws.dataValidations.add(`${letter}2:${letter}${VALIDATION_ROWS}`, {
-    type: 'list',
-    allowBlank: true,
-    formulae: [`"${YES},${NO}"`],
-    showErrorMessage: true,
-    errorTitle: 'Активен',
-    error: `Изберете „${YES}“ или „${NO}“.`,
-  });
   return ws;
 }
 
@@ -238,7 +224,6 @@ function readCustomerRow(row, cols) {
     carPlate: normalizePlate(text('carPlate')),
     lastServiceDate: null,
     smsSentAt: null,
-    disabled: false,
   };
 
   if (!customer.name) reasons.push('липсва име');
@@ -259,10 +244,6 @@ function readCustomerRow(row, cols) {
     customer.smsSentAt = readDateTime(sentCell);
     if (!customer.smsSentAt) reasons.push('невалидна дата в „SMS изпратен на“');
   }
-
-  const active = text('disabled');
-  if (sameText(active, NO)) customer.disabled = true;
-  else if (active && !sameText(active, YES)) reasons.push(`в „Активен“ трябва да е „${YES}“ или „${NO}“`);
 
   return reasons.length ? { reasons } : { customer };
 }
@@ -425,7 +406,6 @@ function writeCustomerRow(ws, cols, rowNumber, customer) {
     isDateText(customer.lastServiceDate) ? textToExcelDate(customer.lastServiceDate) : (customer.lastServiceDate ?? null),
     fmt('lastServiceDate'));
   set('smsSentAt', customer.smsSentAt ? momentToExcelDateTime(customer.smsSentAt) : null, fmt('smsSentAt'));
-  set('disabled', customer.disabled ? NO : YES);
 }
 
 function deleteRows(ws, rowNumbers) {

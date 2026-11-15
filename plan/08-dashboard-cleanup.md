@@ -28,7 +28,7 @@ Needs: chapter 06.
 - [ ] ~~Add the "Прегледът мина" button and its small dialog.~~ Not built: `specs.md` section 5. Waits for the owner's screenshots.
 - [x] The no-keys banner and the bad-rows banner (chapters 05, 06). There is no test mode (owner, 2026-11-14).
 - [x] Set the name to "ЕГЕР ООД" in the title and the sidebar.
-- [ ] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it. (`specs.md` O4. Asked on 2026-11-15.)
+- [x] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it. Owner, 2026-11-15: remove it (`specs.md` D20). The bin button is in the main table.
 
 ### Found in the earlier chapters (done 2026-11-15)
 - [x] No `confirm()`. The page has its own yes / no dialog (`ask()` in `scripts.js`, a native `<dialog>`). It opens on top of the customer window.
@@ -44,6 +44,11 @@ Needs: chapter 06.
 - [x] Bigger server dot (staff, 2026-11-14): 12 px dot in a coloured box with 13 px text (green "Сървърът работи", red "Сървърът е спрян", grey "Проверка…").
 - [x] Sidebar opens and closes (staff, 2026-11-14): button "Скрий менюто" / "Покажи менюто". Closed = 64 px, icons only, the name shows on hover. The browser keeps the choice (localStorage). Owner chose icons only and the top banner.
 
+### Staff requests (owner, 2026-11-15)
+- [x] No "Активирай" / "Деактивирай" buttons. The whole function is removed (`specs.md` D19): button, badge "Деактивиран", filter entry, route `toggle-disabled`, `disabled` in the engine, Excel column "Активен" (ignored in an old file, not deleted).
+- [x] Statuses: "Очаква", "За днес", "Изпратен", "Просрочен". The owner keeps "За днес".
+- [x] A question before a send: the window "Преглед на SMS" already does this (owner, 2026-11-15). No change.
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -55,7 +60,8 @@ Needs: chapter 06.
 ## Owner checks
 1. `cd staff`, then `EGER_DATA_DIR=./data npm start`.
 2. The browser tab shows the name "ЕГЕР ООД" and a blue icon.
-3. "Настройки" → the red bin button → a question shows in the page, not a browser box. "Отказ" keeps the customer.
+3. "Табло" → the red bin button in a row → a question shows in the page, not a browser box. "Отказ" keeps the customer.
+3a. No pause button in a row. No "Деактивиран" in the status filter. "Настройки" has no customer table.
 4. "Добави клиент" with the phone `0887 123 456` → the question about +359 shows on top of the window.
 5. A row with "Изпрати отново" → the question shows first, then the SMS preview.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

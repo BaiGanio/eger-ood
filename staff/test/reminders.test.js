@@ -13,7 +13,7 @@ const SETTINGS = { weeklyDaysOff: [0, 1], holidays: [] };
 function customer(extra = {}) {
   return {
     id: 'c001', name: 'Тест Клиент', phone: '+359880000001', carModel: 'Тест', carPlate: 'PB0001TT',
-    lastServiceDate: '2025-11-24', smsSentAt: null, disabled: false,
+    lastServiceDate: '2025-11-24', smsSentAt: null,
     ...extra,
   };
 }
@@ -57,11 +57,6 @@ test('the weekly days off are a setting', () => {
 });
 
 // The customer of these tests: expiry 24.11.2026, reminder 17.11.2026.
-test('status: disabled wins over all others', () => {
-  const c = customer({ disabled: true, smsSentAt: '2026-11-17T10:00:00' });
-  assert.equal(statusOf(c, '2026-11-17', '2026-11-20'), 'disabled');
-});
-
 test('status: sent when an SMS went out in this cycle', () => {
   const c = customer({ smsSentAt: '2026-11-17T10:00:00' });
   assert.equal(statusOf(c, '2026-11-17', '2026-11-20'), 'sent');
@@ -117,9 +112,11 @@ test('a new inspection date clears the SMS mark and moves the dates one year', (
   assert.equal(next.status, 'pending');
 });
 
-test('send is refused for a disabled customer, also with force', () => {
-  assert.equal(sendBlock(customer({ disabled: true })), 'DISABLED');
-  assert.equal(sendBlock(customer({ disabled: true }), { force: true }), 'DISABLED');
+// The staff do not use "disabled" (2026-11-15). A value from old data has no effect.
+test('an old `disabled` value changes no status and blocks no send', () => {
+  const old = customer({ disabled: true });
+  assert.equal(statusOf(old, '2026-11-17', '2026-11-18'), 'overdue');
+  assert.equal(sendBlock(old), null);
 });
 
 test('a second send is refused without force', () => {

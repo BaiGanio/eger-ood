@@ -13,7 +13,7 @@ let holidays = [];
 let pendingSendId = null;
 
 // Order of the rows: what the staff must do first is on top.
-const STATUS_ORDER = { overdue: 0, due: 1, pending: 2, sent: 3, disabled: 4 };
+const STATUS_ORDER = { overdue: 0, due: 1, pending: 2, sent: 3 };
 
 // Bootstrap modal instances (initialised after DOM ready)
 let bsCustomerModal, bsSmsPreviewModal;
@@ -89,7 +89,7 @@ async function api(method, path, body) {
 // What a button with `data-action` starts. `data-arg` is the one argument.
 const ACTIONS = {
   showView, openAddModal, openEditModal, closeModal, saveCustomer,
-  previewSms, closeSmsPreviewModal, confirmSend, toggleDisabled, deleteCustomer,
+  previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
   saveTemplate, addHoliday, removeHoliday,
 };
 
@@ -182,7 +182,6 @@ async function loadCustomers() {
 function refresh() {
   renderTable();
   renderStats();
-  renderSettingsTable();
 }
 
 // The answer of the server as an object. A failed request throws the
@@ -306,8 +305,6 @@ function renderTable() {
       sent:     `<span class="badge bg-success-subtle text-success-emphasis border border-success-subtle"
                        title="Изпратен на ${formatDateTime(c.smsSentAt)}">
                    <i class="bi bi-check-circle me-1"></i>Изпратен</span>`,
-      disabled: `<span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">
-                   <i class="bi bi-pause-circle me-1"></i>Деактивиран</span>`,
       overdue:  `<span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">
                    <i class="bi bi-exclamation-triangle me-1"></i>Просрочен</span>`,
     }[eff] || '';
@@ -320,13 +317,12 @@ function renderTable() {
       ? `<strong>${formatDate(rDate)}</strong> <span class="badge bg-primary ms-1">днес</span>`
       : formatDate(rDate);
 
-    const canSend = !c.disabled;
     // A second SMS is possible, but it must look like a second choice.
     const sendClass = eff === 'sent' ? 'btn-outline-primary' : 'btn-primary';
     const sendLabel = eff === 'sent' ? 'Изпрати отново' : 'Изпрати';
 
     return `
-    <tr class="${c.disabled ? 'row-disabled' : ''}">
+    <tr>
       <td>
         <div class="fw-semibold">${escHtml(c.name)}</div>
         <div class="text-muted" style="font-size:11px;">${escHtml(c.address || '—')}</div>
@@ -342,63 +338,19 @@ function renderTable() {
       <td>${formatDate(c.nextServiceDate)}</td>
       <td>${badge}</td>
       <td>
-        <div class="d-flex gap-1 flex-wrap">
-          ${canSend
-            ? `<button class="btn ${sendClass} btn-sm d-flex align-items-center gap-1"
-                       data-action="previewSms" data-arg="${escHtml(c.id)}">
-                 <i class="bi bi-send"></i> ${sendLabel}
-               </button>`
-            : `<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                       disabled title="Клиентът е деактивиран">
-                 <i class="bi bi-send"></i> Изпрати
-               </button>`
-          }
+        <div class="d-flex gap-1 flex-nowrap">
+          <button class="btn ${sendClass} btn-sm d-flex align-items-center gap-1 text-nowrap"
+                  data-action="previewSms" data-arg="${escHtml(c.id)}">
+            <i class="bi bi-send"></i> ${sendLabel}
+          </button>
           <button class="btn btn-outline-secondary btn-sm" data-action="openEditModal" data-arg="${escHtml(c.id)}"
                   title="Редактирай"><i class="bi bi-pencil"></i></button>
-          <button class="btn ${c.disabled ? 'btn-outline-success' : 'btn-outline-warning'} btn-sm"
-                  data-action="toggleDisabled" data-arg="${escHtml(c.id)}"
-                  title="${c.disabled ? 'Активирай' : 'Деактивирай'}">
-            <i class="bi bi-${c.disabled ? 'play-circle' : 'pause-circle'}"></i>
-          </button>
+          <button class="btn btn-outline-danger btn-sm" data-action="deleteCustomer" data-arg="${escHtml(c.id)}"
+                  title="Изтрий"><i class="bi bi-trash"></i></button>
         </div>
       </td>
     </tr>`;
   }).join('');
-}
-
-// ─── Settings table ──────────────────────────────────────────────────
-function renderSettingsTable() {
-  const tbody = document.getElementById('settings-table-body');
-  if (!customers.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-5">
-      <i class="bi bi-person-x d-block mb-2 fs-3 opacity-25"></i>Няма клиенти</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = customers.map(c => `
-    <tr>
-      <td><div class="fw-semibold">${escHtml(c.name)}</div></td>
-      <td>
-        <span class="badge bg-light text-dark border">
-          <i class="bi bi-car-front me-1"></i>${escHtml(c.carModel)}
-        </span>
-        <span class="text-muted ms-1" style="font-size:11px;">${escHtml(c.carPlate)}</span>
-      </td>
-      <td><code class="text-body">${escHtml(c.phone)}</code></td>
-      <td>${formatDate(c.lastServiceDate)}</td>
-      <td>
-        <div class="d-flex gap-1">
-          <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                  data-action="openEditModal" data-arg="${escHtml(c.id)}">
-            <i class="bi bi-pencil"></i> Редактирай
-          </button>
-          <button class="btn btn-outline-danger btn-sm"
-                  data-action="deleteCustomer" data-arg="${escHtml(c.id)}" title="Изтрий">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
 }
 
 // ─── SMS send flow ────────────────────────────────────────────────────
@@ -450,19 +402,6 @@ async function confirmSend() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<i class="bi bi-send"></i> Изпрати SMS`;
-  }
-}
-
-// ─── Toggle disabled ──────────────────────────────────────────────────
-async function toggleDisabled(id) {
-  try {
-    const updated = await api('PATCH', `/api/customers/${encodeURIComponent(id)}/toggle-disabled`);
-    const idx = customers.findIndex(c => c.id === id);
-    if (idx !== -1) customers[idx] = updated;
-    refresh();
-    toast(updated.disabled ? 'Клиентът е деактивиран' : 'Клиентът е активиран', 'info');
-  } catch (e) {
-    toast('Грешка при промяна на статуса: ' + e.message, 'danger');
   }
 }
 

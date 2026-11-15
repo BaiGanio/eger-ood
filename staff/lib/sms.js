@@ -13,7 +13,7 @@ export class SendError extends Error {
   constructor(code, message, extra = {}) {
     super(message);
     this.name = 'SendError';
-    // 'NOT_FOUND' | 'DISABLED' | 'ALREADY_SENT' | 'NO_KEYS' | 'SEND_FAILED' | 'NOT_SAVED'
+    // 'NOT_FOUND' | 'ALREADY_SENT' | 'NO_KEYS' | 'SEND_FAILED' | 'NOT_SAVED'
     this.code = code;
     Object.assign(this, extra);
   }
@@ -63,9 +63,6 @@ export async function sendReminder(customerId, { force = false, now = new Date()
 
   const customer = withComputed(data.customers[index], data, today);
   const block = sendBlock(customer, { force });
-  if (block === 'DISABLED') {
-    throw new SendError('DISABLED', 'Клиентът е деактивиран. Не се изпраща SMS.');
-  }
   if (block === 'ALREADY_SENT') {
     throw new SendError('ALREADY_SENT', 'На този клиент вече е изпратен SMS.', { sentAt: customer.smsSentAt });
   }

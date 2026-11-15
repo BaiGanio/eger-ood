@@ -30,7 +30,6 @@ function customer(n, extra = {}) {
     carPlate: `PB000${n}TT`,
     lastServiceDate: '2026-01-15',
     smsSentAt: null,
-    disabled: false,
     ...extra,
   };
 }
@@ -39,7 +38,7 @@ function sample() {
   return {
     customers: [
       customer(1),
-      customer(2, { lastServiceDate: '2024-02-29', smsSentAt: '2026-03-19T21:21:01', disabled: true }),
+      customer(2, { lastServiceDate: '2024-02-29', smsSentAt: '2026-03-19T21:21:01' }),
       customer(3, { address: '', lastServiceDate: '2026-03-29' }),
     ],
     smsTemplate: 'Тест {{carPlate}} {{serviceDate}}',
@@ -81,7 +80,7 @@ test('a missing file is created with three sheets and headers', async t => {
   assert.deepEqual(wb.worksheets.map(ws => ws.name), [SHEETS.customers, SHEETS.settings, SHEETS.holidays]);
   const headers = wb.getWorksheet(SHEETS.customers).getRow(1).values.slice(1);
   assert.deepEqual(headers, ['ID', 'Име', 'Телефон', 'Адрес', 'Автомобил', 'Рег. номер',
-    'Последен преглед', 'SMS изпратен на', 'Активен']);
+    'Последен преглед', 'SMS изпратен на']);
 });
 
 test('the file does not hold computed values', async t => {
@@ -91,7 +90,7 @@ test('the file does not hold computed values', async t => {
   })] });
   const data = await readData();
   assert.deepEqual(Object.keys(data.customers[0]).sort(), ['address', 'carModel', 'carPlate',
-    'disabled', 'id', 'lastServiceDate', 'name', 'phone', 'smsSentAt']);
+    'id', 'lastServiceDate', 'name', 'phone', 'smsSentAt']);
 });
 
 test('round trip: write then read gives the same data', async t => {
@@ -117,7 +116,6 @@ test('the file holds real Excel types: text phone, date cells', async t => {
   assert.equal(phone.numFmt, '@');
   const last = ws.getRow(2).getCell(columnOf(ws, 'Последен преглед'));
   assert.ok(last.value instanceof Date);
-  assert.equal(ws.getRow(3).getCell(columnOf(ws, 'Активен')).value, 'Не');
   assert.ok(wb.getWorksheet(SHEETS.holidays).getRow(2).getCell(1).value instanceof Date);
   const settings = wb.getWorksheet(SHEETS.settings);
   const keys = settings.getColumn(1).values.filter(Boolean);
@@ -147,14 +145,12 @@ test('a hand edit in Excel shows on the next read', async t => {
     ws.getRow(2).getCell(columnOf(ws, 'Име')).value = 'Редактиран на ръка';
     // A person types the date as text in the Bulgarian form.
     ws.getRow(2).getCell(columnOf(ws, 'Последен преглед')).value = '5.3.2026';
-    ws.getRow(2).getCell(columnOf(ws, 'Активен')).value = 'не';
     wb.getWorksheet(SHEETS.holidays).addRow([new Date(Date.UTC(2027, 0, 1))]);
     wb.getWorksheet(SHEETS.settings).getRow(4).getCell(2).value = 'Неделя, събота';
   });
   const data = await readData();
   assert.equal(data.customers[0].name, 'Редактиран на ръка');
   assert.equal(data.customers[0].lastServiceDate, '2026-03-05');
-  assert.equal(data.customers[0].disabled, true);
   assert.ok(data.holidays.includes('2027-01-01'));
   assert.deepEqual(data.weeklyDaysOff, [0, 6]);
   assert.deepEqual(data.problems, []);
@@ -284,7 +280,6 @@ test('a hand-made row with no ID gets one, and it stays', async t => {
   const made = first.customers.at(-1);
   assert.equal(made.name, 'На Ръка');
   assert.equal(made.lastServiceDate, '2026-05-06');
-  assert.equal(made.disabled, false);
   assert.equal(made.carPlate, 'PB0009TT');
   assert.ok(made.id);
   assert.equal((await readData()).customers.at(-1).id, made.id);
@@ -406,4 +401,27 @@ test('backup: only the last 30 stay', async t => {
   assert.ok(names.includes(path.basename(today && backupFile(today)).normalize('NFC')));
   assert.ok(!names.includes(path.basename(backupFile(addDays(today, -35))).normalize('NFC')));
   assert.ok(names.includes('бележки.txt'));
+});
+
+// Until 2026-11-15 the file had a column "Активен" (Да / Не). The staff did
+// not use it. A file from before must load, and the app must not delete the
+// column: the staff own the file.
+test('an old file with the column "Активен" loads: "Не" has no effect and the column stays', async t => {
+  await freshFolder(t);
+  await writeData(sample());
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.getRow(1).getCell(9).value = 'Активен';
+    ws.getRow(2).getCell(9).value = 'Не';
+    ws.getRow(3).getCell(9).value = 'нещо друго';
+  });
+  const data = await readData();
+  assert.deepEqual(data.problems, []);
+  assert.deepEqual(withoutProblems(data), sample());
+
+  await writeData(data);
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(dataFile());
+  const ws = wb.getWorksheet(SHEETS.customers);
+  assert.equal(ws.getRow(2).getCell(columnOf(ws, 'Активен')).value, 'Не');
 });

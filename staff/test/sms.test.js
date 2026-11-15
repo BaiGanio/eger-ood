@@ -30,7 +30,7 @@ function customer(extra = {}) {
   return {
     id: 'c001', name: 'Тест Клиент', phone: '+359880000001', address: '',
     carModel: 'Тест Модел', carPlate: 'PB0001TT',
-    lastServiceDate: '2025-11-24', smsSentAt: null, disabled: false,
+    lastServiceDate: '2025-11-24', smsSentAt: null,
     ...extra,
   };
 }
@@ -90,16 +90,6 @@ test('with no Twilio keys the send is refused, and the customer is not marked', 
   await assert.rejects(sendReminder('c001', { now: at(2026, 11, 17) }),
     err => err instanceof SendError && err.code === 'NO_KEYS');
   assert.equal((await readData()).customers[0].smsSentAt, null);
-});
-
-test('send to a disabled customer is refused, and nothing goes out', async t => {
-  await freshFolder(t);
-  await seed(customer({ disabled: true }));
-  const { calls, send } = fakeSend();
-
-  await assert.rejects(sendReminder('c001', { force: true, now: at(2026, 11, 17), send }),
-    err => err instanceof SendError && err.code === 'DISABLED');
-  assert.equal(calls.length, 0);
 });
 
 test('a second send is refused without force, and works with force', async t => {

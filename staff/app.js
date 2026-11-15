@@ -64,7 +64,6 @@ export function createApp() {
       id: generateId(new Set(data.customers.map(c => c.id))),
       ...value,
       smsSentAt: null,
-      disabled: false,
     }, data, today);
 
     data.customers.push(customer);
@@ -82,8 +81,8 @@ export function createApp() {
     const { value, error } = checkCustomer(req.body, { existing, today });
     if (error) return res.status(400).json({ error });
 
-    // `value` has only the fields that the staff can edit. The ID, the SMS
-    // mark and `disabled` stay as they are in the file.
+    // `value` has only the fields that the staff can edit. The ID and the SMS
+    // mark stay as they are in the file.
     let merged = { ...existing, ...value };
 
     // A new inspection date starts a new cycle: no SMS was sent for it yet.
@@ -110,16 +109,6 @@ export function createApp() {
   app.post('/api/customers/:id/send-sms', route(async (req, res) => {
     const result = await sendReminder(req.params.id, { force: req.body?.force === true });
     res.json({ success: true, ...result });
-  }));
-
-  app.patch('/api/customers/:id/toggle-disabled', route(async (req, res) => {
-    const data = await loadData();
-    const idx = data.customers.findIndex(c => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: NOT_FOUND });
-    data.customers[idx].disabled = !data.customers[idx].disabled;
-    await writeData(data);
-    // The status depends on `disabled`, so it is computed again.
-    res.json(withComputed(data.customers[idx], data, localDateText()));
   }));
 
   // The SMS text for one customer. It changes nothing, but it is a POST.
@@ -194,7 +183,7 @@ export function createApp() {
       return res.status(err.code === 'LOCKED' ? 423 : 500).json({ error: err.message, code: err.code });
     }
     if (err instanceof SendError) {
-      const status = { NOT_FOUND: 404, DISABLED: 400, ALREADY_SENT: 409, NO_KEYS: 503, SEND_FAILED: 502 }[err.code] || 500;
+      const status = { NOT_FOUND: 404, ALREADY_SENT: 409, NO_KEYS: 503, SEND_FAILED: 502 }[err.code] || 500;
       return res.status(status).json({ error: err.message, code: err.code, sentAt: err.sentAt });
     }
     if (err.type === 'entity.parse.failed') {

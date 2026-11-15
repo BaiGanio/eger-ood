@@ -37,22 +37,22 @@ function lastLeapDay() {
   }
 }
 
-const base = { address: '', smsSentAt: null, disabled: false };
+const base = { address: '', smsSentAt: null };
 
 const customers = [
   // 1–5: the five customers of the old customers.json, as they were.
   { ...base, id: 'c001', name: 'Иван Петров', phone: '+359881234567', address: 'ul. Vasil Levski 12, Plovdiv',
-    carModel: 'VW Golf 7', carPlate: 'PB1234AB', lastServiceDate: '2027-12-29', disabled: true },
+    carModel: 'VW Golf 7', carPlate: 'PB1234AB', lastServiceDate: '2027-12-29' },
   { ...base, id: 'c002', name: 'Мария Георгиева', phone: '+359887654321', address: 'bul. Bulgaria 45, Plovdiv',
     carModel: 'Toyota Yaris', carPlate: 'PB5678CD', lastServiceDate: '2026-01-15',
-    smsSentAt: '2026-03-19T21:21:01', disabled: true },
+    smsSentAt: '2026-03-19T21:21:01' },
   { ...base, id: 'c003', name: 'Георги Иванов', phone: '+359889998877', address: 'ul. Hristo Botev 7, Rakovski',
     carModel: 'Opel Astra H', carPlate: 'PB9012EF', lastServiceDate: '2025-03-10',
     smsSentAt: '2026-03-03T11:15:00' },
   { ...base, id: 'c004', name: 'Елена Иванова', phone: '+359882223344', address: 'ul. Shipka 3, Asenovgrad',
     carModel: 'Skoda Octavia', carPlate: 'PB3456GH', lastServiceDate: '2025-03-19' },
   { ...base, id: 'c005', name: 'Николай Стоянов', phone: '+359885556677', address: 'bul. Maritsa 22, Plovdiv',
-    carModel: 'Ford Focus', carPlate: 'PB7890IJ', lastServiceDate: '2025-04-02', disabled: true },
+    carModel: 'Ford Focus', carPlate: 'PB7890IJ', lastServiceDate: '2025-04-02' },
 
   // 6: the reminder is due today (expiry in 7 days).
   { ...base, id: 'c006', name: 'Тест Днес', phone: '+359880000006',
@@ -63,9 +63,9 @@ const customers = [
   // 8: expiry − 7 days is a Monday (day off). The reminder must show on Saturday.
   { ...base, id: 'c008', name: 'Тест Понеделник', phone: '+359880000008',
     carModel: 'Peugeot 308', carPlate: 'PB0008TT', lastServiceDate: inspectedFor(nextWeekday(addDays(today, 30), 1)) },
-  // 9: a disabled customer.
-  { ...base, id: 'c009', name: 'Тест Неактивен', phone: '+359880000009',
-    carModel: 'Fiat Punto', carPlate: 'PB0009TT', lastServiceDate: inspectedFor(addDays(today, 60)), disabled: true },
+  // 9: the reminder is far away (expiry in 60 days).
+  { ...base, id: 'c009', name: 'Тест Очаква', phone: '+359880000009',
+    carModel: 'Fiat Punto', carPlate: 'PB0009TT', lastServiceDate: inspectedFor(addDays(today, 60)) },
   // 10: a very long name and car model (an SMS with them goes over 70 characters).
   { ...base, id: 'c010', name: 'Александра-Константина Христодулова-Papadopoulos', phone: '+359880000010',
     carModel: 'Mercedes-Benz Sprinter 316 CDI Extra Long High Roof', carPlate: 'PB0010TT',

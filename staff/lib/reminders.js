@@ -1,7 +1,7 @@
 // Status and due rules. Pure functions (specs section 5).
 //
 // The file stores only what the staff or the app enter: `lastServiceDate`,
-// `smsSentAt`, `disabled`. All other values are computed here
+// `smsSentAt`. All other values are computed here
 // on each read, so they can never go out of step with the file.
 
 import { addDays, addYears, workDayOnOrBefore } from './dates.js';
@@ -30,9 +30,8 @@ export function sentInThisCycle(customer) {
   return customer.smsSentAt.slice(0, 10) > customer.lastServiceDate;
 }
 
-/** `disabled` → `sent` → `overdue` → `due` → `pending`. The order is the rule. */
+/** `sent` → `overdue` → `due` → `pending`. The order is the rule. */
 export function statusOf(customer, reminderDate, today) {
-  if (customer.disabled) return 'disabled';
   if (sentInThisCycle(customer)) return 'sent';
   if (reminderDate < today) return 'overdue';
   if (reminderDate === today) return 'due';
@@ -64,11 +63,10 @@ export function markSent(customer, sentAt) {
 }
 
 /**
- * Why a send must not go out: 'DISABLED', 'ALREADY_SENT', or null (send it).
+ * Why a send must not go out: 'ALREADY_SENT', or null (send it).
  * `force` lets the staff send a second SMS on purpose.
  */
 export function sendBlock(customer, { force = false } = {}) {
-  if (customer.disabled) return 'DISABLED';
   if (sentInThisCycle(customer) && !force) return 'ALREADY_SENT';
   return null;
 }
