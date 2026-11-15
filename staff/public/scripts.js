@@ -425,14 +425,15 @@ function renderTable() {
     : (a, b) => (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
                 a.nextReminderDate.localeCompare(b.nextReminderDate));
 
-  // "Очаквани за преглед": the staff only wait. No reminder day, no buttons.
   // "Очаквани за преглед", "Изпратени SMS" and "Просрочени" (card): the staff
   // only look. No buttons. The last two show the day of the send in place of
   // the reminder day: before a holiday the staff send in advance, so the two
-  // days differ. A row with no SMS shows "—".
+  // days differ. A row with no SMS shows "—". "Очаквани за преглед" has no
+  // reminder column. "Очакващи SMS": the staff only send, so only "Изпрати".
   const sentList = filterStatus === 'sentin' || filterStatus === 'expired';
   const waitList = filterStatus === 'coming';
   const noAction = sentList || waitList;
+  const sendOnly = filterStatus === 'send';
   const cols     = 7 - (waitList ? 1 : 0) - (noAction ? 1 : 0);
   const reminderHead = document.getElementById('col-reminder');
   reminderHead.textContent = sentList ? 'Изпратен SMS' : 'Напомняне';
@@ -503,10 +504,10 @@ function renderTable() {
                   data-action="previewSms" data-arg="${escHtml(c.id)}">
             <i class="bi bi-send"></i> Изпрати
           </button>` : ''}
-          <button class="btn btn-outline-secondary btn-sm" data-action="openEditModal" data-arg="${escHtml(c.id)}"
+          ${sendOnly ? '' : `<button class="btn btn-outline-secondary btn-sm" data-action="openEditModal" data-arg="${escHtml(c.id)}"
                   title="Редактирай"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-outline-danger btn-sm" data-action="deleteCustomer" data-arg="${escHtml(c.id)}"
-                  title="Изтрий"><i class="bi bi-trash"></i></button>
+                  title="Изтрий"><i class="bi bi-trash"></i></button>`}
         </div>
       </td>`}
     </tr>`;
