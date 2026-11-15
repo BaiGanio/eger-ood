@@ -42,12 +42,17 @@
           <i class="bi bi-gear"></i> <span class="sidebar-label">Настройки</span>
         </button>
       </li>
-      <!-- Staff guide (plan/10-staff-guide.md). A plain link: it is a separate page. -->
+      <!-- Staff guide (specs D11). A click opens the list of tasks (scripts.js,
+           toggleHelpMenu; the list comes from help/tasks.js). Each task is a
+           page; it opens in this tab. With the sidebar closed: the contents page. -->
       <li class="nav-item">
-        <a class="nav-link w-100 text-start d-flex align-items-center gap-2 text-secondary"
-           href="help.html" title="Помощ">
+        <button type="button" class="nav-link w-100 text-start d-flex align-items-center gap-2 text-secondary"
+                id="nav-help" title="Помощ" data-action="toggleHelpMenu"
+                aria-expanded="false" aria-controls="help-menu">
           <i class="bi bi-question-circle"></i> <span class="sidebar-label">Помощ</span>
-        </a>
+          <i class="bi bi-chevron-right sidebar-label ms-auto help-caret"></i>
+        </button>
+        <ol id="help-menu" class="help-menu list-unstyled mb-0 d-none"></ol>
       </li>
     </ul>
 

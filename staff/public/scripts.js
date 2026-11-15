@@ -9,6 +9,7 @@ import { PAGE_SIZES, clampPage, pageButtons, pageCount } from './pages.js';
 import {
   DAY_NAMES, MONTH_NAMES, WEEKDAY_SHORT, dayKind, monthWeeks, movedReminders, weekdayOf,
 } from './calendar.js';
+import { HELP_TASKS } from './help/tasks.js';
 
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
@@ -46,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bsCustomerModal   = new bootstrap.Modal(document.getElementById('customer-modal'));
   bsSmsPreviewModal = new bootstrap.Modal(document.getElementById('sms-preview-modal'));
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+  renderHelpMenu();
   // One listener for all buttons, also for the rows that are drawn later.
   document.addEventListener('click', e => {
     const el = e.target.closest('[data-action]');
@@ -117,7 +119,7 @@ const ACTIONS = {
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
   saveTemplate, showCardList, showAllCustomers, setPeriod,
   closeBanner, goToPage, changeCalMonth, toggleDay, checkHolidaysNow,
-  saveBackupCopy,
+  saveBackupCopy, toggleHelpMenu,
 };
 
 async function tick() {
@@ -185,6 +187,30 @@ function toggleSidebar() {
   applySidebar(closed);
   try { localStorage.setItem('sidebar', closed ? 'closed' : 'open'); }
   catch (e) { console.error(e); }
+}
+
+// ─── Help list in the sidebar (specs D11) ────────────────────────────
+// One line for each task of the guide. A task page opens in this tab. A task
+// that is not written yet is grey, with no link. Closed after each reload.
+function renderHelpMenu() {
+  document.getElementById('help-menu').innerHTML = HELP_TASKS.map((task, i) => {
+    const inner = `<span class="help-no">${i + 1}</span> <span>${escHtml(task.short)}</span>`;
+    return task.ready
+      ? `<li><a href="help/${escHtml(task.page)}" title="${escHtml(task.title)}">${inner}</a></li>`
+      : `<li><span class="help-soon" title="Скоро">${inner}</span></li>`;
+  }).join('');
+}
+
+// With the sidebar closed there is no room for the list: open the contents page.
+function toggleHelpMenu() {
+  if (document.body.classList.contains('sidebar-closed')) {
+    location.href = 'help.html';
+    return;
+  }
+  const button = document.getElementById('nav-help');
+  const open = button.getAttribute('aria-expanded') !== 'true';
+  button.setAttribute('aria-expanded', String(open));
+  document.getElementById('help-menu').classList.toggle('d-none', !open);
 }
 
 async function loadCustomers() {

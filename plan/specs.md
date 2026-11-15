@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-15 (D27 design, chapter 09).
+Last update: 2026-11-15 (D11: one page per task, chapter 10).
 
 ## 1. The product
 
@@ -32,7 +32,7 @@ Last update: 2026-11-15 (D27 design, chapter 09).
 | D8 | The contact details that are visible on the public site are correct: `0887979373`, `031514709`, `eger@b-trust.org`. Links must match them. | 2026-11-13 |
 | D9 | Holidays for the public site are made by a script **one time per year**. The script joins two sources: the law (fixed dates, Orthodox Easter, the weekend rule of Labour Code art. 154) and the Nager.Date API (one-time days off). It saves them to `site/holidays.json`. The site reads only that file. | 2026-11-13 |
 | D10 | No framework and no build step. Plain HTML, CSS, JavaScript. Bootstrap from the CDN. | 2026-11-13 |
-| D11 | The staff guide is a help page in the staff app (`staff/public/help.html`), in Bulgarian, with screenshots on fake data. Each click is one step. Staff print it or save it as PDF from the browser. No separate PDF, no paper cheat sheet, no video. | 2026-11-15 |
+| D11 | The staff guide is part of the staff app, in Bulgarian, with screenshots on fake data. Each click is one step. One page per task (`staff/public/help/*.html`); `staff/public/help.html` is the contents list. "Помощ" in the sidebar opens a list of the tasks; a task opens in the same tab; with the sidebar closed, "Помощ" opens the contents list. The task list has one home, `staff/public/help/tasks.js` (owner, 2026-11-15). Staff print a task or save it as PDF from the browser. No separate PDF, no paper cheat sheet, no video. | 2026-11-15 |
 | D14 | The agricultural land work gets its own page, `site/zemya.html`, with a link from the main page. Not a section on the main page. | 2026-11-14 |
 | D15 | The map on the public site is a visible map: Leaflet (cdnjs) + OpenStreetMap tiles. No cookies, no API key. Two buttons under it open Google Maps ("Отвори в Google Maps", "Упътване"). No Google embed, because it sets cookies (section 4). | 2026-11-14 |
 | D16 | Wholesale fuels and lubricants get their own page, `site/goriva.html`, like D14. | 2026-11-14 |

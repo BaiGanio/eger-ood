@@ -23,14 +23,18 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - Task 9 (file): the daily copy and "Копие на USB". Restore of a copy: a grey box "само с помощ" with the steps, first line "обадете се за помощ".
 - Task 10 (errors): text only, no screenshot of each banner.
 - Work one task at a time. The owner checks each task before the next.
+- One page per task (owner, 2026-11-15; specs D11). "Помощ" in the sidebar opens the list of tasks (the dashboard code changes for this, owner OK). A task opens in the same tab. Sidebar closed → "Помощ" opens the contents page. A task that is not written is grey, with no link.
 
 ## Files
 
 | File | What |
 |---|---|
-| `staff/public/help.html` | The guide. Bulgarian. One `<section>` per task. |
-| `staff/public/help.css` | Look of the guide, and the print rules (each task on a new page). |
-| `staff/public/help/*.png` | Screenshots. |
+| `staff/public/help.html` | Contents list of the guide. |
+| `staff/public/help/tasks.js` | The list of the tasks (order, file, short name, title, written or not). The one home: sidebar, contents and "back / next" read it. A new task: add its page, set `ready: true`. |
+| `staff/public/help/help-nav.js` | Draws the contents list, the task number and the "back / next" links. |
+| `staff/public/help/*.html` | One page per task. Bulgarian. |
+| `staff/public/help.css` | Look of the guide, and the print rules. |
+| `staff/public/help/*.png` | Screenshots, next to their page. |
 | `staff/tools/guide-shots.mjs` | Makes the screenshots again. Uses Playwright, installed with `--no-save` (not in `package.json`). Never clicks "Изпрати SMS". |
 
 ## Style of a task
@@ -53,7 +57,8 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] Link "Помощ" in the dashboard menu, under "Настройки" (owner, 2026-11-15).
 - [x] After chapter 08: make all screenshots again (`tools/guide-shots.mjs`). Done 2026-11-15 (second session): the two task 1 pictures show "Помощ" and "Копие на USB".
 - [x] Task 1: hint about the black window (step 2).
-- [ ] Task 2: Как да добавя клиент.
+- [x] One page per task; "Помощ" list in the sidebar (owner, 2026-11-15). Task 1 moved to `help/sms.html`.
+- [x] Task 2: Как да добавя клиент (`help/add.html`, 3 screenshots). Search the plate first (no guard against double rows yet). Waits for the owner's check.
 - [ ] Task 3: Как да променя или изтрия клиент.
 - [ ] Task 4 (new): Клиентът мина прегледа (D26).
 - [ ] Task 5: Кой трябва да получи SMS днес (cards and periods).
@@ -70,3 +75,6 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 1. Start the app. Open `http://localhost:3000/help.html`.
 2. Read task 1. Is the style good? Is each step clear?
 3. Press Ctrl + P. Is the print good?
+4. On the dashboard, click "Помощ" in the sidebar. The list of 10 tasks opens; 1 and 2 are links, the rest grey. Click "Помощ" again: the list closes.
+5. Click "Скрий менюто", then the "?" icon: the contents page opens.
+6. Read task 2 (`help/add.html`). Do the steps match the dashboard? Do "back / next" at the bottom work?
