@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createApp } from '../app.js';
 import { refusalOf } from '../lib/guard.js';
-import { addDays, localDateText } from '../lib/dates.js';
+import { addDays, addYears, localDateText } from '../lib/dates.js';
 import { readData, writeData } from '../lib/store.js';
 
 // A last inspection of 10 days ago: the expiry date is far in the future.
@@ -328,6 +328,25 @@ test('a send after the expiry date gets 409', async t => {
   const res = await call('POST', '/api/customers/c001/send-sms', { body: {} });
   assert.equal(res.status, 409);
   assert.equal(res.json.code, 'EXPIRED');
+});
+
+test('an overdue customer who came: a new inspection date gives "pending" and a new expiry', async t => {
+  const { call } = await start(t);
+  const data = await readData();
+  data.customers[0].lastServiceDate = '2020-01-10';
+  await writeData(data);
+  const before = await call('GET', '/api/customers');
+  assert.equal(before.json.customers[0].status, 'overdue');
+
+  // The customer passed the inspection today. The staff type today's date.
+  const today = localDateText();
+  const res = await call('PUT', '/api/customers/c001', { body: { lastServiceDate: today } });
+  assert.equal(res.status, 200);
+  const after = (await call('GET', '/api/customers')).json.customers[0];
+  assert.equal(after.status, 'pending');
+  assert.equal(after.lastServiceDate, today);
+  assert.equal(after.nextServiceDate, addYears(today, 1));
+  assert.equal(after.smsSentAt, null);
 });
 
 test('PUT with a new phone clears the SMS mark; the same phone keeps it', async t => {

@@ -72,7 +72,7 @@ Old note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS 
 
 - Done in code. 66 tests pass with `TZ=Europe/Sofia` and `TZ=UTC`.
 - New files: `staff/lib/reminders.js`, `staff/lib/sms.js`, `staff/test/reminders.test.js`, `staff/test/sms.test.js`.
-- **Not built: the "Прегледът мина" button.** The owner said that a change of the last inspection date is enough (dashboard pencil or Excel). The logic is there (`startNewCycle`), and the edit route uses it. The owner will show screenshots before a decision on a button.
+- **Not built: the "Прегледът мина" button.** The owner said that a change of the last inspection date is enough (dashboard pencil or Excel). The logic is there (`startNewCycle`), and the edit route uses it. Final on 2026-11-15: no button (`specs.md` D26).
 - Changed from the text above: an SMS from the **same day** as `lastServiceDate` also counts as old (not only an older one). Reason: SMS in the morning, inspection the same day, date typed in Excel. With "older" only, the customer shows "sent" for the whole next year and gets no reminder.
 - **Changed the same day (owner):** no simulated mode, no `smsSimulated`, no "Тестов SMS" column. With no Twilio keys the send is refused (`NO_KEYS`) and a banner says that SMS cannot go out. `GET /api/status` gives `{ smsMode: "live" | "off" }`. The owner tests with his Twilio developer account.
 - The template fill is in `staff/public/sms-text.js` (`fillTemplate`). The engine and the settings preview use the same function.

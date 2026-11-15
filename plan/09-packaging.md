@@ -45,6 +45,7 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
   - [ ] Save works. With the file open in Excel, the clear message shows.
   - [ ] Windows SmartScreen warning: write down what staff must click.
   - [ ] Stop and start again: the data is still there.
+- [ ] Staff request (D27): a button in the sidebar that saves a copy of `клиенти.xlsx` to a place the staff choose (USB stick). The daily copy stays. Show the owner a proposal (place, name, icon, how the save window works in the staff browser) and get an OK before any code. Tests. Add it to `10-staff-guide.md`, task 8.
 - [ ] Rewrite `README.md`: what the two apps are, how to run each for development, how to build, how to deploy the site.
 - [ ] Write `staff/ИНСТРУКЦИЯ.md` in Bulgarian for staff: install, start, daily use, where the Excel file is, "close Excel before you save", what the yellow test banner means, how to restore a backup.
 

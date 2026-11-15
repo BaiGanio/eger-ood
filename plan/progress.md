@@ -6,7 +6,7 @@ Last update: 2026-11-15.
 
 ## Where we are
 
-**Now:** chapter 08 (dashboard cleanup) is done in code. The owner gives more staff requests in the next session. One item waits: the "Прегледът мина" button (screenshots). Chapters 06, 07 and 08 wait for the owner's commit and his checks in the browser ("Owner checks" in each chapter file). Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** more staff requests for the dashboard (chapter 08), then chapter 09 (packaging).
+**Now:** chapter 08 (dashboard cleanup) is closed (owner checked the page, 2026-11-15). No "Прегледът мина" button (D26). Chapters 06 and 07 wait for the owner's checks in the browser ("Owner checks" in each chapter file). Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 09 (packaging), with the USB backup button (D27). Then the rest of chapter 10 (staff guide).
 
 ## Chapters
 
@@ -20,9 +20,9 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 03 | Split repo into `site/` and `staff/` | ✅ | 2026-11-13. Committed in `d0cdb8d` on `master`. |
 | 04 | Public site: static + GitHub Pages | 🟨 | 2026-11-13. Code is done. Owner must set Pages → "GitHub Actions", push, and check the live URL. |
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
-| 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
+| 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). No "Прегледът мина" button (D26). |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
-| 08 | Dashboard cleanup | 🟨 | 2026-11-15. Code and tests are done (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). More staff requests can come. Open: the "Прегледът мина" button (owner's screenshots). Owner must check the page in a browser (`08-dashboard-cleanup.md`, "Owner checks"). |
+| 08 | Dashboard cleanup | ✅ | 2026-11-15. Closed: owner checked the page. 162 tests. No "Прегледът мина" button (D26). History: code and tests (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). New dashboard requests go to a new chapter or to chapter 09. |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | 🟨 | 2026-11-15. Help page in the app (`staff/public/help.html`, D11). Example task "Как да изпратя SMS напомняне" done, waits for the owner's OK on the style. The other tasks wait for the end of chapter 08. |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
@@ -43,7 +43,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 
 See `specs.md` section 3. Nothing blocks the next chapter.
 
-- 2026-11-15 (staff request): a backup button in "Настройки" for the end of the work day. Owner: the backup stays as it is for now (one copy a day, 30 kept). No extra copies. Decide later, after a talk with the staff. Ideas given: a "copy now" button, or a copy to a USB stick through the browser's save window.
+- ~~2026-11-15 (staff request): a backup button.~~ Decided 2026-11-15 (D27): the daily copy stays; a sidebar button saves a copy to a place the staff choose (USB). Built in chapter 09.
 
 ## Found on the way
 
@@ -106,6 +106,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 08, staff requests 13 fix: the calendar shows one month (owner: 12 months too big); official days always red; no extra list or long text (D25). The error "calData.official" came from a server that ran the old code; the page now copes with it. Checked in a headless Chrome. 161 tests pass in both time zones. |
 | 2026-11-15 | Chapter 10 started: guide form decided (D11). `staff/public/help.html` + `help.css`, example task "Как да изпратя SMS напомняне" with 2 screenshots made on fake data by `staff/tools/guide-shots.mjs`. No link from the dashboard yet (waits for the owner's OK). Checked in a headless Chrome, no console errors. `test/public.test.js` now reads only the text files of `public/` (the new `help/` folder broke it). 161 tests pass in both time zones. |
 | 2026-11-15 | Chapter 10: owner approved the example style. Link "Помощ" in the dashboard menu. No contact name or phone in the guide (owner): it says "обадете се за помощ". Staff request for a backup button: not built; backup stays as it is until a talk with the staff. |
+| 2026-11-15 | Chapter 08 closed: owner checked the page. No "Прегледът мина" button (D26): the rule "a new last inspection date → Очаква, expiry +1 year" was in the code and in unit tests; one server test added for the real edit route. Backup decided (D27): daily copy stays, a sidebar "copy to USB" button comes in chapter 09. 162 tests pass in both time zones. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.

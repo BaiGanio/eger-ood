@@ -46,7 +46,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [ ] Task 5: Какво значи „Просрочени“.
 - [ ] Task 6: Почивни дни и защо SMS идва по-рано.
 - [ ] Task 7: SMS шаблон и цена.
-- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. No backup button for now (owner, 2026-11-15). Explain the daily copy. If a button comes later, add it here (see `progress.md`, "Waiting for an answer").
+- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. A sidebar button "copy to USB" comes in chapter 09 (D27, owner, 2026-11-15): explain it here too, with a screenshot.
 - [ ] Task 9: Ако нещо не работи (all banners).
 - [ ] Remove the "Ръководството още се пише" note.
 

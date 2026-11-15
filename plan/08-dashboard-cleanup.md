@@ -25,7 +25,7 @@ Needs: chapter 06.
 - [x] Replace inline `onclick` with one click listener that reads `data-action` and `data-arg`. (Done in chapter 07.)
 - [x] Show load errors with the toast. Remove empty `catch` blocks. The same toast text shows one time.
 - [x] Use the computed `status` from the server (chapter 06). Remove `effectiveStatus` from the browser. (Done in chapter 06.)
-- [ ] ~~Add the "Прегледът мина" button and its small dialog.~~ Not built: `specs.md` section 5. Waits for the owner's screenshots.
+- [x] ~~Add the "Прегледът мина" button and its small dialog.~~ Not needed (D26, owner, 2026-11-15). A new "Последен преглед" date does the job. Server test added: an overdue customer with a new date is "Очаква", with an expiry one year later.
 - [x] The no-keys banner and the bad-rows banner (chapters 05, 06). There is no test mode (owner, 2026-11-14).
 - [x] Set the name to "ЕГЕР ООД" in the title and the sidebar.
 - [x] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it. Owner, 2026-11-15: remove it (`specs.md` D20). The bin button is in the main table.
@@ -109,7 +109,7 @@ Needs: chapter 06.
 ## Done when
 - [x] No `onclick=` in `staff/public/`.
 - [x] A stopped server gives a red toast on each action, never a green one. (Checked in a headless Chrome.)
-- [ ] Hand test of every button passes. (Owner.)
+- [x] Hand test of every button passes. (Owner, 2026-11-15: "looks good".)
 
 ## Owner checks
 1. `cd staff`, then `EGER_DATA_DIR=./data npm start`.

@@ -44,6 +44,8 @@ Last update: 2026-11-15 (D25).
 | D23 | Each banner on the dashboard has a close button (×). A closed banner stays closed until a reload, or until its problem goes away and comes back. The red box of the server state in the menu has no close button. | 2026-11-15 |
 | D24 | The customer table shows one page of rows: 25 (default) / 50 / 100 per page, chosen under the table, kept until a reload. The split is in the browser only (`public/pages.js`); the server still sends all customers, and the cards count all. Under the table: "Показани 26–50 от 312", page buttons (first, last, two on each side, "…" for a gap) and "Редове". A new search, filter, card or period goes to page 1. A send, edit or delete keeps the page. | 2026-11-15 |
 | D25 | The staff app knows the official days off by itself, for any year (2000–2099): `lib/holidays.js` computes them from the law (fixed dates, Orthodox Easter, Labour Code art. 154 weekend rule). The Nager.Date API adds the one-time days off: the app checks it at most once in 30 days (this year and the next), when the app starts or the page loads, and on "Провери сега". This is not a timer job (D4). Only the year and the country go out. No internet = the law and the last good check stay. The check result is in the Excel sheet "Официални празници" and the setting "Последна проверка на празниците" (the app writes them). The staff add their own days off (force majeure) in a calendar in "Настройки": one month at a time (◀ ▶), grey = weekly day off, red = official holiday (always red, also if the staff added it), orange = added by the staff; a click adds or removes a staff day; no extra list and no long text (staff, 2026-11-15). After each change the customers load again and a toast says how many reminders moved (staff, 2026-11-15). | 2026-11-15 |
+| D26 | No "Прегледът мина" button. A customer who passed the inspection gets the new date in "Последен преглед" (pencil or Excel). The app then sets "Следващ преглед" one year later, clears the SMS mark, and the status is "Очаква". A customer who did not come stays "Просрочен" (owner, 2026-11-15). | 2026-11-15 |
+| D27 | Backup: the daily copy stays (one a day, 30 kept). The staff also get a button in the sidebar to save a copy of the data file to a place they choose (for example a USB stick). Only when they click it. Design in chapter 09 (owner, 2026-11-15). | 2026-11-15 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions
@@ -100,7 +102,7 @@ Last update: 2026-11-15 (D25).
 - An SMS belongs to the present cycle only if its day is **after** `lastServiceDate`. An SMS from the day of the inspection or before it counts as empty. So a new date typed in Excel starts the next year with no other step (chapter 06, 2026-11-14).
 - A `due` customer stays `due` until the staff send, or until the expiry date is past. A missed reminder day loses nothing before the expiry date. The staff must send on the reminder day (owner, 2026-11-15; he looks at this again after the first weeks of use).
 - An `overdue` customer stays on the list until the staff type the new inspection date or delete the customer. The new date gives `pending` and an expiry one year later.
-- "Изпрати" sets `smsSentAt` only. A new `lastServiceDate` (dashboard edit or Excel) clears it. That starts the next year. A separate "Прегледът мина" button is not built: the owner said on 2026-11-14 that the date edit is enough. He will show screenshots before a decision on the button.
+- "Изпрати" sets `smsSentAt` only. A new `lastServiceDate` (dashboard edit or Excel) clears it. That starts the next year. There is no "Прегледът мина" button (D26).
 - One SMS for each cycle (D21). Only a `due` or `pending` row has the "Изпрати" button. The engine refuses a second SMS (`ALREADY_SENT`) and an SMS after the expiry date (`EXPIRED`). There is no `force`.
 - One exception: a new phone number in the dashboard edit clears `smsSentAt`, because the SMS went to a wrong number. A phone that is changed in Excel does not do this.
 - There is no simulated send. With no Twilio keys in `.env` the send is refused, nothing is saved, and the dashboard shows a banner. Tests of the real flow use the owner's Twilio developer account (owner, 2026-11-14).
@@ -120,6 +122,7 @@ Last update: 2026-11-15 (D25).
 
 - Write to a temp file in the same folder, then rename it over the real file.
 - Before the first write of each day, copy the file to `backups/`. Keep 30.
+- A copy to a place the staff choose (USB stick) happens only on their click (D27).
 - Check the Excel lock **before** an SMS send, not after.
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash.
 - `Телефон` is a text column.
