@@ -18,4 +18,5 @@ export const HELP_TASKS = [
   { page: 'template.html', ready: true, short: 'SMS шаблон и цена',     title: 'SMS шаблон и цена' },
   { page: 'file.html',     ready: true,  short: 'Файл и копия',         title: 'Къде е файлът с клиентите' },
   { page: 'errors.html',   ready: true,  short: 'Ако нещо не работи',   title: 'Ако нещо не работи' },
+  { page: 'practice.html', ready: true,  short: 'Упражнения',           title: 'Упражнения с тестов клиент' },
 ];

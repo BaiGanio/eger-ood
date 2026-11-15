@@ -29,7 +29,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
 | 13 | Public site: fuel page (`goriva.html`) | 🟨 | 2026-11-14. Demo page done: partly invented text, `noindex`. Waits for the real text and photo rights. |
 | 14 | Public site: redesign | 🟨 | 2026-11-14. New layout and look for the three pages (`specs.md` D18). Waits for the owner's review and a check on a real phone. |
-| 15 | Manual tests and staff practice | 🟨 | 2026-11-15. Two lists written in `15-manual-tests.md`: A (staff practice, real file, fake customer "ТЕСТ", 2 real SMS at most) and B (owner tests). Waits for the owner's read. The page "Упражнения" under "Помощ" is not built. |
+| 15 | Manual tests and staff practice | 🟨 | 2026-11-15. Two lists in `15-manual-tests.md`: A (staff practice, real file, fake customer "ТЕСТ", 2 real SMS at most) and B (owner tests). List A is the page "Упражнения", task 11 under "Помощ" (`help/practice.html`). 178 tests. Waits for: the owner's read of the page and of list B, the runs of both lists. |
 
 ## Later (not planned yet)
 
@@ -122,6 +122,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 10, second session, part 3: task 3 "Как да променя или изтрия клиент" (`help/edit.html`, 3 screenshots on fake data; the script clicks "Отказ", nothing saved or deleted). Checked in a headless Chrome, no console errors. 178 tests pass in both time zones. |
 | 2026-11-15 | Chapter 08 closed: owner checked the page. No "Прегледът мина" button (D26): the rule "a new last inspection date → Очаква, expiry +1 year" was in the code and in unit tests; one server test added for the real edit route. Backup decided (D27): daily copy stays, a sidebar "copy to USB" button comes in chapter 09. 162 tests pass in both time zones. |
 | 2026-11-15 | Chapter 15 started: manual tests. Owner decided: two lists, staff practice on the real file with one fake customer, real SMS to the own phone, list A as a page under "Помощ", known holes marked and not fixed first. `plan/15-manual-tests.md` written. No code change. |
+| 2026-11-15 | Chapter 15, part 2: page "Упражнения" (`help/practice.html`, task 11, 21 steps, text only). The page shows the dates for today (`help/practice.js`). Tick box and green "Трябва да видите" line in `help.css`. New `test/practice.test.js`: the dates, and the promised status of each date for each day of two years, checked with the engine. Checked in a headless Chrome: task number 11, dates filled, back link to task 10, sidebar list from `tasks.js`. 178 tests pass in both time zones. A person did not look at the page. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.
@@ -206,3 +207,5 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-15 (later): the bad-rows banner always says „Те не са заредени“. For a bad value in sheet „Настройки“ (SMS price not a number, unknown day off) this is wrong: the app uses the default value, it does not skip the row. Change the banner text for these. Owner wants this later.
 - 2026-11-15 (ch15): list A step A16 marks a day off on the real file. A real customer with the same reminder day moves too, until step A17 removes the day. The end check of list A says to look for a left orange day.
 - 2026-11-15 (ch15): step B3.5 (send to an expired row from an old tab) and B2.8 (midnight) are hard to make by hand. If they take too long, the automatic tests stay the proof.
+- 2026-11-15 (ch15): the guide now has 11 tasks. `10-staff-guide.md` and `specs.md` D11 still say "10 tasks" in places; task 11 is the practice page, not a how-to. Texts of the practice page are in two places: `plan/15-manual-tests.md` (list A) and `help/practice.html`.
+- 2026-11-15 (ch15): the practice page was checked through the app that already ran on port 3000 (the agent's own start saw it and opened the browser). The console was not read for errors.

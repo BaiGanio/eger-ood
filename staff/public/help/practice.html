@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Упражнения</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff practice (plan/15-manual-tests.md, list A). One fake customer on
+     the real file, deleted at the end. Each step: what to do, then what the
+     staff must see. No pictures: they are in tasks 1 to 10. The dates come
+     from practice.js. The tick boxes are not saved. -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Упражнения с тестов клиент</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Ще добавите един измислен клиент с име „ТЕСТ“. Ще му изпратите един истински SMS на Вашия телефон.
+          Накрая ще го изтриете. Истинските клиенти не се променят. Времето е около 20 минути.
+          <div class="mt-2">Датите в стъпките са за днес. Утре страницата показва други дати.</div>
+        </div>
+      </div>
+
+      <p class="mt-3 mb-0">
+        След всяка стъпка сравнете екрана с реда <span class="see-word">Трябва да видите</span>.
+        Същото ли е? Сложете отметка. Различно ли е? Вижте края на страницата.
+      </p>
+
+      <h2 class="step-group">Преди да започнете</h2>
+      <ol class="steps practice">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Отворете програмата. Вижте менюто вляво.
+          <div class="see"><b>Трябва да видите:</b> зелена кутийка. Няма жълта лента за SMS.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Вижте числото в картата <span class="ui-btn">Всички клиенти</span>. Запишете го на лист.
+          <div class="hint">Накрая числото трябва да е същото.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Добавете клиента <span class="see-topic">(тема 2)</span></h2>
+      <ol class="steps practice" start="3">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете <span class="ui-btn ui-blue"><i class="bi bi-plus-lg"></i> Добави клиент</span>. Напишете:
+          <table class="practice-values">
+            <tr><td>Пълно име</td><td><code>ТЕСТ</code></td></tr>
+            <tr><td>Телефон</td><td>Вашия телефон, с 0 отпред (0888…)</td></tr>
+            <tr><td>Модел автомобил</td><td><code>Тест</code></td></tr>
+            <tr><td>Регистрационен номер</td><td><code>pb 0000 tt</code> (с малки букви и с интервали)</td></tr>
+            <tr><td>Дата на последен преглед</td><td><span class="practice-date" data-days="3" data-years="-1">3 дни след днес, но миналата година</span></td></tr>
+          </table>
+          Щракнете синия бутон <span class="ui-btn ui-blue"><i class="bi bi-check-lg"></i> Добави клиент</span>.
+          <div class="see"><b>Трябва да видите:</b> въпрос за +359. Щракнете <span class="ui-btn">Промени</span>.
+            После зелено съобщение <span class="ui-green">Клиентът е добавен</span>.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Вижте картите горе.
+          <div class="see"><b>Трябва да видите:</b> „Всички клиенти“ е с 1 повече. „Очакващи SMS“ е с 1 повече.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Напишете <code>ТЕСТ</code> в полето <span class="ui-btn">Търси…</span>.
+          <div class="see"><b>Трябва да видите:</b> един ред. Номерът е <code>PB0000TT</code> (големи букви, без интервали).
+            Статусът е „За днес“. „Следващ преглед“ е <span class="practice-date" data-days="3">3 дни след днес</span>.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Опитайте две грешки <span class="see-topic">(тема 3)</span></h2>
+      <ol class="steps practice" start="6">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          На реда „ТЕСТ“ щракнете бутона с молив <span class="ui-btn"><i class="bi bi-pencil"></i></span>.
+          Изтрийте името. Щракнете <span class="ui-btn ui-blue"><i class="bi bi-check-lg"></i> Запази промените</span>.
+          <div class="see"><b>Трябва да видите:</b> жълто съобщение „Моля, попълнете всички задължителни полета“. Прозорецът остава отворен.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Напишете името <code>ТЕСТ</code> отново. Сменете датата на
+          <span class="practice-date" data-days="1">утре</span> (утре). Щракнете <span class="ui-btn ui-blue"><i class="bi bi-check-lg"></i> Запази промените</span>.
+          <div class="see"><b>Трябва да видите:</b> червено съобщение „Датата на последния преглед не може да е в бъдещето“.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете <span class="ui-btn">Отказ</span>.
+          <div class="see"><b>Трябва да видите:</b> редът „ТЕСТ“ не е променен.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Изпратете SMS <span class="see-topic">(тема 1)</span></h2>
+      <ol class="steps practice" start="9">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Изтрийте текста в полето за търсене. Щракнете картата <span class="ui-btn">Очакващи SMS</span>.
+          На реда „ТЕСТ“ щракнете <span class="ui-btn">Изпрати</span>.
+          <div class="see"><b>Трябва да видите:</b> прозорец „Преглед на SMS“. В текста има номер <code>PB0000TT</code>
+            и дата <span class="practice-date" data-days="3">3 дни след днес</span>.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете <span class="ui-btn ui-blue"><i class="bi bi-send"></i> Изпрати SMS</span>. Това е истински, платен SMS.
+          <div class="see"><b>Трябва да видите:</b> зелено съобщение <span class="ui-green">SMS изпратен до ТЕСТ!</span>.
+            SMS-ът идва на Вашия телефон. Редът „ТЕСТ“ изчезва от този списък.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете картата <span class="ui-btn">Изпратени SMS</span>.
+          <div class="see"><b>Трябва да видите:</b> „ТЕСТ“ е най-горе, с днешната дата и часа.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете картата <span class="ui-btn">Очаквани за преглед</span>. Щракнете <span class="ui-btn">7 дни</span>.
+          <div class="see"><b>Трябва да видите:</b> „ТЕСТ“ е в списъка.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете картата <span class="ui-btn">Всички клиенти</span>. Потърсете <code>ТЕСТ</code>.
+          <div class="see"><b>Трябва да видите:</b> статус „Изпратен“. Няма как да изпратите втори SMS.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Грешен телефон <span class="see-topic">(тема 3)</span></h2>
+      <ol class="steps practice" start="14">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете молива на реда „ТЕСТ“. Сменете телефона с телефона на колега. Запазете.
+          Щракнете картата <span class="ui-btn">Очакващи SMS</span>.
+          <div class="see"><b>Трябва да видите:</b> „ТЕСТ“ е в списъка отново, с бутон „Изпрати“.</div>
+          <div class="hint">Защо: първият SMS е отишъл на грешен номер. Не е нужно да изпращате втори SMS. Ако изпратите, колегата го получава.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Клиентът мина прегледа <span class="see-topic">(тема 4)</span></h2>
+      <ol class="steps practice" start="15">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете картата <span class="ui-btn">Всички клиенти</span>. Потърсете <code>ТЕСТ</code>. Щракнете молива.
+          Сменете „Дата на последен преглед“ на <span class="practice-date" data-days="0">днес</span> (днес). Запазете.
+          <div class="see"><b>Трябва да видите:</b> статус „Очаква“. „Следващ преглед“ е
+            <span class="practice-date" data-days="0" data-years="1">след една година</span>. „ТЕСТ“ не е в „Очакващи SMS“.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Клиентът не дойде <span class="see-topic">(тема 6)</span></h2>
+      <ol class="steps practice" start="16">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете молива. Сменете датата на
+          <span class="practice-date" data-days="-2" data-years="-1">преди 2 дни, но миналата година</span>. Запазете.
+          <div class="see"><b>Трябва да видите:</b> статус „Просрочен“. Картата „Просрочени“ е с 1 повече. За „ТЕСТ“ няма бутон „Изпрати“.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Почивен ден <span class="see-topic">(тема 7)</span></h2>
+      <ol class="steps practice" start="17">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете молива. Сменете датата на
+          <span class="practice-date" data-days="20" data-years="-1">20 дни след днес, но миналата година</span>. Запазете.
+          Запишете датата от колоната „Напомняне“.
+          <div class="see"><b>Трябва да видите:</b> статус „Очаква“.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Щракнете <span class="ui-btn"><i class="bi bi-gear"></i> Настройки</span>. Намерете календара „Почивни дни“.
+          Щракнете деня, който записахте.
+          <div class="hint">Денят е в друг месец? Щракнете стрелката <i class="bi bi-chevron-right"></i> над календара.</div>
+          <div class="see"><b>Трябва да видите:</b> денят става оранжев. Зелено съобщение казва колко напомняния са преместени (1 или повече).</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Върнете се в таблото. Потърсете <code>ТЕСТ</code>.
+          <div class="see"><b>Трябва да видите:</b> датата в „Напомняне“ е по-ранна от записаната.</div>
+        </li>
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          Отворете <span class="ui-btn"><i class="bi bi-gear"></i> Настройки</span> отново. Щракнете същия ден още веднъж.
+          <div class="see"><b>Трябва да видите:</b> денят вече не е оранжев. В таблото „ТЕСТ“ има пак записаната дата.</div>
+          <div class="hint">Тази стъпка е важна: оранжевият ден мести напомнянията и на истинските клиенти.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Изтрийте клиента <span class="see-topic">(тема 3)</span></h2>
+      <ol class="steps practice" start="21">
+        <li><input type="checkbox" class="form-check-input tick" aria-label="Готово">
+          В таблото, на реда „ТЕСТ“, щракнете червения бутон с кошче <span class="ui-btn text-danger"><i class="bi bi-trash"></i></span>.
+          Проверете името във въпроса. Щракнете <span class="ui-btn text-bg-danger">Изтрий</span>.
+          <div class="see"><b>Трябва да видите:</b> сиво съобщение „Клиент ТЕСТ е изтрит“.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Готово. Проверете</h2>
+      <ul class="done-list">
+        <li>Търсите <code>ТЕСТ</code> и няма ред.</li>
+        <li>Числото в „Всички клиенти“ е същото като в стъпка 2.</li>
+        <li>В календара няма оранжев ден, който Вие сте добавили.</li>
+      </ul>
+
+      <h2 class="step-group">Видяхте нещо друго?</h2>
+      <dl class="trouble">
+        <dt>Екранът не е като в реда „Трябва да видите“.</dt>
+        <dd>Спрете. Запишете номера на стъпката и какво видяхте. Обадете се за помощ. Това е целта на упражненията: грешките да се намерят сега.</dd>
+        <dt>Излиза червено съобщение „… е отворен в Excel“.</dt>
+        <dd>Затворете файла „клиенти.xlsx“ в Excel. Повторете стъпката.</dd>
+        <dt>Има жълта лента „SMS не могат да се изпращат“.</dt>
+        <dd>Пропуснете стъпки 9 до 14. Обадете се за помощ (тема 10).</dd>
+        <dt>SMS-ът не идва на телефона.</dt>
+        <dd>Изчакайте 2 минути. Проверете телефона в реда „ТЕСТ“. Не изпращайте втори път. Обадете се за помощ.</dd>
+        <dt>Прекъснаха Ви по средата.</dt>
+        <dd>Клиентът „ТЕСТ“ може да остане до утре. Утре започнете от стъпка 15. Накрая го изтрийте.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+<script type="module" src="practice.js"></script>
+</body>
+</html>

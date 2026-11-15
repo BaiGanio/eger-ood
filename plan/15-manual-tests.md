@@ -11,7 +11,9 @@ The app has many edge cases. The automatic tests check the rules, but not the re
 - Two lists. **List A**: staff practice, easy and safe. **List B**: owner tests, the hard cases. The staff do not do list B.
 - List A runs on the **real file**, with one fake customer "ТЕСТ". The staff delete it at the end. No practice mode, no new code in the engine.
 - List A sends **real SMS** (2 at most), only to the phone of the staff. The SMS has the real Bulgarian template: `specs.md` section 9 (short English words) is for the developer account and list B.
-- List A becomes a page "Упражнения" under "Помощ" in the app (D11). Not built yet: the owner first approves the lists in this file.
+- List A is the page "Упражнения" under "Помощ" in the app (D11): task 11, `staff/public/help/practice.html`. Built 2026-11-15, after the owner's OK of the list and of the page proposal.
+- The page shows the real dates for today (`help/practice.js`). The staff do not work a date out. Tick boxes are not saved. No pictures: each group names its guide task.
+- The page has 21 steps. Steps A5–A6 and A16–A17 of the table below are split there, so that one step has one result. A change of list A goes into the table and into the page.
 - Known holes are not fixed first. Their steps have the mark **KNOWN**. After a fix, the step is the check of the fix.
 
 ## Form of a step
@@ -142,8 +144,10 @@ Write each failed step here: step, date, what the screen showed. Then a fix goes
 ## Steps
 
 - [x] Lists A and B written in this file (2026-11-15).
-- [ ] Owner reads the lists: add, remove, change steps.
-- [ ] Page "Упражнения" under "Помощ" for list A, in Bulgarian (after the owner's OK of the list and of a page proposal).
+- [ ] Owner reads list B: add, remove, change steps.
+- [x] Owner OK of list A and of the page proposal (2026-11-15: "all good").
+- [x] Page "Упражнения" under "Помощ" for list A, in Bulgarian: `help/practice.html`, `help/practice.js`, line 11 in `help/tasks.js`, styles in `help.css`, `test/practice.test.js`.
+- [ ] Owner reads the page text in the browser.
 - [ ] Owner runs list B on the developer machine.
 - [ ] Owner runs B6 on the Windows PC.
 - [ ] Staff run list A with the owner next to them.
