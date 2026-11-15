@@ -81,6 +81,10 @@ Needs: chapter 06.
 - [x] The list has no "Напомняне" and no "Действия" column.
 - [x] New `test/business-rules.test.js`: staff stories through the real engine and the card lists (7 tests).
 
+### Staff requests 9 (owner, 2026-11-15): "Изпратени SMS" columns (`specs.md` D22)
+- [x] No "Действия" column in this list.
+- [x] "Изпратен SMS" (day and time of the send) in place of "Напомняне". The newest send is on top. No change in the file: `smsSentAt` is there already.
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -99,5 +103,6 @@ Needs: chapter 06.
 5a. `npm run test-data -- --force` (with `EGER_DATA_DIR=./data`). Four cards. Click "Очакващи SMS" → only "За днес" rows and the buttons row. "7 дни", "10 дни", "1 месец" → more "Очаква" rows, the last reminder date is in the period. The card number changes with the button. Another status in the filter → the buttons row hides. Click "Просрочени" → the last 7 days and its buttons row; each button changes the card number. Status "Просрочени" in the drop-down → all overdue rows, no buttons row.
 5b. With the test data: five cards. Close the yellow banners with × → they stay closed. Click "Очаквани за преглед" → the card has a blue ring and tint, rows with expiry today, row "Преглед до". Click it again → all customers, no ring. Click "Изпратени SMS" → SMS of today; "12 месеца" → more rows. The text under each count says the period.
 5d. Click "Очаквани за преглед", then "1 месец" → only "Изпратен" rows. Columns: Клиент, Автомобил, Телефон, Следващ преглед, Статус. "Йордан Кирилов" and "Димитър Славов" are not in it. Click the card again → all 7 columns are back.
+5e. Click "Изпратени SMS", then "1 месец" → columns: Клиент, Автомобил, Телефон, Изпратен SMS, Следващ преглед, Статус. Example: "Христо Динев" shows 12.11.2026 10:43 (his reminder day is 17.11). The newest send is on top. Click the card again → "Напомняне" and "Действия" are back.
 5c. With the test data: the table has 25 rows and the page buttons under it. Click "2" → rows 26–50, the page shows the top of the table. "Редове: 50" → page 1, 50 rows. Type a name in the search → page 1. On page 2, edit a row → still page 2.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

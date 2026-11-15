@@ -417,16 +417,26 @@ function renderTable() {
 
   // Sort: the SMS of now first, then by reminder date ascending. The
   // "Очаквани за преглед" list goes by the day the customer must come.
+  // The "Изпратени SMS" list goes by the send time, the newest on top.
   filtered.sort(filterStatus === 'coming'
     ? (a, b) => a.nextServiceDate.localeCompare(b.nextServiceDate)
+    : filterStatus === 'sentin'
+    ? (a, b) => b.smsSentAt.localeCompare(a.smsSentAt)
     : (a, b) => (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
                 a.nextReminderDate.localeCompare(b.nextReminderDate));
 
   // "Очаквани за преглед": the staff only wait. No reminder day, no buttons.
+  // "Очаквани за преглед" and "Изпратени SMS": the staff only look. No buttons.
+  // "Изпратени SMS" shows the day of the send in place of the reminder day:
+  // before a holiday the staff send in advance, so the two days differ.
+  const sentList = filterStatus === 'sentin';
   const waitList = filterStatus === 'coming';
-  const cols     = waitList ? 5 : 7;
-  document.getElementById('col-reminder').classList.toggle('d-none', waitList);
-  document.getElementById('col-actions').classList.toggle('d-none', waitList);
+  const noAction = sentList || waitList;
+  const cols     = 7 - (waitList ? 1 : 0) - (noAction ? 1 : 0);
+  const reminderHead = document.getElementById('col-reminder');
+  reminderHead.textContent = sentList ? 'Изпратен SMS' : 'Напомняне';
+  reminderHead.classList.toggle('d-none', waitList);
+  document.getElementById('col-actions').classList.toggle('d-none', noAction);
 
   const tbody = document.getElementById('table-body');
   page = clampPage(page, filtered.length, pageSize);
@@ -481,10 +491,12 @@ function renderTable() {
         <div class="text-muted mt-1" style="font-size:11px;">${escHtml(c.carPlate)}</div>
       </td>
       <td><code class="text-body">${escHtml(c.phone)}</code></td>
-      ${waitList ? '' : `<td><span class="${rdClass}">${rdLabel}</span></td>`}
+      ${waitList ? '' : sentList
+        ? `<td>${formatDateTime(c.smsSentAt)}</td>`
+        : `<td><span class="${rdClass}">${rdLabel}</span></td>`}
       <td><span class="${eff === 'overdue' ? 'date-overdue' : ''}">${formatDate(c.nextServiceDate)}</span></td>
       <td>${badge}</td>
-      ${waitList ? '' : `<td>
+      ${noAction ? '' : `<td>
         <div class="d-flex gap-1 flex-nowrap">
           ${canSend ? `<button class="btn btn-primary btn-sm d-flex align-items-center gap-1 text-nowrap"
                   data-action="previewSms" data-arg="${escHtml(c.id)}">
