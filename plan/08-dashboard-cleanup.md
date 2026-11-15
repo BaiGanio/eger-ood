@@ -49,6 +49,13 @@ Needs: chapter 06.
 - [x] Statuses: "Очаква", "За днес", "Изпратен", "Просрочен". The owner keeps "За днес".
 - [x] A question before a send: the window "Преглед на SMS" already does this (owner, 2026-11-15). No change.
 
+### Staff requests 3 (owner, 2026-11-15): status and send rules (`specs.md` D21)
+- [x] "Просрочен" = the expiry date is past. It wins over "Изпратен".
+- [x] "За днес" = the reminder day is today or past, no SMS yet, the expiry date is not past.
+- [x] "Изпрати" only in a "За днес" or "Очаква" row. No "Изпрати отново". The server refuses the other sends, also with `force`.
+- [x] A new phone number in the edit window clears the SMS mark.
+- [x] Rows: "За днес" on top, then "Очаква", "Изпратен", "Просрочен". The card "Очакващи SMS" counts "Очаква" + "За днес".
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -63,5 +70,5 @@ Needs: chapter 06.
 3. "Табло" → the red bin button in a row → a question shows in the page, not a browser box. "Отказ" keeps the customer.
 3a. No pause button in a row. No "Деактивиран" in the status filter. "Настройки" has no customer table.
 4. "Добави клиент" with the phone `0887 123 456` → the question about +359 shows on top of the window.
-5. A row with "Изпрати отново" → the question shows first, then the SMS preview.
+5. An "Изпратен" row and a "Просрочен" row have no "Изпрати" button. Type a new inspection date in a "Просрочен" row → "Очаква", next inspection one year later. Change the phone of an "Изпратен" row → the button is back.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

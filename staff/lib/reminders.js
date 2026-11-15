@@ -30,11 +30,18 @@ export function sentInThisCycle(customer) {
   return customer.smsSentAt.slice(0, 10) > customer.lastServiceDate;
 }
 
-/** `sent` → `overdue` → `due` → `pending`. The order is the rule. */
-export function statusOf(customer, reminderDate, today) {
+/**
+ * `overdue` → `sent` → `due` → `pending`. The order is the rule.
+ *
+ * `overdue`: the expiry date is past and the staff typed no new inspection.
+ * It wins over `sent`: the staff must see who did not come.
+ * `due`: the SMS is necessary now. It stays from the reminder day to the
+ * expiry day, so a missed day loses nothing.
+ */
+export function statusOf(customer, { serviceDate, reminderDate }, today) {
+  if (serviceDate < today) return 'overdue';
   if (sentInThisCycle(customer)) return 'sent';
-  if (reminderDate < today) return 'overdue';
-  if (reminderDate === today) return 'due';
+  if (reminderDate <= today) return 'due';
   return 'pending';
 }
 
@@ -48,7 +55,7 @@ export function withComputed(customer, settings, today) {
     smsSentAt: sent ? customer.smsSentAt : null,
     nextServiceDate: serviceDate,
     nextReminderDate: reminderDate,
-    status: statusOf(customer, reminderDate, today),
+    status: statusOf(customer, { serviceDate, reminderDate }, today),
   };
 }
 
@@ -62,11 +69,17 @@ export function markSent(customer, sentAt) {
   return { ...customer, smsSentAt: sentAt };
 }
 
+/** A new phone number: the SMS went to the wrong one. The staff can send again. */
+export function startNewSend(customer) {
+  return { ...customer, smsSentAt: null };
+}
+
 /**
- * Why a send must not go out: 'ALREADY_SENT', or null (send it).
- * `force` lets the staff send a second SMS on purpose.
+ * Why a send must not go out: 'EXPIRED', 'ALREADY_SENT', or null (send it).
+ * One SMS for each yearly cycle. No SMS after the expiry date.
  */
-export function sendBlock(customer, { force = false } = {}) {
-  if (sentInThisCycle(customer) && !force) return 'ALREADY_SENT';
+export function sendBlock(customer, today) {
+  if (nextServiceDate(customer.lastServiceDate) < today) return 'EXPIRED';
+  if (sentInThisCycle(customer)) return 'ALREADY_SENT';
   return null;
 }

@@ -13,7 +13,7 @@ let holidays = [];
 let pendingSendId = null;
 
 // Order of the rows: what the staff must do first is on top.
-const STATUS_ORDER = { overdue: 0, due: 1, pending: 2, sent: 3 };
+const STATUS_ORDER = { due: 0, pending: 1, sent: 2, overdue: 3 };
 
 // Bootstrap modal instances (initialised after DOM ready)
 let bsCustomerModal, bsSmsPreviewModal;
@@ -254,7 +254,7 @@ function renderStats() {
   const total    = customers.length;
   // The engine computes the status (lib/reminders.js). "Waiting" = not sent yet.
   const count    = (...statuses) => customers.filter(c => statuses.includes(c.status)).length;
-  const pending  = count('pending', 'due', 'overdue');
+  const pending  = count('pending', 'due');
   const sent     = count('sent');
   const overdue  = count('overdue');
   const dueToday = count('due');
@@ -281,7 +281,7 @@ function renderTable() {
     return matchText && matchStatus;
   });
 
-  // Sort: overdue first, then due today, then by reminder date ascending
+  // Sort: the SMS of now first, then by reminder date ascending
   filtered.sort((a, b) =>
     (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
     a.nextReminderDate.localeCompare(b.nextReminderDate));
@@ -294,6 +294,7 @@ function renderTable() {
     return;
   }
 
+  const today = localDateInDays(0);
   tbody.innerHTML = filtered.map(c => {
     const eff = c.status;
 
@@ -311,15 +312,16 @@ function renderTable() {
 
     const rDate   = c.nextReminderDate;
     const rdClass = eff === 'due' ? 'date-today'
-                  : eff === 'overdue' ? 'date-overdue'
                   : (eff === 'pending' && daysDiff(rDate) <= 7 ? 'date-soon' : '');
+    // "За днес" also covers a reminder day that the staff missed.
     const rdLabel = eff === 'due'
-      ? `<strong>${formatDate(rDate)}</strong> <span class="badge bg-primary ms-1">днес</span>`
+      ? `<strong>${formatDate(rDate)}</strong>` +
+        (rDate === today ? ' <span class="badge bg-primary ms-1">днес</span>' : '')
       : formatDate(rDate);
 
-    // A second SMS is possible, but it must look like a second choice.
-    const sendClass = eff === 'sent' ? 'btn-outline-primary' : 'btn-primary';
-    const sendLabel = eff === 'sent' ? 'Изпрати отново' : 'Изпрати';
+    // One SMS for each year, and none after the expiry date. The engine
+    // refuses these sends too (lib/reminders.js, sendBlock).
+    const canSend = eff === 'due' || eff === 'pending';
 
     return `
     <tr>
@@ -335,14 +337,14 @@ function renderTable() {
       </td>
       <td><code class="text-body">${escHtml(c.phone)}</code></td>
       <td><span class="${rdClass}">${rdLabel}</span></td>
-      <td>${formatDate(c.nextServiceDate)}</td>
+      <td><span class="${eff === 'overdue' ? 'date-overdue' : ''}">${formatDate(c.nextServiceDate)}</span></td>
       <td>${badge}</td>
       <td>
         <div class="d-flex gap-1 flex-nowrap">
-          <button class="btn ${sendClass} btn-sm d-flex align-items-center gap-1 text-nowrap"
+          ${canSend ? `<button class="btn btn-primary btn-sm d-flex align-items-center gap-1 text-nowrap"
                   data-action="previewSms" data-arg="${escHtml(c.id)}">
-            <i class="bi bi-send"></i> ${sendLabel}
-          </button>
+            <i class="bi bi-send"></i> Изпрати
+          </button>` : ''}
           <button class="btn btn-outline-secondary btn-sm" data-action="openEditModal" data-arg="${escHtml(c.id)}"
                   title="Редактирай"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-outline-danger btn-sm" data-action="deleteCustomer" data-arg="${escHtml(c.id)}"
@@ -355,9 +357,6 @@ function renderTable() {
 
 // ─── SMS send flow ────────────────────────────────────────────────────
 async function previewSms(id) {
-  const customer = customers.find(c => c.id === id);
-  if (customer && customer.status === 'sent' &&
-      !await ask(`Вече е изпратен на ${formatDateTime(customer.smsSentAt)}. Изпрати отново?`, 'Изпрати отново')) return;
   try {
     const data = await api('POST', `/api/preview-sms/${encodeURIComponent(id)}`);
     document.getElementById('preview-modal-body').textContent = data.body;
@@ -386,9 +385,7 @@ async function confirmSend() {
 
   try {
     const idx = customers.findIndex(c => c.id === pendingSendId);
-    // The staff said yes to a second SMS before this window opened.
-    const force = idx !== -1 && customers[idx].status === 'sent';
-    const data = await api('POST', `/api/customers/${encodeURIComponent(pendingSendId)}/send-sms`, { force });
+    const data = await api('POST', `/api/customers/${encodeURIComponent(pendingSendId)}/send-sms`);
 
     if (idx !== -1) customers[idx] = data.customer;
 

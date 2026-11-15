@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   markSent, nextReminderDate, nextServiceDate, sendBlock, sentInThisCycle,
-  startNewCycle, statusOf, withComputed,
+  startNewCycle, startNewSend, statusOf, withComputed,
 } from '../lib/reminders.js';
 
 const SETTINGS = { weeklyDaysOff: [0, 1], holidays: [] };
@@ -57,28 +57,38 @@ test('the weekly days off are a setting', () => {
 });
 
 // The customer of these tests: expiry 24.11.2026, reminder 17.11.2026.
+const DATES = { serviceDate: '2026-11-24', reminderDate: '2026-11-17' };
+
+test('status: pending before the reminder day', () => {
+  assert.equal(statusOf(customer(), DATES, '2026-11-16'), 'pending');
+});
+
+test('status: due from the reminder day to the expiry day: a missed day loses nothing', () => {
+  for (const today of ['2026-11-17', '2026-11-18', '2026-11-24']) {
+    assert.equal(statusOf(customer(), DATES, today), 'due', today);
+  }
+});
+
 test('status: sent when an SMS went out in this cycle', () => {
   const c = customer({ smsSentAt: '2026-11-17T10:00:00' });
-  assert.equal(statusOf(c, '2026-11-17', '2026-11-20'), 'sent');
+  assert.equal(statusOf(c, DATES, '2026-11-20'), 'sent');
+  assert.equal(statusOf(c, DATES, '2026-11-24'), 'sent');
 });
 
-test('status: overdue when the reminder date is before today', () => {
-  assert.equal(statusOf(customer(), '2026-11-17', '2026-11-18'), 'overdue');
+test('status: overdue from the day after the expiry day, with or without an SMS', () => {
+  assert.equal(statusOf(customer(), DATES, '2026-11-25'), 'overdue');
+  assert.equal(statusOf(customer({ smsSentAt: '2026-11-17T10:00:00' }), DATES, '2026-11-25'), 'overdue');
 });
 
-test('status: due when the reminder date is today', () => {
-  assert.equal(statusOf(customer(), '2026-11-17', '2026-11-17'), 'due');
-});
-
-test('status: pending when the reminder date is after today', () => {
-  assert.equal(statusOf(customer(), '2026-11-17', '2026-11-16'), 'pending');
-});
-
-test('an overdue customer stays overdue until a send: a missed day loses nothing', () => {
+test('an overdue customer stays overdue until the staff type a new inspection date', () => {
   const c = customer();
-  for (const today of ['2026-11-18', '2026-11-30', '2027-03-01']) {
+  for (const today of ['2026-11-25', '2026-12-30', '2027-03-01']) {
     assert.equal(withComputed(c, SETTINGS, today).status, 'overdue');
   }
+  // The customer came on 28.11.2026: the next expiry is one year later.
+  const next = withComputed(startNewCycle(c, '2026-11-28'), SETTINGS, '2026-11-28');
+  assert.equal(next.status, 'pending');
+  assert.equal(next.nextServiceDate, '2027-11-28');
 });
 
 test('a new date typed in Excel makes the old SMS mark empty', () => {
@@ -115,13 +125,27 @@ test('a new inspection date clears the SMS mark and moves the dates one year', (
 // The staff do not use "disabled" (2026-11-15). A value from old data has no effect.
 test('an old `disabled` value changes no status and blocks no send', () => {
   const old = customer({ disabled: true });
-  assert.equal(statusOf(old, '2026-11-17', '2026-11-18'), 'overdue');
-  assert.equal(sendBlock(old), null);
+  assert.equal(statusOf(old, DATES, '2026-11-18'), 'due');
+  assert.equal(sendBlock(old, '2026-11-18'), null);
 });
 
-test('a second send is refused without force', () => {
+test('one SMS for each cycle: a second send is refused', () => {
   const sent = customer({ smsSentAt: '2026-11-17T10:00:00' });
-  assert.equal(sendBlock(sent), 'ALREADY_SENT');
-  assert.equal(sendBlock(sent, { force: true }), null);
-  assert.equal(sendBlock(customer()), null);
+  assert.equal(sendBlock(sent, '2026-11-18'), 'ALREADY_SENT');
+  assert.equal(sendBlock(customer(), '2026-11-18'), null);
+});
+
+test('a send is possible before the reminder day and on the expiry day, not after it', () => {
+  assert.equal(sendBlock(customer(), '2026-10-01'), null);
+  assert.equal(sendBlock(customer(), '2026-11-24'), null);
+  assert.equal(sendBlock(customer(), '2026-11-25'), 'EXPIRED');
+  assert.equal(sendBlock(customer({ smsSentAt: '2026-11-17T10:00:00' }), '2026-11-25'), 'EXPIRED');
+});
+
+test('a new phone number clears the SMS mark, so one more send is possible', () => {
+  const sent = customer({ smsSentAt: '2026-11-17T10:00:00' });
+  const next = startNewSend({ ...sent, phone: '+359880000002' });
+  assert.equal(next.smsSentAt, null);
+  assert.equal(next.lastServiceDate, sent.lastServiceDate);
+  assert.equal(sendBlock(next, '2026-11-18'), null);
 });

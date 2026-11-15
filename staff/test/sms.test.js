@@ -92,7 +92,7 @@ test('with no Twilio keys the send is refused, and the customer is not marked', 
   assert.equal((await readData()).customers[0].smsSentAt, null);
 });
 
-test('a second send is refused without force, and works with force', async t => {
+test('a second send in one cycle is refused', async t => {
   await freshFolder(t);
   await seed(customer());
   const { calls, send } = fakeSend();
@@ -102,9 +102,18 @@ test('a second send is refused without force, and works with force', async t => 
     err => err instanceof SendError && err.code === 'ALREADY_SENT' && err.sentAt === '2026-11-17T10:00:00');
   assert.equal(calls.length, 1);
 
-  await sendReminder('c001', { force: true, now: at(2026, 11, 18), send });
-  assert.equal(calls.length, 2);
-  assert.equal((await readData()).customers[0].smsSentAt, '2026-11-18T10:00:00');
+  assert.equal((await readData()).customers[0].smsSentAt, '2026-11-17T10:00:00');
+});
+
+test('a send after the expiry date is refused, and nothing goes out', async t => {
+  await freshFolder(t);
+  await seed(customer()); // expiry 24.11.2026
+  const { calls, send } = fakeSend();
+
+  await assert.rejects(sendReminder('c001', { now: at(2026, 11, 25), send }),
+    err => err instanceof SendError && err.code === 'EXPIRED');
+  assert.equal(calls.length, 0);
+  assert.equal((await readData()).customers[0].smsSentAt, null);
 });
 
 test('an unknown customer is refused', async t => {
@@ -163,7 +172,7 @@ test('two yearly cycles with no hand fix', async t => {
   // Year 1: expiry 24.11.2026, reminder 17.11.2026.
   assert.equal((await view('2026-11-16')).status, 'pending');
   assert.equal((await view('2026-11-17')).status, 'due');
-  assert.equal((await view('2026-11-19')).status, 'overdue');
+  assert.equal((await view('2026-11-19')).status, 'due');
   await sendReminder('c001', { now: at(2026, 11, 19), send });
   assert.equal((await view('2026-11-19')).status, 'sent');
   assert.equal((await view('2026-11-19')).nextServiceDate, '2026-11-24');

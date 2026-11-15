@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { measureSms } from './public/sms-text.js';
 import { localDateText } from './lib/dates.js';
 import { apiGuard, securityHeaders } from './lib/guard.js';
-import { startNewCycle, withComputed } from './lib/reminders.js';
+import { startNewCycle, startNewSend, withComputed } from './lib/reminders.js';
 import { SendError, buildSmsText, sendReminder, smsMode } from './lib/sms.js';
 import { StoreError, generateId, readData, writeData } from './lib/store.js';
 import { checkCustomer, checkHolidays, checkTemplate } from './lib/validate.js';
@@ -89,6 +89,8 @@ export function createApp() {
     if (merged.lastServiceDate !== existing.lastServiceDate) {
       merged = startNewCycle(merged, merged.lastServiceDate);
     }
+    // A new phone number: the SMS went to the wrong one (owner, 2026-11-15).
+    if (merged.phone !== existing.phone) merged = startNewSend(merged);
 
     const updated = withComputed(merged, data, today);
     data.customers[idx] = updated;
@@ -105,9 +107,9 @@ export function createApp() {
     res.json({ success: true });
   }));
 
-  // `{ "force": true }` sends a second time.
+  // One SMS for each yearly cycle. The engine refuses a second one.
   app.post('/api/customers/:id/send-sms', route(async (req, res) => {
-    const result = await sendReminder(req.params.id, { force: req.body?.force === true });
+    const result = await sendReminder(req.params.id);
     res.json({ success: true, ...result });
   }));
 
@@ -183,7 +185,7 @@ export function createApp() {
       return res.status(err.code === 'LOCKED' ? 423 : 500).json({ error: err.message, code: err.code });
     }
     if (err instanceof SendError) {
-      const status = { NOT_FOUND: 404, ALREADY_SENT: 409, NO_KEYS: 503, SEND_FAILED: 502 }[err.code] || 500;
+      const status = { NOT_FOUND: 404, EXPIRED: 409, ALREADY_SENT: 409, NO_KEYS: 503, SEND_FAILED: 502 }[err.code] || 500;
       return res.status(status).json({ error: err.message, code: err.code, sentAt: err.sentAt });
     }
     if (err.type === 'entity.parse.failed') {

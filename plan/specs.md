@@ -38,6 +38,7 @@ Last update: 2026-11-15.
 | D16 | Wholesale fuels and lubricants get their own page, `site/goriva.html`, like D14. | 2026-11-14 |
 | D18 | The public site has one style file, `site/css/site.css`, and one script file, `site/js/site.js` (home page). Bootstrap stays as the base (D10). The font is Sofia Sans (open licence), kept in `site/fonts/`, not loaded from a font service. Colours come from the station and the logo; each inner page changes one accent colour. The navbar and the footer are the same block on every page. | 2026-11-14 |
 | D19 | The staff app has no "Активирай" / "Деактивирай" function and no status "Деактивиран". The staff do not use it. The app ignores the old Excel column "Активен" and does not delete it. A new file does not have it. | 2026-11-15 |
+| D21 | "Просрочен" means: the expiry date is past and no new inspection date is typed. It does not mean a missed reminder. One SMS for each yearly cycle: no "Изпрати отново". No SMS to a "Просрочен" customer. A new phone number permits one more SMS. The staff type the date of the inspection; the app adds one year (D6 stays). | 2026-11-15 |
 | D20 | The dashboard has one customer table. The settings page has no second table. "Изтрий" is in the main table. | 2026-11-15 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
@@ -87,12 +88,15 @@ Last update: 2026-11-15.
 - `nextReminderDate` = `nextServiceDate` − 7 days. If that day is a day off, go **earlier** to the nearest work day (D7).
 - Days off = the weekly days off + the holiday list. Both are settings in the Excel file. Default weekly days off: Sunday, Monday.
 - Examples: reminder on Sunday → Saturday. Reminder on Monday → Saturday. Saturday is a holiday too → Friday.
-- Status, in this order: `sent` (`smsSentAt` is set, for the present cycle) → `overdue` (reminder date before today) → `due` (today) → `pending`. In Bulgarian: "Изпратен", "Просрочен", "За днес", "Очаква".
+- Status, in this order (D21): `overdue` (`nextServiceDate` is before today) → `sent` (`smsSentAt` is set, for the present cycle) → `due` (reminder date is today or before today) → `pending`. In Bulgarian: "Просрочен", "Изпратен", "За днес", "Очаква".
+- `overdue` wins over `sent`: the staff see each customer who did not come. On the expiry day itself the customer is not yet `overdue`.
 - There is no "disabled" customer (D19). To stop the reminders for a customer, the staff delete the customer.
 - An SMS belongs to the present cycle only if its day is **after** `lastServiceDate`. An SMS from the day of the inspection or before it counts as empty. So a new date typed in Excel starts the next year with no other step (chapter 06, 2026-11-14).
-- An overdue customer stays on the list until staff send or delete. A missed day loses nothing.
+- A `due` customer stays `due` until the staff send, or until the expiry date is past. A missed reminder day loses nothing before the expiry date. The staff must send on the reminder day (owner, 2026-11-15; he looks at this again after the first weeks of use).
+- An `overdue` customer stays on the list until the staff type the new inspection date or delete the customer. The new date gives `pending` and an expiry one year later.
 - "Изпрати" sets `smsSentAt` only. A new `lastServiceDate` (dashboard edit or Excel) clears it. That starts the next year. A separate "Прегледът мина" button is not built: the owner said on 2026-11-14 that the date edit is enough. He will show screenshots before a decision on the button.
-- A second SMS in one cycle needs `force: true`. The dashboard asks first ("Вече е изпратен на ДАТА. Изпрати отново?").
+- One SMS for each cycle (D21). Only a `due` or `pending` row has the "Изпрати" button. The engine refuses a second SMS (`ALREADY_SENT`) and an SMS after the expiry date (`EXPIRED`). There is no `force`.
+- One exception: a new phone number in the dashboard edit clears `smsSentAt`, because the SMS went to a wrong number. A phone that is changed in Excel does not do this.
 - There is no simulated send. With no Twilio keys in `.env` the send is refused, nothing is saved, and the dashboard shows a banner. Tests of the real flow use the owner's Twilio developer account (owner, 2026-11-14).
 
 ## 6. Security rules

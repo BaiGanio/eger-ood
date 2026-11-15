@@ -22,7 +22,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
 | 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
-| 08 | Dashboard cleanup | 🟨 | 2026-11-15. Code and tests are done (109 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19). More staff requests come. Open: the "Прегледът мина" button (owner's screenshots). Owner must check the page in a browser (`08-dashboard-cleanup.md`, "Owner checks"). |
+| 08 | Dashboard cleanup | 🟨 | 2026-11-15. Code and tests are done (115 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21). More staff requests can come. Open: the "Прегледът мина" button (owner's screenshots). Owner must check the page in a browser (`08-dashboard-cleanup.md`, "Owner checks"). |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
@@ -136,3 +136,9 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-15 (ch08, staff requests 2): the staff asked for a question before a send. The owner then saw that the window "Преглед на SMS" already does this. No change.
 - 2026-11-15 (ch08, staff requests 2): `lib/guard.js` still lists `PATCH` as a write method. No route uses it now. It does no harm.
 - 2026-11-15 (ch08, staff requests 2): the main table does not show "Последен преглед" (the removed table did). The date is in the edit window.
+- 2026-11-15 (ch08, staff requests 3): new status and send rules (D21): "Просрочен" = expiry date past, it wins over "Изпратен"; "За днес" = reminder day reached, no SMS, not expired; one SMS for each cycle, no `force`, no SMS after the expiry date; a new phone number in the edit window clears the SMS mark. 115 tests pass in Sofia and UTC. Checked in a headless Chrome on new test data.
+- 2026-11-15 (ch08, staff requests 3): older entries above that name `force`, "Изпрати отново" or "overdue = missed reminder" are old. `06-reminder-logic.md` has the old status table; `specs.md` section 5 wins.
+- 2026-11-15 (ch08, staff requests 3): a customer who got no SMS before the expiry date gets none: the row is "Просрочен" with no button. The owner looks at this again after the first weeks of use.
+- 2026-11-15 (ch08, staff requests 3): "Просрочен" rows never go away by themselves. A customer who went to another service stays red until the staff delete the row. The list can grow. Ask the staff after the first weeks.
+- 2026-11-15 (ch08, staff requests 3): an "Очаква" row has the "Изпрати" button, so an SMS can go out months before the reminder day. Then no second SMS is possible near the date. The owner did not ask for a limit.
+- 2026-11-15 (ch08, staff requests 3): a phone number that is changed in Excel does not clear the SMS mark. The app cannot see the old number there.

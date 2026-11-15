@@ -9,7 +9,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { createApp } from '../app.js';
 import { refusalOf } from '../lib/guard.js';
+import { addDays, localDateText } from '../lib/dates.js';
 import { readData, writeData } from '../lib/store.js';
+
+// A last inspection of 10 days ago: the expiry date is far in the future.
+const recentDay = () => addDays(localDateText(), -10);
 
 const TWILIO_KEYS = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER'];
 
@@ -102,7 +106,7 @@ test('a request with a foreign Host gets 403 and no data', async t => {
 test('a POST with a foreign Origin gets 403 and sends nothing', async t => {
   const { call } = await start(t);
   const res = await call('POST', '/api/customers/c001/send-sms',
-    { body: { force: true }, headers: { Origin: 'https://evil.example' } });
+    { body: {}, headers: { Origin: 'https://evil.example' } });
   assert.equal(res.status, 403);
 });
 
@@ -255,7 +259,45 @@ test('a broken body and a body over 100 kb get a Bulgarian message', async t => 
 
 test('with no Twilio keys the send is refused and nothing is saved', async t => {
   const { call } = await start(t);
-  const res = await call('POST', '/api/customers/c001/send-sms', { body: { force: true } });
+  // An inspection of some days ago: the customer is not sent and not expired.
+  await call('PUT', '/api/customers/c001', { body: { lastServiceDate: recentDay() } });
+  const res = await call('POST', '/api/customers/c001/send-sms', { body: {} });
   assert.equal(res.status, 503);
+  assert.equal((await readData()).customers[0].smsSentAt, null);
+});
+
+test('`force` does not send a second SMS: 409, also with no check of the keys', async t => {
+  const { call } = await start(t);
+  await call('PUT', '/api/customers/c001', { body: { lastServiceDate: recentDay() } });
+  const data = await readData();
+  data.customers[0].smsSentAt = `${localDateText()}T10:00:00`;
+  await writeData(data);
+
+  const res = await call('POST', '/api/customers/c001/send-sms', { body: { force: true } });
+  assert.equal(res.status, 409);
+  assert.equal(res.json.code, 'ALREADY_SENT');
+});
+
+test('a send after the expiry date gets 409', async t => {
+  const { call } = await start(t);
+  const data = await readData();
+  data.customers[0].lastServiceDate = '2020-01-10';
+  data.customers[0].smsSentAt = null;
+  await writeData(data);
+  const res = await call('POST', '/api/customers/c001/send-sms', { body: {} });
+  assert.equal(res.status, 409);
+  assert.equal(res.json.code, 'EXPIRED');
+});
+
+test('PUT with a new phone clears the SMS mark; the same phone keeps it', async t => {
+  const { call } = await start(t);
+  await call('PUT', '/api/customers/c001', { body: { phone: '+359880000001', name: 'Same Phone' } });
   assert.equal((await readData()).customers[0].smsSentAt, '2025-11-25T10:00:00');
+  // The staff type the same number with spaces: it is not a new number.
+  await call('PUT', '/api/customers/c001', { body: { phone: '+359 880 000 001' } });
+  assert.equal((await readData()).customers[0].smsSentAt, '2025-11-25T10:00:00');
+
+  const res = await call('PUT', '/api/customers/c001', { body: { phone: '+359880000002' } });
+  assert.equal(res.status, 200);
+  assert.equal((await readData()).customers[0].smsSentAt, null);
 });
