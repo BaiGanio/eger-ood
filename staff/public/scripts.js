@@ -5,6 +5,7 @@ import {
   COMING_PERIODS, OVERDUE_PERIODS, SEND_PERIODS, SENT_PERIODS,
   inComingList, inOverdueList, inSendList, inSentList,
 } from './card-lists.js';
+import { PAGE_SIZES, clampPage, pageButtons, pageCount } from './pages.js';
 
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
@@ -17,6 +18,9 @@ let holidays = [];
 let pendingSendId = null;
 // The banners that the staff closed (showBanner).
 const closedBanners = new Set();
+// The page of the customer table and its rows per page (pages.js). Until a reload.
+let page = 1;
+let pageSize = PAGE_SIZES[0];
 
 // Order of the rows: what the staff must do first is on top.
 const STATUS_ORDER = { due: 0, pending: 1, sent: 2, overdue: 3 };
@@ -38,8 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!el || !Object.hasOwn(ACTIONS, el.dataset.action)) return;
     ACTIONS[el.dataset.action](el.dataset.arg);
   });
-  document.getElementById('search-input').addEventListener('input', renderTable);
-  document.getElementById('filter-status').addEventListener('change', renderTable);
+  document.getElementById('search-input').addEventListener('input', renderFirstPage);
+  document.getElementById('filter-status').addEventListener('change', renderFirstPage);
+  document.getElementById('page-size').addEventListener('change', e => {
+    const size = Number(e.target.value);
+    if (PAGE_SIZES.includes(size)) pageSize = size;
+    renderFirstPage();
+  });
   document.getElementById('sms-template-input').addEventListener('input', updatePreview);
   document.getElementById('f-price').addEventListener('input', updatePreview);
   document.getElementById('var-chips').addEventListener('click', e => {
@@ -97,7 +106,7 @@ const ACTIONS = {
   showView, openAddModal, openEditModal, closeModal, saveCustomer,
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
   saveTemplate, addHoliday, removeHoliday, showCardList, setPeriod,
-  closeBanner,
+  closeBanner, goToPage,
 };
 
 async function tick() {
@@ -312,7 +321,7 @@ function showCardList(key) {
   if (!Object.hasOwn(CARDS, key)) return;
   const filter = document.getElementById('filter-status');
   filter.value = filter.value === key ? '' : key;
-  renderTable();
+  renderFirstPage();
 }
 
 // `arg` = "card:days", from a button of a period row.
@@ -321,6 +330,7 @@ function setPeriod(arg) {
   const days = Number(value);
   if (!Object.hasOwn(CARDS, key) || !CARDS[key].periods.includes(days)) return;
   CARDS[key].period = days;
+  page = 1;
   refresh();
 }
 
@@ -343,6 +353,51 @@ function renderCardState(filterStatus) {
 }
 
 // ─── Dashboard table ─────────────────────────────────────────────────
+// A new search, filter or list starts on page 1. A send, an edit or a
+// delete keeps the page (renderTable alone), so the staff do not lose their place.
+function renderFirstPage() {
+  page = 1;
+  renderTable();
+}
+
+// `arg` = the page number, from a button of the pager.
+function goToPage(arg) {
+  const n = Number(arg);
+  if (!Number.isInteger(n)) return;
+  page = n;
+  renderTable();
+  // The pager is under the table: show the first row of the new page.
+  const table = document.getElementById('table-body').closest('.card');
+  if (table.getBoundingClientRect().top < 0) table.scrollIntoView({ block: 'start' });
+}
+
+// The text, the page buttons and the rows-per-page select under the table.
+function renderPager(total) {
+  const pager = document.getElementById('pager');
+  pager.classList.toggle('d-none', total === 0);
+  pager.classList.toggle('d-flex', total > 0);
+  const count = pageCount(total, pageSize);
+  const first = (page - 1) * pageSize + 1;
+  const last  = Math.min(page * pageSize, total);
+  document.getElementById('pager-text').textContent = `Показани ${first}–${last} от ${total}`;
+  document.getElementById('page-size').value = String(pageSize);
+
+  const item = (label, target, { active = false, disabled = false, title = '' } = {}) => `
+    <li class="page-item${active ? ' active' : ''}${disabled ? ' disabled' : ''}">
+      <button type="button" class="page-link"${disabled ? ' disabled' : ` data-action="goToPage" data-arg="${target}"`}
+              ${active ? 'aria-current="page"' : ''}${title ? ` title="${title}" aria-label="${title}"` : ''}>${label}</button>
+    </li>`;
+  const pages = document.getElementById('pager-pages');
+  pages.classList.toggle('d-none', count === 1);
+  pages.innerHTML = [
+    item('‹', page - 1, { disabled: page === 1, title: 'Предишна страница' }),
+    ...pageButtons(page, count).map(p => p === null
+      ? item('…', 0, { disabled: true })
+      : item(String(p), p, { active: p === page })),
+    item('›', page + 1, { disabled: page === count, title: 'Следваща страница' }),
+  ].join('');
+}
+
 function renderTable() {
   const search       = document.getElementById('search-input').value.toLowerCase();
   const filterStatus = document.getElementById('filter-status').value;
@@ -368,6 +423,8 @@ function renderTable() {
                 a.nextReminderDate.localeCompare(b.nextReminderDate));
 
   const tbody = document.getElementById('table-body');
+  page = clampPage(page, filtered.length, pageSize);
+  renderPager(filtered.length);
 
   if (!filtered.length) {
     tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">
@@ -376,7 +433,8 @@ function renderTable() {
   }
 
   const today = localDateInDays(0);
-  tbody.innerHTML = filtered.map(c => {
+  const shown = filtered.slice((page - 1) * pageSize, page * pageSize);
+  tbody.innerHTML = shown.map(c => {
     const eff = c.status;
 
     const badge = {

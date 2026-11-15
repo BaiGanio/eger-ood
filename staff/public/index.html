@@ -249,6 +249,21 @@
           </table>
         </div>
       </div>
+      <!-- Page split of the table (pages.js, specs D24). -->
+      <div class="d-flex align-items-center justify-content-between gap-2 mt-3 flex-wrap" id="pager">
+        <span class="text-muted small" id="pager-text"></span>
+        <nav aria-label="Страници">
+          <ul class="pagination pagination-sm mb-0 flex-wrap" id="pager-pages"></ul>
+        </nav>
+        <label class="d-flex align-items-center gap-2 text-muted small mb-0">
+          Редове:
+          <select class="form-select form-select-sm" id="page-size" style="width:auto;">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </label>
+      </div>
     </div>
 
     <!-- ══ НАСТРОЙКИ ══════════════════════════════════════════════ -->
