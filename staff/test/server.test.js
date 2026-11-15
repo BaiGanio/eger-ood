@@ -27,7 +27,7 @@ function customer(extra = {}) {
 }
 
 /** Start the app on a free port with one customer in a new data folder. */
-async function start(t) {
+async function start(t, appOptions = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'eger-server-'));
   process.env.EGER_DATA_DIR = dir;
   const saved = TWILIO_KEYS.map(key => [key, process.env[key]]);
@@ -40,7 +40,7 @@ async function start(t) {
     smsTemplate: 'Hi {{name}}', smsPricePerSegment: 0.1, holidays: [], weeklyDaysOff: [0, 1],
   });
 
-  const server = http.createServer(createApp());
+  const server = http.createServer(createApp(appOptions));
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address();
   t.after(async () => {
@@ -235,6 +235,47 @@ test('holidays: a bad entry gets 400, a good list is saved', async t => {
   const good = await call('PUT', '/api/holidays', { body: { holidays: ['2026-12-25', '2026-03-03'] } });
   assert.equal(good.status, 200);
   assert.deepEqual((await readData()).holidays, ['2026-03-03', '2026-12-25']);
+});
+
+test('holidays: the calendar of a year has the law days and the weekly days off', async t => {
+  const { call } = await start(t);
+  const res = await call('GET', '/api/holidays?year=2028');
+  assert.equal(res.status, 200);
+  assert.equal(res.json.year, 2028);
+  assert.deepEqual(res.json.weeklyDaysOff, [0, 1]);
+  assert.ok(res.json.official.some(h => h.date === '2028-03-03' && h.name));
+  assert.deepEqual(res.json.checkedYears, []);
+  assert.equal(res.json.lastCheck, null);
+  for (const year of ['1999', '2100', 'abc', '2027.5']) {
+    assert.equal((await call('GET', `/api/holidays?year=${year}`)).status, 400, year);
+  }
+});
+
+test('holidays: "Провери сега" saves the checked days; a failed check gets 502', async t => {
+  const { resetCheckState } = await import('../lib/holiday-check.js');
+  resetCheckState();
+  t.mock.method(console, 'log', () => {});
+  t.mock.method(console, 'error', () => {});
+  const year = Number(localDateText().slice(0, 4));
+  let online = true;
+  const fetchHolidays = async url => {
+    if (!online) throw new Error('offline');
+    const y = Number(url.split('/').at(-2));
+    return { ok: true, json: async () => [{ date: `${y}-01-02`, localName: 'Extra', types: ['Public'] }] };
+  };
+  const { call } = await start(t, { fetchHolidays });
+  const res = await call('POST', '/api/holidays/check', { body: {} });
+  assert.equal(res.status, 200);
+  assert.equal(res.json.lastCheck, localDateText());
+  const cal = await call('GET', `/api/holidays?year=${year}`);
+  assert.deepEqual(cal.json.checkedYears, [year, year + 1]);
+  assert.ok(cal.json.official.some(h => h.date === `${year}-01-02` && h.fromCheck));
+
+  online = false;
+  const failed = await call('POST', '/api/holidays/check', { body: {} });
+  assert.equal(failed.status, 502);
+  assert.match(failed.json.error, /Няма връзка/);
+  assert.ok((await readData()).officialHolidays.length > 0);
 });
 
 test('template: too long gets 400, unknown names come back as a warning', async t => {

@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 import { measureSms } from './public/sms-text.js';
 import { localDateText } from './lib/dates.js';
 import { apiGuard, securityHeaders } from './lib/guard.js';
+import { checkHolidaysInBackground, lastCheckError, runHolidayCheck } from './lib/holiday-check.js';
+import { FIRST_YEAR, LAST_YEAR, officialHolidays } from './lib/holidays.js';
 import { startNewCycle, startNewSend, withComputed } from './lib/reminders.js';
 import { SendError, buildSmsText, sendReminder, smsMode } from './lib/sms.js';
 import { StoreError, generateId, readData, writeData } from './lib/store.js';
@@ -30,8 +32,17 @@ async function loadData() {
 // locked Excel file would stop the whole server.
 const route = handler => (req, res, next) => handler(req, res, next).catch(next);
 
-export function createApp() {
+/**
+ * `autoHolidayCheck`: check the official days off on the internet when it is
+ * due (server.js turns it on; a test does not go to the internet).
+ * `fetchHolidays`: the fetch of the check, for the tests.
+ */
+export function createApp({ autoHolidayCheck = false, fetchHolidays } = {}) {
   const app = express();
+  const holidayOptions = fetchHolidays ? { fetchImpl: fetchHolidays } : {};
+  const checkWhenDue = () => {
+    if (autoHolidayCheck) checkHolidaysInBackground(holidayOptions);
+  };
   app.disable('x-powered-by');
 
   app.use(securityHeaders);
@@ -44,6 +55,7 @@ export function createApp() {
   // ─── Customers ─────────────────────────────────────────────────────────────
 
   app.get('/api/customers', route(async (req, res) => {
+    checkWhenDue();
     res.json(await loadData());
   }));
 
@@ -160,9 +172,24 @@ export function createApp() {
     });
   }));
 
+  // The calendar of one year: the staff's days, the official days and the
+  // weekly days off. With no `year`: this year.
   app.get('/api/holidays', route(async (req, res) => {
-    const data = await loadData();
-    res.json({ holidays: data.holidays });
+    const year = req.query.year === undefined
+      ? Number(localDateText().slice(0, 4)) : Number(req.query.year);
+    if (!Number.isInteger(year) || year < FIRST_YEAR || year > LAST_YEAR) {
+      return res.status(400).json({ error: 'Невалидна година.' });
+    }
+    checkWhenDue();
+    const data = await readData();
+    res.json(holidayReply(data, year));
+  }));
+
+  // "Провери сега": the check runs now and the page waits for it.
+  app.post('/api/holidays/check', route(async (req, res) => {
+    const result = await runHolidayCheck({ force: true, ...holidayOptions });
+    if (result.status === 'failed') return res.status(502).json({ error: result.error });
+    res.json({ added: result.added, lastCheck: result.lastCheck });
   }));
 
   app.put('/api/holidays', route(async (req, res) => {
@@ -173,6 +200,19 @@ export function createApp() {
     await writeData(data);
     res.json({ holidays: value });
   }));
+
+  function holidayReply(data, year) {
+    return {
+      year,
+      holidays: data.holidays,
+      weeklyDaysOff: data.weeklyDaysOff,
+      official: officialHolidays(year, data.officialHolidays),
+      lastCheck: data.holidayCheckDate,
+      // The years that the internet check confirmed. Other years: the law only.
+      checkedYears: [...new Set(data.officialHolidays.map(h => Number(h.date.slice(0, 4))))].sort(),
+      checkError: lastCheckError(),
+    };
+  }
 
   // An address that is not there gets JSON too, not the HTML page of Express.
   app.use('/api', (req, res) => res.status(404).json({ error: 'Невалидна заявка.' }));

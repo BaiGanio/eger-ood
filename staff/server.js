@@ -22,7 +22,8 @@ import { createApp } from './app.js';
 import { ensureDataFile } from './lib/store.js';
 
 // The routes are in app.js. This file only starts the server.
-const app = createApp();
+// The holiday check goes to the internet at most once a month (lib/holiday-check.js).
+const app = createApp({ autoHolidayCheck: true });
 const PORT = process.env.PORT || 3000;
 
 // ─── Start ────────────────────────────────────────────────────────────────────

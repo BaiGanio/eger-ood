@@ -95,6 +95,14 @@ Needs: chapter 06.
 - [x] The card "Всички клиенти" is a button. A click shows all customers (status filter cleared, search kept). It looks active when no list or status filter is on.
 - [x] Outside the "Очакващи SMS" card list, "Действия" has only edit and delete. No "Изпрати" there.
 
+### Staff requests 13 (owner, 2026-11-15): days off calendar (`specs.md` D25)
+- [x] The app knows the official days off for any year from the law (`lib/holidays.js`). Before, the list was empty until the staff typed each day.
+- [x] Internet check (Nager.Date) at most once in 30 days, on start and page load, and with "Провери сега". It adds the one-time days off. No internet: the law and the last good check stay.
+- [x] "Настройки": a year calendar with ◀ ▶. Grey = weekly day off, red = official holiday (name on hover and in the list), orange = added by the staff. A click on a work day adds a day off; a second click removes it.
+- [x] After a change the customers load again. A toast says how many reminders moved. (Before, the old reminder days stayed until a page reload.)
+- [x] The text under the calendar says the day of the last check and if the shown year is confirmed by the check.
+- [x] Tests: `test/holidays.test.js`, `test/holiday-check.test.js`, `test/calendar.test.js`, two new server tests. 161 tests pass in both time zones. The check was tried once against the real API: it found 02.01.2026.
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -118,4 +126,5 @@ Needs: chapter 06.
 5g. Click "Очакващи SMS" → each row has only "Изпрати", no pencil, no bin. Send one SMS to your own phone (short English text) → the row leaves the list. Click the card again → pencil and bin are back.
 5h. Click "Изпратени SMS" → click "Всички клиенти" → all customers, the blue card has the ring. In the full table each row has only the pencil and the bin. "Изпрати" shows only after a click on "Очакващи SMS".
 5c. With the test data: the table has 25 rows and the page buttons under it. Click "2" → rows 26–50, the page shows the top of the table. "Редове: 50" → page 1, 50 rows. Type a name in the search → page 1. On page 2, edit a row → still page 2.
+5i. "Настройки" → the calendar of this year. 03.03, Easter, 24–26.12 are red; Sundays and Mondays are grey. ▶ to 2028 and 2029 → the red days are there too. Hover a red day → its name. Click a white day → it turns orange, a toast says how many reminders moved. Click it again → white. Click "Провери сега" → a green toast. The text says today as the last check.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

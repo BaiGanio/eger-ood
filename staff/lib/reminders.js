@@ -5,6 +5,7 @@
 // on each read, so they can never go out of step with the file.
 
 import { addDays, addYears, workDayOnOrBefore } from './dates.js';
+import { officialDates } from './holidays.js';
 
 export const REMINDER_DAYS_BEFORE = 7;
 
@@ -13,9 +14,24 @@ export function nextServiceDate(lastServiceDate) {
   return addYears(lastServiceDate, 1);
 }
 
+/**
+ * All days off around a date: the staff's own days, the official days of the
+ * law, and the days of the API check. The year before counts too, because a
+ * reminder in early January can move back into December.
+ */
+export function daysOffNear(date, { holidays = [], officialHolidays = [] } = {}) {
+  const year = Number(date.slice(0, 4));
+  return [
+    ...holidays,
+    ...officialDates(year - 1, officialHolidays),
+    ...officialDates(year, officialHolidays),
+  ];
+}
+
 /** The day the staff send the SMS: 7 days before the expiry, on a work day. */
-export function nextReminderDate(serviceDate, { weeklyDaysOff = [], holidays = [] } = {}) {
-  return workDayOnOrBefore(addDays(serviceDate, -REMINDER_DAYS_BEFORE), weeklyDaysOff, holidays);
+export function nextReminderDate(serviceDate, settings = {}) {
+  const start = addDays(serviceDate, -REMINDER_DAYS_BEFORE);
+  return workDayOnOrBefore(start, settings.weeklyDaysOff ?? [], daysOffNear(start, settings));
 }
 
 /**

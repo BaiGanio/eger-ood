@@ -40,6 +40,8 @@ export const SHEETS = {
   customers: 'Клиенти',
   settings: 'Настройки',
   holidays: 'Почивни дни',
+  // Filled by the app (holiday-check.js). The staff do not need to touch it.
+  officialHolidays: 'Официални празници',
 };
 
 // `appOnly` columns get a grey fill, so the staff see what not to touch.
@@ -58,6 +60,7 @@ const SETTING_KEYS = {
   smsTemplate: 'SMS шаблон',
   smsPricePerSegment: 'Цена за 1 SMS',
   weeklyDaysOff: 'Почивни дни от седмицата',
+  holidayCheckDate: 'Последна проверка на празниците',
 };
 
 // Index = Date.getDay() number.
@@ -184,11 +187,23 @@ function addHolidaySheet(wb) {
   return ws;
 }
 
+function addOfficialSheet(wb) {
+  const ws = wb.addWorksheet(SHEETS.officialHolidays);
+  ws.columns = [{ header: 'Дата', width: 16 }, { header: 'Име', width: 40 }];
+  ws.getColumn(1).numFmt = 'dd.mm.yyyy';
+  // Grey, like the app columns of the customer sheet: the app writes it.
+  ws.getColumn(1).fill = GREY;
+  ws.getColumn(2).fill = GREY;
+  styleHeader(ws);
+  return ws;
+}
+
 function newWorkbook() {
   const wb = new ExcelJS.Workbook();
   addCustomerSheet(wb);
   addSettingsSheet(wb);
   addHolidaySheet(wb);
+  addOfficialSheet(wb);
   return wb;
 }
 
@@ -313,6 +328,7 @@ function readSettings(wb, problems) {
     smsTemplate: DEFAULT_TEMPLATE,
     smsPricePerSegment: DEFAULT_PRICE,
     weeklyDaysOff: [...DEFAULT_WEEKLY_DAYS_OFF],
+    holidayCheckDate: null,
   };
   const ws = wb.getWorksheet(SHEETS.settings);
   const rowByKey = {};
@@ -337,6 +353,9 @@ function readSettings(wb, problems) {
       const price = parsePrice(plainValue(valueCell));
       if (price === null) bad(rowNumber, `„${key}“ не е число. Използва се ${DEFAULT_PRICE}.`);
       else settings.smsPricePerSegment = price;
+    } else if (field === 'holidayCheckDate') {
+      // A bad value only means: check again.
+      settings.holidayCheckDate = readDate(valueCell);
     } else {
       const days = parseWeeklyDaysOff(cellText(valueCell));
       if (days === null) {
@@ -373,13 +392,31 @@ function readHolidays(wb, problems) {
   return { holidays, layout: { ws, rowsByDate, lastRow } };
 }
 
+// The app writes this sheet. A row that is not good is left out with no
+// report: the next check writes the sheet again.
+function readOfficialHolidays(wb) {
+  const ws = wb.getWorksheet(SHEETS.officialHolidays);
+  const list = [];
+  if (!ws) return list;
+  const seen = new Set();
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const date = readDate(row.getCell(1));
+    if (!date || seen.has(date)) return;
+    seen.add(date);
+    list.push({ date, name: cellText(row.getCell(2)) });
+  });
+  return list.sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function parse(wb) {
   const problems = [];
   const c = readCustomers(wb, problems);
   const s = readSettings(wb, problems);
   const h = readHolidays(wb, problems);
+  const officialHolidays = readOfficialHolidays(wb);
   return {
-    data: { customers: c.customers, ...s.settings, holidays: h.holidays, problems },
+    data: { customers: c.customers, ...s.settings, holidays: h.holidays, officialHolidays, problems },
     layout: { customers: c.layout, settings: s.layout, holidays: h.layout },
   };
 }
@@ -438,14 +475,18 @@ function applySettings(layout, parsed, data) {
     // An unchanged value is not written. So a cell with a typing error that
     // the read replaced by the default keeps the staff's text.
     const same = JSON.stringify(parsed[field]) === JSON.stringify(data[field]);
-    if (same && rowByKey[field]) return;
+    if (same && (rowByKey[field] || value === null)) return;
     const rowNumber = rowByKey[field] ?? ++lastRow;
     ws.getRow(rowNumber).getCell(1).value = SETTING_KEYS[field];
     ws.getRow(rowNumber).getCell(2).value = value;
+    return ws.getRow(rowNumber).getCell(2);
   };
   put('smsTemplate', data.smsTemplate);
   put('smsPricePerSegment', data.smsPricePerSegment);
   put('weeklyDaysOff', formatWeeklyDaysOff(data.weeklyDaysOff));
+  const checkCell = put('holidayCheckDate',
+    isDateText(data.holidayCheckDate) ? textToExcelDate(data.holidayCheckDate) : null);
+  if (checkCell) checkCell.numFmt = 'dd.mm.yyyy';
 }
 
 function applyHolidays(layout, holidays) {
@@ -459,6 +500,17 @@ function applyHolidays(layout, holidays) {
     cell.numFmt = 'dd.mm.yyyy';
   }
   deleteRows(ws, [...rowsByDate].filter(([date]) => !wanted.has(date)).flatMap(([, rows]) => rows));
+}
+
+/** The app owns this sheet, so a write puts the whole list again. */
+function applyOfficialHolidays(wb, list) {
+  const ws = wb.getWorksheet(SHEETS.officialHolidays);
+  if (ws.rowCount > 1) ws.spliceRows(2, ws.rowCount - 1);
+  for (const h of list) {
+    if (!isDateText(h.date)) continue;
+    const row = ws.addRow([textToExcelDate(h.date), h.name ?? '']);
+    row.getCell(1).numFmt = 'dd.mm.yyyy';
+  }
 }
 
 // ─── File work ───────────────────────────────────────────────────────────────
@@ -537,7 +589,7 @@ export async function assertWritable() {
   if (await isLocked()) throw new StoreError('LOCKED', LOCKED_MESSAGE);
 }
 
-/** Makes an empty file with the three sheets when there is none. */
+/** Makes an empty file with all the sheets when there is none. */
 export async function ensureDataFile() {
   if (await exists(dataFile())) return { file: dataFile(), created: false };
   await fs.mkdir(dataDir(), { recursive: true });
@@ -567,7 +619,8 @@ async function persistNewIds(wb, layout, problems) {
 
 /**
  * Reads the file fresh. Returns
- * `{ customers, smsTemplate, smsPricePerSegment, weeklyDaysOff, holidays, problems }`.
+ * `{ customers, smsTemplate, smsPricePerSegment, weeklyDaysOff, holidays,
+ *   officialHolidays, holidayCheckDate, problems }`.
  * `problems` is a list of `{ sheet, row, reason }` for the rows that did not load.
  */
 export async function readData() {
@@ -590,6 +643,7 @@ export async function writeData(data) {
   const wb = await loadWorkbook();
   if (!wb.getWorksheet(SHEETS.settings)) addSettingsSheet(wb);
   if (!wb.getWorksheet(SHEETS.holidays)) addHolidaySheet(wb);
+  if (!wb.getWorksheet(SHEETS.officialHolidays)) addOfficialSheet(wb);
   const { data: parsed, layout } = parse(wb);
 
   applyCustomers(layout.customers, data.customers ?? []);
@@ -597,9 +651,32 @@ export async function writeData(data) {
     smsTemplate: data.smsTemplate ?? parsed.smsTemplate,
     smsPricePerSegment: data.smsPricePerSegment ?? parsed.smsPricePerSegment,
     weeklyDaysOff: data.weeklyDaysOff ?? parsed.weeklyDaysOff,
+    holidayCheckDate: data.holidayCheckDate ?? parsed.holidayCheckDate,
   });
   applyHolidays(layout.holidays, data.holidays ?? parsed.holidays);
+  const official = data.officialHolidays ?? parsed.officialHolidays;
+  if (JSON.stringify(official) !== JSON.stringify(parsed.officialHolidays)) {
+    applyOfficialHolidays(wb, official);
+  }
 
+  await backupOncePerDay();
+  await saveWorkbook(wb);
+}
+
+/**
+ * Saves only the result of the holiday check: the official list and the day
+ * of the check. The customers are not read and not written. So a check that
+ * ran in the background cannot put back an old customer list.
+ */
+export async function writeHolidayCheck({ officialHolidays, holidayCheckDate }) {
+  await ensureDataFile();
+  await assertWritable();
+  const wb = await loadWorkbook();
+  if (!wb.getWorksheet(SHEETS.settings)) addSettingsSheet(wb);
+  if (!wb.getWorksheet(SHEETS.officialHolidays)) addOfficialSheet(wb);
+  const { data: parsed, layout } = parse(wb);
+  applySettings(layout.settings, parsed, { ...parsed, holidayCheckDate });
+  applyOfficialHolidays(wb, officialHolidays);
   await backupOncePerDay();
   await saveWorkbook(wb);
 }

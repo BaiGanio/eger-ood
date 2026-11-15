@@ -22,7 +22,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
 | 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
-| 08 | Dashboard cleanup | 🟨 | 2026-11-15. Code and tests are done (140 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. More staff requests can come. Open: the "Прегледът мина" button (owner's screenshots). Owner must check the page in a browser (`08-dashboard-cleanup.md`, "Owner checks"). |
+| 08 | Dashboard cleanup | 🟨 | 2026-11-15. Code and tests are done (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). More staff requests can come. Open: the "Прегледът мина" button (owner's screenshots). Owner must check the page in a browser (`08-dashboard-cleanup.md`, "Owner checks"). |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
@@ -73,6 +73,8 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-13 (ch05): on a Mac, Excel does not lock the file. The lock file is the only sign there.
 - 2026-11-13 (ch05): the browser calls still have no common `api()` helper. Chapter 05 added `readReply()` only, to show the server message. Chapter 08 makes the helper.
 - 2026-11-13 (ch05): the default data folder is now `Documents/ЕГЕР-Сервиз/` on each computer, the developer Mac too. For development, set `EGER_DATA_DIR` (example: `EGER_DATA_DIR=./data`).
+- 2026-11-15 (ch08): the law rules of the days off are now in two files: `staff/lib/holidays.js` and `tools/update-holidays.mjs`. The apps share nothing at run time, so a change of the law must go into both. `test/holidays.test.js` compares the staff law days with `site/holidays.json` for 2026 and 2027.
+- 2026-11-15 (ch08): the weekly days off (Sunday, Monday) still have no control in the dashboard. The staff change them in Excel, sheet "Настройки". The calendar shows the value of the file.
 - 2026-11-13 (ch05): `plan/README.md` and `01-goals-and-design.md` still say `ati.html` and `data/customers.json`. They are old text.
 
 ## Session log
@@ -98,6 +100,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 08, staff requests 10: the "Просрочени" card list has the columns of "Изпратени SMS" (D22). 140 tests pass in both time zones. |
 | 2026-11-15 | Chapter 08, staff requests 11: the "Очакващи SMS" card list has only the "Изпрати" button (D22). 140 tests pass in both time zones. |
 | 2026-11-15 | Chapter 08, staff requests 12: the "Всички клиенти" card is a button and shows all customers; outside the "Очакващи SMS" list, "Действия" has only edit and delete (D22). 140 tests pass in both time zones. |
+| 2026-11-15 | Chapter 08, staff requests 13: the staff app computes the official days off from the law for any year, checks the API once in 30 days for one-time days, and shows a year calendar in "Настройки" (D25). Reminders reload after a holiday change. 161 tests pass in both time zones. Not checked in a browser: the extension was not connected. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.

@@ -45,6 +45,8 @@ function sample() {
     smsPricePerSegment: 0.2,
     weeklyDaysOff: [0, 1],
     holidays: ['2026-12-25', '2026-01-01', '2026-03-03'],
+    officialHolidays: [],
+    holidayCheckDate: null,
   };
 }
 
@@ -65,7 +67,7 @@ function columnOf(ws, header) {
 
 const withoutProblems = ({ problems, ...rest }) => rest;
 
-test('a missing file is created with three sheets and headers', async t => {
+test('a missing file is created with all sheets and headers', async t => {
   await freshFolder(t);
   const data = await readData();
   assert.deepEqual(data.customers, []);
@@ -77,7 +79,8 @@ test('a missing file is created with three sheets and headers', async t => {
 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(dataFile());
-  assert.deepEqual(wb.worksheets.map(ws => ws.name), [SHEETS.customers, SHEETS.settings, SHEETS.holidays]);
+  assert.deepEqual(wb.worksheets.map(ws => ws.name),
+    [SHEETS.customers, SHEETS.settings, SHEETS.holidays, SHEETS.officialHolidays]);
   const headers = wb.getWorksheet(SHEETS.customers).getRow(1).values.slice(1);
   assert.deepEqual(headers, ['ID', 'Име', 'Телефон', 'Адрес', 'Автомобил', 'Рег. номер',
     'Последен преглед', 'SMS изпратен на']);

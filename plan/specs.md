@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-15.
+Last update: 2026-11-15 (D25).
 
 ## 1. The product
 
@@ -43,6 +43,7 @@ Last update: 2026-11-15.
 | D22 | No card "За днес". The cards "Очакващи SMS", "Изпратени SMS", "Очаквани за преглед" and "Просрочени" each have a period; the card count is the count for that period (the period shows under the count), and a click on the card shows the same customers with a row of period buttons. "Очакващи SMS": the "За днес" rows, plus the "Очаква" rows with a reminder date up to 0 (default) / 7 / 10 / 30 days after today, so the staff can send in advance before a holiday. "Изпратени SMS": the rows with an SMS of this cycle sent in the last 0 (today, default) / 7 / 10 / 30 / 90 / 180 / 270 / 365 days, any status. "Очаквани за преглед": the "Изпратен" rows (SMS of this cycle sent) whose expiry date is from today to 0 (default) / 7 / 10 / 30 days after today; a row with no SMS is not in it, because the customer did not hear from us (staff, 2026-11-15). Sorted by expiry date. This list has no "Напомняне" and no "Действия" column. The "Изпратени SMS" list has no "Действия" column, and shows "Изпратен SMS" (day and time of the send, from `smsSentAt`) in place of "Напомняне", newest on top: before a holiday the staff send in advance, so the two days differ. The "Просрочени" card list has the same columns ("—" when no SMS went out), in the usual order. The status option "Просрочени" keeps all columns. In the "Очакващи SMS" card list, "Действия" has only the "Изпрати" button (no edit, no delete). "Просрочени": the rows whose expiry date is in the last 7 (default) / 10 / 30 / 90 / 180 / 270 / 365 days. A month = 30 days. The status options "Просрочени" and "Изпратени" still show all such rows. The period lives until a reload. The card of the shown list looks active (tint, ring of its colour); a second click on it shows all customers. The card "Всички клиенти" is a button too: a click shows all customers (status filter cleared, search kept), and it looks active when no list or status filter is on. Outside the "Очакващи SMS" card list, "Действия" has only edit and delete (no "Изпрати"); the staff send only from that list (staff, 2026-11-15). | 2026-11-15 |
 | D23 | Each banner on the dashboard has a close button (×). A closed banner stays closed until a reload, or until its problem goes away and comes back. The red box of the server state in the menu has no close button. | 2026-11-15 |
 | D24 | The customer table shows one page of rows: 25 (default) / 50 / 100 per page, chosen under the table, kept until a reload. The split is in the browser only (`public/pages.js`); the server still sends all customers, and the cards count all. Under the table: "Показани 26–50 от 312", page buttons (first, last, two on each side, "…" for a gap) and "Редове". A new search, filter, card or period goes to page 1. A send, edit or delete keeps the page. | 2026-11-15 |
+| D25 | The staff app knows the official days off by itself, for any year (2000–2099): `lib/holidays.js` computes them from the law (fixed dates, Orthodox Easter, Labour Code art. 154 weekend rule). The Nager.Date API adds the one-time days off: the app checks it at most once in 30 days (this year and the next), when the app starts or the page loads, and on "Провери сега". This is not a timer job (D4). Only the year and the country go out. No internet = the law and the last good check stay. The check result is in the Excel sheet "Официални празници" and the setting "Последна проверка на празниците" (the app writes them). The staff add their own days off (force majeure) in a year calendar in "Настройки"; after each change the customers load again and a toast says how many reminders moved (staff, 2026-11-15). | 2026-11-15 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions
@@ -75,6 +76,8 @@ Last update: 2026-11-15.
 | `staff/lib/guard.js` | Who can call the server (`Host`, `Origin`, `Content-Type`). Security headers. |
 | `staff/lib/store.js` | The only code that touches the Excel file (repository pattern). |
 | `staff/lib/dates.js` | All date math. Pure functions. |
+| `staff/lib/holidays.js` | The official days off by the law, joined with the checked days. Pure functions. |
+| `staff/lib/holiday-check.js` | The check of the days off on the internet (D25). Same layer as `sms.js`. |
 | `staff/lib/reminders.js` | Status and due rules. Pure functions. |
 | `staff/lib/sms.js` | Build text, send through Twilio. |
 | `staff/lib/paths.js` | Data folder, backup folder, `.env` path. |
@@ -89,7 +92,7 @@ Last update: 2026-11-15.
 - One exception, in `lib/dates.js` only: an Excel cell. Excel has no time zone, and `exceljs` gives a date cell as a `Date` whose **UTC** parts are the numbers in the cell. So a cell is read and written with UTC parts. Local parts move the day west of UTC. (Chapter 05, 2026-11-13.)
 - `nextServiceDate` = `lastServiceDate` + 1 year. 29 Feb → 28 Feb. Never moved (D6).
 - `nextReminderDate` = `nextServiceDate` − 7 days. If that day is a day off, go **earlier** to the nearest work day (D7).
-- Days off = the weekly days off + the holiday list. Both are settings in the Excel file. Default weekly days off: Sunday, Monday.
+- Days off = the weekly days off + the official days off (law + internet check, D25) + the staff's own holiday list. The weekly days off and the staff's list are settings in the Excel file. Default weekly days off: Sunday, Monday.
 - Examples: reminder on Sunday → Saturday. Reminder on Monday → Saturday. Saturday is a holiday too → Friday.
 - Status, in this order (D21): `overdue` (`nextServiceDate` is before today) → `sent` (`smsSentAt` is set, for the present cycle) → `due` (reminder date is today or before today) → `pending`. In Bulgarian: "Просрочен", "Изпратен", "За днес", "Очаква".
 - `overdue` wins over `sent`: the staff see each customer who did not come. On the expiry day itself the customer is not yet `overdue`.
