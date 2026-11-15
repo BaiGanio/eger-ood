@@ -36,7 +36,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 
 - [x] Example task: "Как да изпратя SMS напомняне", 2 screenshots. "In progress" note on the page.
 - [x] Owner approves the style of the example (2026-11-15: "small polishing").
-- [x] Contact for errors: Любен Киков, 0899 731 772 (owner, 2026-11-15).
+- [x] Contact for errors: no name and no phone in the guide. It says "обадете се за помощ". The staff have the number (owner, 2026-11-15).
 - [x] Desktop icon name stays "ЕГЕР-Сервиз" for now. Change it if the staff want another name.
 - [x] Link "Помощ" in the dashboard menu, under "Настройки" (owner, 2026-11-15).
 - [ ] After chapter 08: make all screenshots again (`tools/guide-shots.mjs`).
