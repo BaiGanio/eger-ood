@@ -68,8 +68,8 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] Task 8: SMS шаблон и цена (`help/template.html`, 3 screenshots: text and name buttons, a text of 71 letters = 2 SMS, price and save). The script types in the page only and never clicks "Запази шаблона". The staff may change the price; the price is only for the "≈ $" estimate. Waits for the owner's check.
 - [x] Chapter 09 made the screenshots `help/sms-1-list.png` and `help/sms-2-preview.png` old if they show the sidebar or a banner: the sidebar has a new block "Копие на USB" (under "Помощ"), the yellow "no keys" banner now names `„настройки.env“`, and the red "Сървърът е спрян" banner names the desktop icon. Make them again (`tools/guide-shots.mjs`).
 - [x] Task 9: Къде е файлът с клиентите (`help/file.html`, text only: no dashboard screen shows the file, owner choice A). Path, Excel and the app, the lock file `~$клиенти.xlsx` (hidden on Windows: turn on "Скрити елементи"), the daily copy (made before the first save of a day; 30 days with a save, not 30 calendar days). Restore of a copy in a new grey box `.help-box` (owner OK), first line "обадете се за помощ". No "Копие на USB" (D27). No "Отвори папката" (O6). Waits for the owner's check.
-- [ ] Task 10: Ако нещо не работи (all banners).
-- [ ] Remove the "Ръководството още се пише" note.
+- [x] Task 10: Ако нещо не работи (`help/errors.html`, text only). Each message text copied from the code: banners on top, red toasts, the server box in the sidebar, the black window. "SMS е изпратен, но не е записан": do not click "Изпрати", write down the plate and the time, call for help. Waits for the owner's check.
+- [x] Remove the "Ръководството още се пише" note (`help.html`).
 
 ## Owner checks
 
@@ -87,3 +87,5 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 12. Read task 7 (`help/days-off.html`). Click a day in "Настройки": does the page match? Click it again to undo.
 13. Read task 8 (`help/template.html`). Do the steps match "Настройки"?
 14. Read task 9 (`help/file.html`). Is the grey box good on screen and in print (Ctrl + P)? On the staff PC: do the Explorer names "Изглед" → "Покажи" → "Скрити елементи" match Windows there?
+15. Read task 10 (`help/errors.html`). Is each answer right? Is a message missing?
+16. Open `help.html`: no yellow "още се пише" note; all 10 tasks are links.

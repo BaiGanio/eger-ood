@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Ако нещо не работи</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D23, sections 5 and 7). Text only, no
+     screenshot of each banner (owner, 2026-11-15). The message texts are
+     copied from public/index.html, public/scripts.js, lib/store.js,
+     lib/sms.js and server.js: change them here when they change there.
+     The task number and the links at the bottom come from tasks.js
+     (help-nav.js). -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Ако нещо не работи</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Прочетете съобщението. То почти винаги казва какво да направите.
+          Червено = нещо не стана. Жълто = внимание.
+          Не намирате съобщението тук? Снимайте екрана и се обадете за помощ.
+        </div>
+      </div>
+
+      <h2 class="step-group">Надписи горе на таблото</h2>
+      <p class="hint">Всеки надпис има <span class="ui-btn">×</span>. Така го затваряте. Ако проблемът още е там, надписът идва пак, когато презаредите страницата (<kbd>F5</kbd>).</p>
+      <dl class="trouble">
+        <dt><span class="text-danger">Сървърът е спрян. Нищо не може да се запази или изпрати.</span></dt>
+        <dd>Черният прозорец на програмата е затворен. Щракнете два пъти иконата „ЕГЕР-Сервиз“ на работния плот. След няколко секунди таблото пише „Сървърът работи отново“ и зарежда клиентите.</dd>
+
+        <dt><span class="text-warning-emphasis">SMS не могат да се изпращат: липсват ключовете за Twilio …</span></dt>
+        <dd>Програмата работи, но не изпраща SMS. Всичко друго става. Обадете се за помощ.</dd>
+
+        <dt><span class="text-warning-emphasis">Във файла „клиенти.xlsx“ има редове с грешка. Те не са заредени.</span></dt>
+        <dd>Под надписа пише листът, редът и какво липсва, например „липсва телефон“. Отворете файла в Excel (тема 9). Поправете реда. Запазете. Затворете Excel. Презаредете таблото (<kbd>F5</kbd>). Не знаете как? Обадете се за помощ.</dd>
+
+        <dt><span class="text-danger">В лист „Клиенти“ липсва колона …</span> или <span class="text-danger">… липсва лист „Клиенти“</span></dt>
+        <dd>Някой е изтрил или преименувал колона или лист в Excel. Таблото не показва клиенти. Върнете старото име в Excel. Запазете. Затворете Excel. Презаредете таблото. Не знаете старото име? Обадете се за помощ.</dd>
+
+        <dt><span class="text-danger">Файлът „клиенти.xlsx“ не може да се прочете. Вземете копие от папка „backups“.</span></dt>
+        <dd>Файлът е повреден. Не пипайте нищо. Обадете се за помощ. Човекът, който помага, връща копие (тема 9).</dd>
+      </dl>
+
+      <h2 class="step-group">Червени съобщения долу вдясно</h2>
+      <dl class="trouble">
+        <dt><span class="text-danger">Файлът „клиенти.xlsx“ е отворен в Excel. Затворете файла в Excel и опитайте отново.</span></dt>
+        <dd>Нищо не е запазено и нищо не е изпратено. Затворете Excel. Опитайте отново. Excel е затворен, а съобщението остава? Вижте тема 9, „Затворете Excel“, а Excel е затворен.</dd>
+
+        <dt><span class="text-danger">SMS е изпратен, но не е записан. Затворете файла в Excel. Не изпращайте втори път на този клиент.</span></dt>
+        <dd>Клиентът е получил SMS. Програмата не е успяла да го запише. Редът още показва бутона <span class="ui-btn">Изпрати</span>. <strong>Не го щраквайте.</strong> Запишете на лист номера на колата и часа. Затворете Excel. Обадете се за помощ.</dd>
+
+        <dt><span class="text-danger">SMS не е изпратен. Twilio върна грешка. Вижте черния прозорец на програмата.</span></dt>
+        <dd>SMS не е тръгнал. Нищо не е запазено. Проверете телефона на клиента (тема 3). Проверете интернета. Опитайте пак след малко. Пак не става? Снимайте черния прозорец и се обадете за помощ.</dd>
+
+        <dt><span class="text-danger">На този клиент вече е изпратен SMS.</span></dt>
+        <dd>За тази година SMS вече е тръгнал. Второ SMS няма. Презаредете таблото (<kbd>F5</kbd>).</dd>
+
+        <dt><span class="text-danger">Срокът на прегледа е изтекъл. Не се изпраща SMS.</span></dt>
+        <dd>Датата на изтичане е минала. Клиентът е „Просрочен“ (тема 6). SMS не се изпраща.</dd>
+
+        <dt><span class="text-danger">Клиентът не е намерен. Презаредете страницата.</span></dt>
+        <dd>Някой е изтрил клиента или е променил файла в Excel. Презаредете таблото (<kbd>F5</kbd>).</dd>
+
+        <dt><span class="text-danger">Сървърът е спрян. Стартирайте програмата отново с иконата „ЕГЕР-Сервиз“.</span></dt>
+        <dd>Същото като червения надпис горе. Щракнете два пъти иконата „ЕГЕР-Сервиз“.</dd>
+
+        <dt><span class="text-danger">Възникна грешка. Вижте черния прозорец на програмата.</span></dt>
+        <dd>Снимайте черния прозорец. Обадете се за помощ.</dd>
+      </dl>
+
+      <h2 class="step-group">Менюто вляво</h2>
+      <dl class="trouble">
+        <dt>Долу в менюто пише <span class="text-danger">Сървърът е спрян</span> с червена точка.</dt>
+        <dd>Черният прозорец е затворен. Щракнете два пъти иконата „ЕГЕР-Сервиз“. Точката става зелена: „Сървърът работи“.</dd>
+      </dl>
+
+      <h2 class="step-group">Черният прозорец</h2>
+      <dl class="trouble">
+        <dt>Пише „Програмата вече работи. Отварям браузъра...“</dt>
+        <dd>Всичко е наред. Програмата вече е стартирана. Тя само отваря таблото в браузъра.</dd>
+
+        <dt>Пише „Не може да се отвори браузърът автоматично.“</dt>
+        <dd>Отворете браузъра сами. Напишете адреса, който е на следващия ред в черния прозорец, например <code>http://localhost:3000</code>.</dd>
+
+        <dt>Пише „[ГРЕШКА] Портовете 3000–3010 са заети от други програми.“</dt>
+        <dd>Рестартирайте компютъра. Стартирайте програмата пак от иконата.</dd>
+
+        <dt>Пише „[ГРЕШКА]“ с друг текст.</dt>
+        <dd>Снимайте черния прозорец. Обадете се за помощ. После натиснете <kbd>Enter</kbd>. Прозорецът се затваря.</dd>
+      </dl>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>Съобщение „… отворен в Excel“ значи: нищо не е запазено и нищо не е изпратено. Опитайте отново.</li>
+        <li>Само при „SMS е изпратен, но не е записан“ SMS е тръгнало. Не изпращайте второ.</li>
+        <li>Данните са в безопасност. Всяка промяна е във файла веднага, а всеки ден има копие (тема 9).</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Съобщението го няма в тази тема.</dt>
+        <dd>Снимайте екрана с телефона. Снимайте и черния прозорец. Обадете се за помощ.</dd>
+        <dt>Таблото е празно или не се отваря.</dt>
+        <dd>Затворете черния прозорец. Стартирайте пак от иконата „ЕГЕР-Сервиз“. Пак не става? Обадете се за помощ.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>
