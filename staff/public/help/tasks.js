@@ -13,7 +13,7 @@ export const HELP_TASKS = [
   { page: 'edit.html',     ready: true,  short: 'Промяна и изтриване',   title: 'Как да променя или изтрия клиент' },
   { page: 'passed.html',   ready: true,  short: 'Минал преглед',         title: 'Клиентът мина прегледа' },
   { page: 'cards.html',    ready: true,  short: 'Картите и периодите',   title: 'Кой трябва да получи SMS днес' },
-  { page: 'overdue.html',  ready: false, short: 'Просрочени',            title: 'Какво значи „Просрочени“' },
+  { page: 'overdue.html',  ready: true, short: 'Просрочени',            title: 'Какво значи „Просрочени“' },
   { page: 'days-off.html', ready: false, short: 'Почивни дни',           title: 'Почивни дни и защо SMS идва по-рано' },
   { page: 'template.html', ready: false, short: 'SMS шаблон и цена',     title: 'SMS шаблон и цена' },
   { page: 'file.html',     ready: false, short: 'Файл и копия',          title: 'Къде е файлът с клиентите' },

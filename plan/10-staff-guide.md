@@ -63,7 +63,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] Task 4 (new): Клиентът мина прегледа (D26) (`help/passed.html`, 2 screenshots; the customer of "Очаквани за преглед"; nothing saved). Waits for the owner's check.
 - [x] Task 5: Кой трябва да получи SMS днес (cards and periods) (`help/cards.html`, 3 screenshots, status meanings). Waits for the owner's check.
 - [x] "Копие на USB" removed (owner, 2026-11-15; D27): button, route, helpers, 4 tests, docs. All pictures made again without it.
-- [ ] Task 6: Какво значи „Просрочени“.
+- [x] Task 6: Какво значи „Просрочени“ (`help/overdue.html`, 3 screenshots: card, period "12 месеца", status filter "Просрочени"; nothing clicked in the rows). No delete step; more than 12 months: the status filter or a search in "Всички клиенти"; a late customer: task 4. Waits for the owner's check.
 - [ ] Task 7: Почивни дни и защо SMS идва по-рано.
 - [ ] Task 8: SMS шаблон и цена.
 - [x] Chapter 09 made the screenshots `help/sms-1-list.png` and `help/sms-2-preview.png` old if they show the sidebar or a banner: the sidebar has a new block "Копие на USB" (under "Помощ"), the yellow "no keys" banner now names `„настройки.env“`, and the red "Сървърът е спрян" banner names the desktop icon. Make them again (`tools/guide-shots.mjs`).
@@ -83,3 +83,4 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 8. Read task 4 (`help/passed.html`). Do the steps match the dashboard?
 9. Read task 5 (`help/cards.html`). Do the steps match the dashboard?
 10. The sidebar has no "Копие на USB".
+11. Read task 6 (`help/overdue.html`). Do the steps match the dashboard?

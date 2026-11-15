@@ -220,5 +220,32 @@ await mark('[data-action="showAllCustomers"]', '7');
 await page.screenshot({ path: `${OUT}cards-3-other.png` });
 await clearMarks();
 
+// ── Task 6 (overdue.html) ─────────────────────────────────────────────
+await openDashboard();
+
+// Shot 1: the card "Просрочени" with its list of the last 7 days.
+await page.click('[data-arg="expired"]');
+await page.waitForTimeout(400); await page.mouse.move(0, 0);
+await mark('[data-arg="expired"]', '1');
+await mark('#col-reminder', '2');
+await page.screenshot({ path: `${OUT}overdue-1-card.png` });
+await clearMarks();
+
+// Shot 2: the period "12 месеца".
+await page.click('[data-arg="expired:365"]');
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await mark('[data-arg="expired:365"]', '3');
+await page.screenshot({ path: `${OUT}overdue-2-period.png` });
+await clearMarks();
+
+// Shot 3: the status filter "Просрочени": all overdue customers, also
+// those of more than 12 months. Nothing is clicked in the rows.
+await openDashboard();
+await page.selectOption('#filter-status', 'overdue');
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await mark('#filter-status', '4');
+await page.screenshot({ path: `${OUT}overdue-3-filter.png` });
+await clearMarks();
+
 await browser.close();
 server.close();

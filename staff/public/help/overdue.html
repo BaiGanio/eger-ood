@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Просрочени</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D11, D21, D22, D26). Each step is one click.
+     The red numbers in a picture match the numbers in the steps. Screenshots:
+     staff/tools/guide-shots.mjs. The task number and the links at the
+     bottom come from tasks.js (help-nav.js). Owner: never tell the staff to
+     delete an overdue customer. -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Какво значи „Просрочени“</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          <strong>„Просрочен“</strong> = датата в „Следващ преглед“ мина, а нова дата на преглед няма.
+          Клиентът не е дошъл, или е дошъл, но датата не е написана.
+          На просрочен клиент SMS не се праща. Не трийте просрочен клиент.
+        </div>
+      </div>
+
+      <h2 class="step-group">Вижте кой е просрочен</h2>
+      <figure class="shot">
+        <img src="overdue-1-card.png" width="1280" height="760"
+             alt="Таблото. Картата „Просрочени“ е щракната и отбелязана с 1. Колоната „Изпратен SMS“ е отбелязана с 2. В таблицата са клиентите с червена дата в „Следващ преглед“.">
+      </figure>
+      <ol class="steps">
+        <li>Щракнете картата <span class="ui-btn">Просрочени</span>. <span class="mark">1</span>
+          <div class="hint">В таблицата са клиентите, чийто преглед изтече в последните 7 дни. Датата в „Следващ преглед“ е червена.</div>
+        </li>
+        <li>Погледнете колоната <strong>„Изпратен SMS“</strong>. <span class="mark">2</span>
+          <div class="hint">Има ден и час: клиентът получи SMS, но не дойде. Има „—“: SMS не е пратено.</div>
+          <div class="hint">В този списък няма бутони. Той само показва.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Вижте по-стари</h2>
+      <figure class="shot">
+        <img src="overdue-2-period.png" width="1280" height="760"
+             alt="Списъкът „Просрочени“. Бутонът „12 месеца“ е отбелязан с 3. Картата показва „последните 12 месеца“.">
+      </figure>
+      <ol class="steps" start="3">
+        <li>Над таблицата, до <strong>„Изтекли преди:“</strong>, щракнете <span class="ui-btn">12 месеца</span>. <span class="mark">3</span>
+          <div class="hint">Има и по-къси периоди: от „7 дни“ до „9 месеца“. Числото в картата се сменя с периода.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Просрочени преди повече от 12 месеца</h2>
+      <figure class="shot">
+        <img src="overdue-3-filter.png" width="1280" height="760"
+             alt="Таблото. Полето за статус с избрано „Просрочени“ е отбелязано с 4. В таблицата са всички просрочени клиенти, и клиент с дата от миналата година.">
+      </figure>
+      <ol class="steps" start="4">
+        <li>В полето до <span class="ui-btn">Търси…</span> изберете <strong>„Просрочени“</strong>. <span class="mark">4</span>
+          <div class="hint">Изберете „Просрочени“, не „Просрочени (период)“. Така виждате всички просрочени клиенти, и тези отпреди повече от 12 месеца.</div>
+          <div class="hint">Търсите един клиент? Щракнете картата „Всички клиенти“ и напишете номера на колата в „Търси…“ (тема 4, стъпки 1–2).</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Клиентът дойде по-късно</h2>
+      <ol class="steps" start="5">
+        <li>В деня, в който мина прегледа, направете тема 4 („Клиентът мина прегледа“).
+          <div class="hint">Пишете датата на днешния преглед. Програмата добавя 1 година, и статусът става „Очаква“.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>Картата, периодите и полето за статус само показват. Те не променят нищо и не пращат SMS.</li>
+        <li>Клиентът остава „Просрочен“, докато не напишете нова дата на преглед (тема 4).</li>
+        <li>Просроченият клиент остава в списъка. Когато дойде, данните му са там.</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Няма бутон „Изпрати“ за просрочен клиент.</dt>
+        <dd>Така трябва. SMS се праща само до датата на изтичане, едно на година.</dd>
+        <dt>Клиентът мина прегледа, но е „Просрочен“.</dt>
+        <dd>Новата дата не е написана. Направете тема 4.</dd>
+        <dt>Клиентът не е в списъка на картата „Просрочени“.</dt>
+        <dd>Прегледът му изтече по-рано. Щракнете по-дълъг период (стъпка 3) или изберете „Просрочени“ в полето за статус (стъпка 4).</dd>
+        <dt>Датата в „Следващ преглед“ е днес, но клиентът не е „Просрочен“.</dt>
+        <dd>Така трябва. Клиентът става „Просрочен“ от следващия ден.</dd>
+        <dt>Клиентът ходи в друг сервиз. Да го изтрия ли?</dt>
+        <dd>Не. Оставете го в списъка.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>
