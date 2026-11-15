@@ -247,5 +247,31 @@ await mark('#filter-status', '4');
 await page.screenshot({ path: `${OUT}overdue-3-filter.png` });
 await clearMarks();
 
+// ── Task 7 (days-off.html) ────────────────────────────────────────────
+// A click on a day saves at once, so the script clicks no day. It only
+// opens "Настройки" and moves to the next month.
+await openDashboard();
+
+// Shot 1: "Настройки" in the sidebar and the calendar "Почивни дни".
+await page.click('#nav-settings');
+await page.waitForSelector('#cal-days .cal-day');
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await page.evaluate(() => { document.getElementById('cal-days').closest('.card').id = 'guide-cal-card'; });
+await mark('#nav-settings .sidebar-label', '1');   // the whole link: the number falls off the page
+await mark('#guide-cal-card', '2');
+await page.screenshot({ path: `${OUT}days-off-1-calendar.png` });
+await clearMarks();
+
+// Shot 2: the next month, a work day to click, and the colour legend.
+await page.click('[data-action="changeCalMonth"][data-arg="1"]');
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await mark('[data-action="changeCalMonth"][data-arg="1"]', '3');
+// A work day in the middle of the month: a day in the first row hides the weekday names.
+await page.evaluate(() => { document.querySelectorAll('#cal-days .cal-work:not(.cal-today)')[10].id = 'guide-work-day'; });
+await mark('#guide-work-day', '4');
+await mark('#guide-cal-card .cal-legend', '5');
+await page.screenshot({ path: `${OUT}days-off-2-month.png` });
+await clearMarks();
+
 await browser.close();
 server.close();

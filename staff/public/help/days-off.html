@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Почивни дни</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D7, D25, section 5). Each step is one click.
+     The red numbers in a picture match the numbers in the steps. Screenshots:
+     staff/tools/guide-shots.mjs. The task number and the links at the
+     bottom come from tasks.js (help-nav.js). Owner: the weekly days off are
+     Sunday and Monday; to change them, call for help. No Excel steps. -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Почивни дни и защо SMS идва по-рано</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Денят за SMS е 7 дни преди датата, на която изтича прегледът.
+          Ако този ден е почивен, програмата избира по-ранен работен ден. Никога по-късен.
+          Почивни дни: неделя, понеделник, официалните празници и дните, които вие добавите.
+        </div>
+      </div>
+
+      <h2 class="step-group">Защо SMS идва по-рано</h2>
+      <dl class="trouble">
+        <dt>Прегледът изтича във вторник, 15.12.2026.</dt>
+        <dd>7 дни преди това е вторник, 08.12. Работен ден. SMS е на 08.12.</dd>
+        <dt>Прегледът изтича в понеделник, 14.12.2026.</dt>
+        <dd>7 дни преди това е понеделник, 07.12. Почивен ден. Неделя, 06.12, също. SMS е в събота, 05.12.</dd>
+        <dt>Прегледът изтича в четвъртък, 31.12.2026.</dt>
+        <dd>7 дни преди това е 24.12, Бъдни вечер. Празник. SMS е в сряда, 23.12.</dd>
+      </dl>
+      <p class="hint">В таблицата денят за SMS е в колоната „Напомняне“. SMS-ът винаги пише истинската дата на изтичане.</p>
+
+      <h2 class="step-group">Отворете календара</h2>
+      <figure class="shot">
+        <img src="days-off-1-calendar.png" width="1280" height="760"
+             alt="Страницата „Настройки“. „Настройки“ в лявото меню е отбелязано с 1. Календарът „Почивни дни“ е отбелязан с 2.">
+      </figure>
+      <ol class="steps">
+        <li>В лявото меню щракнете <span class="ui-btn"><i class="bi bi-gear"></i> Настройки</span>. <span class="mark">1</span></li>
+        <li>Вдясно е календарът <strong>„Почивни дни“</strong>. Той показва един месец. <span class="mark">2</span>
+          <div class="hint">Не виждате календара? Екранът е тесен. Календарът е под „SMS Шаблон“. Превъртете надолу.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Добавете почивен ден</h2>
+      <figure class="shot">
+        <img src="days-off-2-month.png" width="1280" height="760"
+             alt="Календарът „Почивни дни“ за следващия месец. Стрелката за следващ месец е отбелязана с 3. Един работен ден е отбелязан с 4. Цветовете под календара са отбелязани с 5.">
+      </figure>
+      <ol class="steps" start="3">
+        <li>Щракнете стрелката <span class="ui-btn"><i class="bi bi-chevron-right"></i></span>, докато видите месеца, който ви трябва. <span class="mark">3</span>
+          <div class="hint">Стрелката <i class="bi bi-chevron-left"></i> връща един месец назад.</div>
+        </li>
+        <li>Щракнете деня, в който няма да работите. <span class="mark">4</span>
+          <div class="hint">Денят става оранжев. Програмата го запазва веднага. Няма бутон „Запази“.</div>
+        </li>
+        <li>Долу вдясно излиза зелено съобщение, например <span class="ui-green">23.12.2026 е почивен ден. 2 напомняния са преместени.</span></li>
+        <li>Погледнете цветовете под календара. <span class="mark">5</span>
+          <div class="hint">Сиво = неделя и понеделник. Червено = официален празник. Оранжево = добавен от вас.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Махнете почивен ден</h2>
+      <ol class="steps" start="7">
+        <li>Щракнете още веднъж оранжевия ден.
+          <div class="hint">Денят пак е работен. Зеленото съобщение казва колко напомняния са преместени.</div>
+          <div class="hint">Сивите и червените дни не се махат. Щракнете ли ги, излиза съобщение, че денят вече е почивен.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Неделя и понеделник</h2>
+      <ol class="steps" start="8">
+        <li>Искате друг почивен ден всяка седмица? Обадете се за помощ.
+          <div class="hint">В календара това не се променя.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>Програмата премести напомнянията веднага. Зеленото съобщение казва колко.</li>
+        <li>Напомняне, което сега е днес или преди днес, е „За днес“. Погледнете картата „Очакващи SMS“ (тема 5).</li>
+        <li>SMS, което вече е пратено, остава пратено. Второ SMS няма.</li>
+        <li>Официалните празници програмата знае сама. Не ги добавяйте.</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Щракнахте грешен ден.</dt>
+        <dd>Щракнете го още веднъж. Той пак е работен.</dd>
+        <dt>Официален празник не е червен.</dt>
+        <dd>Програмата проверява празниците в интернет веднъж месечно. Щракнете иконата <i class="bi bi-arrow-repeat"></i> под календара. Няма интернет? Добавете деня сами (стъпка 4).</dd>
+        <dt>Текстът до иконата <i class="bi bi-arrow-repeat"></i> е червен.</dt>
+        <dd>Проверката в интернет не успя. Празниците от закона са в календара. Опитайте пак по-късно.</dd>
+        <dt>Излиза червено съобщение „… е отворен в Excel“.</dt>
+        <dd>Денят не е запазен. Затворете файла „клиенти.xlsx“ в Excel. Щракнете деня пак.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>

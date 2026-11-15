@@ -64,7 +64,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] Task 5: Кой трябва да получи SMS днес (cards and periods) (`help/cards.html`, 3 screenshots, status meanings). Waits for the owner's check.
 - [x] "Копие на USB" removed (owner, 2026-11-15; D27): button, route, helpers, 4 tests, docs. All pictures made again without it.
 - [x] Task 6: Какво значи „Просрочени“ (`help/overdue.html`, 3 screenshots: card, period "12 месеца", status filter "Просрочени"; nothing clicked in the rows). No delete step; more than 12 months: the status filter or a search in "Всички клиенти"; a late customer: task 4. Waits for the owner's check.
-- [ ] Task 7: Почивни дни и защо SMS идва по-рано.
+- [x] Task 7: Почивни дни и защо SMS идва по-рано (`help/days-off.html`, 2 screenshots: "Настройки" and the calendar, next month with a work day and the colours). The script clicks no day (a click saves at once). Three examples of the reminder day, checked with `nextReminderDate`. Weekly days off: "обадете се за помощ", no Excel steps. Waits for the owner's check.
 - [ ] Task 8: SMS шаблон и цена.
 - [x] Chapter 09 made the screenshots `help/sms-1-list.png` and `help/sms-2-preview.png` old if they show the sidebar or a banner: the sidebar has a new block "Копие на USB" (under "Помощ"), the yellow "no keys" banner now names `„настройки.env“`, and the red "Сървърът е спрян" banner names the desktop icon. Make them again (`tools/guide-shots.mjs`).
 - [ ] Task 9: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. Text for it is in `staff/ИНСТРУКЦИЯ.md`, part 4. No "Копие на USB" (removed, D27).
@@ -84,3 +84,4 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 9. Read task 5 (`help/cards.html`). Do the steps match the dashboard?
 10. The sidebar has no "Копие на USB".
 11. Read task 6 (`help/overdue.html`). Do the steps match the dashboard?
+12. Read task 7 (`help/days-off.html`). Click a day in "Настройки": does the page match? Click it again to undo.
