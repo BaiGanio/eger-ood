@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Промяна и изтриване</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D11). Each step is one click. The red
+     numbers in a picture match the numbers in the steps. Screenshots:
+     staff/tools/guide-shots.mjs. The task number and the links at the
+     bottom come from tasks.js (help-nav.js). -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Как да променя или изтрия клиент</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Бутоните за промяна и изтриване са в картата „Всички клиенти“.
+          Изтриването не може да се върне. Изтрийте само ред с грешка или клиент, който е два пъти в списъка.
+        </div>
+      </div>
+
+      <h2 class="step-group">Намерете клиента</h2>
+      <figure class="shot">
+        <img src="edit-1-row.png" width="1280" height="760"
+             alt="Таблото. Картата „Всички клиенти“ е отбелязана с 1. Полето „Търси…“ е отбелязано с 2. Бутонът с молив е отбелязан с 3. Бутонът с кошче е отбелязан с 4.">
+      </figure>
+      <ol class="steps">
+        <li>Щракнете картата <span class="ui-btn">Всички клиенти</span>. <span class="mark">1</span>
+          <div class="hint">В другите карти няма бутони за промяна. В „Очакващи SMS“ има само „Изпрати“.</div>
+        </li>
+        <li>Напишете името или номера на колата в полето <span class="ui-btn">Търси…</span>. <span class="mark">2</span>
+          <div class="hint">Клиентът се показва в таблицата.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Променете данните</h2>
+      <figure class="shot">
+        <img src="edit-2-form.png" width="1280" height="760"
+             alt="Прозорецът „Редактирай клиент“ с данните на клиента. Бутонът „Запази промените“ е отбелязан с 5.">
+      </figure>
+      <ol class="steps" start="3">
+        <li>На реда на клиента щракнете бутона с молив <span class="ui-btn"><i class="bi bi-pencil"></i></span>. <span class="mark">3</span>
+          <div class="hint">Номер 3 е на първата картинка.</div>
+        </li>
+        <li>Отваря се прозорец <strong>„Редактирай клиент“</strong>. Поправете полето, което е грешно.
+          <div class="hint">Клиентът мина прегледа? Сменете „Дата на последен преглед“. Вижте тема 4.</div>
+        </li>
+        <li>Щракнете синия бутон <span class="ui-btn ui-blue"><i class="bi bi-check-lg"></i> Запази промените</span>. <span class="mark">5</span>
+          <div class="hint">Написахте нов телефон с 0? Излиза въпрос за +359. Щракнете „Промени“ (тема 2).</div>
+          <div class="hint">Размислихте? Щракнете <span class="ui-btn">Отказ</span>. Нищо не се променя.</div>
+        </li>
+        <li>Долу вдясно излиза зелено съобщение <span class="ui-green">Клиентът е обновен</span>.</li>
+      </ol>
+
+      <h2 class="step-group">Изтрийте клиента</h2>
+      <figure class="shot">
+        <img src="edit-3-delete.png" width="1280" height="760"
+             alt="Въпрос „Изтриване на клиент „Мария Георгиева“? Действието е необратимо.“. Червеният бутон „Изтрий“ е отбелязан с 6.">
+      </figure>
+      <ol class="steps" start="7">
+        <li>На реда на клиента щракнете червения бутон с кошче <span class="ui-btn text-danger"><i class="bi bi-trash"></i></span>. <span class="mark">4</span>
+          <div class="hint">Номер 4 е на първата картинка.</div>
+        </li>
+        <li>Излиза въпрос <strong>„Изтриване на клиент …? Действието е необратимо.“</strong>. Проверете името.</li>
+        <li>Името е вярно? Щракнете червения бутон <span class="ui-btn text-bg-danger">Изтрий</span>. <span class="mark">6</span>
+          <div class="hint">Не сте сигурни? Щракнете <span class="ui-btn">Отказ</span>. Нищо не се изтрива.</div>
+        </li>
+        <li>Долу вдясно излиза сиво съобщение <strong>„Клиент … е изтрит“</strong>.</li>
+      </ol>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>Промяната е записана във файла „клиенти.xlsx“ веднага.</li>
+        <li>Сменихте телефона? Програмата забравя SMS-а до стария номер. Клиентът може да получи едно SMS на новия номер, ако прегледът още не е изтекъл.</li>
+        <li>Изтрит клиент изчезва от таблицата и от файла. Той не получава повече SMS.</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Няма бутон с молив или с кошче.</dt>
+        <dd>Щракнете първо картата „Всички клиенти“ (стъпка 1).</dd>
+        <dt>Клиентът е „Просрочен“. Да го изтрия ли?</dt>
+        <dd>Не. Просрочените клиенти остават в списъка (тема 6).</dd>
+        <dt>Излиза червено съобщение „… е отворен в Excel“.</dt>
+        <dd>Нищо не е променено. Затворете файла „клиенти.xlsx“ в Excel. Опитайте отново.</dd>
+        <dt>Излиза червено съобщение „Клиентът не е намерен. Презаредете страницата.“</dt>
+        <dd>Натиснете <kbd>F5</kbd>. Намерете клиента отново.</dd>
+        <dt>Изтрихте грешен клиент.</dt>
+        <dd>Добавете го отново (тема 2). Не помните данните? Обадете се за помощ: има копие на файла от всеки ден (тема 9).</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>

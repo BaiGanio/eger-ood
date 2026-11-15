@@ -124,5 +124,40 @@ await clearMarks();
 await page.click('#ask-no');
 await page.click('#customer-modal [data-action="closeModal"]');
 
+// ── Task 3 (edit.html) ────────────────────────────────────────────────
+await openDashboard();
+
+// Shot 1: "Всички клиенти", the search, and the pencil and bin of the one row.
+await page.click('[data-action="showAllCustomers"]');
+await page.fill('#search-input', 'Георгиева');
+await page.waitForTimeout(200);
+await page.mouse.move(0, 0);
+await mark('[data-action="showAllCustomers"]', '1');
+await mark('#search-input', '2');
+await mark('#table-body [data-action="openEditModal"]', '3');
+await mark('#table-body [data-action="deleteCustomer"]', '4');
+await page.screenshot({ path: `${OUT}edit-1-row.png` });
+await clearMarks();
+
+// Shot 2: the edit window. Then "Отказ": nothing is saved.
+await page.click('#table-body [data-action="openEditModal"]');
+await page.waitForSelector('#customer-modal.show');
+await page.waitForTimeout(400);
+await page.mouse.move(0, 0);
+await mark('[data-action="saveCustomer"]', '5');
+await page.screenshot({ path: `${OUT}edit-2-form.png` });
+await clearMarks();
+await page.click('#customer-modal [data-action="closeModal"]');
+await page.waitForSelector('#customer-modal', { state: 'hidden' });
+
+// Shot 3: the delete question. Then "Отказ": nothing is deleted.
+await page.click('#table-body [data-action="deleteCustomer"]');
+await page.waitForSelector('#ask-dialog[open]');
+await page.waitForTimeout(200);
+await mark('#ask-yes', '6');
+await page.screenshot({ path: `${OUT}edit-3-delete.png` });
+await clearMarks();
+await page.click('#ask-no');
+
 await browser.close();
 server.close();

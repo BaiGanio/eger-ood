@@ -59,7 +59,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] Task 1: hint about the black window (step 2).
 - [x] One page per task; "Помощ" list in the sidebar (owner, 2026-11-15). Task 1 moved to `help/sms.html`.
 - [x] Task 2: Как да добавя клиент (`help/add.html`, 3 screenshots). Search the plate first (no guard against double rows yet). Waits for the owner's check.
-- [ ] Task 3: Как да променя или изтрия клиент.
+- [x] Task 3: Как да променя или изтрия клиент (`help/edit.html`, 3 screenshots; nothing saved or deleted). Delete only a wrong or double row; never an overdue customer. Waits for the owner's check.
 - [ ] Task 4 (new): Клиентът мина прегледа (D26).
 - [ ] Task 5: Кой трябва да получи SMS днес (cards and periods).
 - [ ] Task 6: Какво значи „Просрочени“.
@@ -78,3 +78,4 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 4. On the dashboard, click "Помощ" in the sidebar. The list of 10 tasks opens; 1 and 2 are links, the rest grey. Click "Помощ" again: the list closes.
 5. Click "Скрий менюто", then the "?" icon: the contents page opens.
 6. Read task 2 (`help/add.html`). Do the steps match the dashboard? Do "back / next" at the bottom work?
+7. Read task 3 (`help/edit.html`). Do the steps match the dashboard?
