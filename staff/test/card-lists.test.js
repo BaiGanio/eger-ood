@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inOverdueList, inSendList } from '../public/card-lists.js';
+import { inComingList, inOverdueList, inSendList, inSentList } from '../public/card-lists.js';
 
 const send = (status, nextReminderDate) => ({ status, nextReminderDate });
 const expired = (status, nextServiceDate) => ({ status, nextServiceDate });
@@ -33,4 +33,35 @@ test('only "overdue" customers are in the overdue list', () => {
   for (const status of ['due', 'pending', 'sent']) {
     assert.equal(inOverdueList(expired(status, '2026-11-14'), '2026-01-01'), false);
   }
+});
+
+const sentAt = (status, smsSentAt) => ({ status, smsSentAt });
+const coming = (nextServiceDate) => ({ nextServiceDate });
+
+test('an SMS of today is in the sent list of today', () => {
+  assert.equal(inSentList(sentAt('sent', '2026-11-15T08:01:00'), '2026-11-15'), true);
+  assert.equal(inSentList(sentAt('sent', '2026-11-14T23:59:00'), '2026-11-15'), false);
+});
+
+test('the sent list goes back to the first day of the period', () => {
+  assert.equal(inSentList(sentAt('sent', '2026-11-08T10:00:00'), '2026-11-08'), true);
+  assert.equal(inSentList(sentAt('sent', '2026-11-07T10:00:00'), '2026-11-08'), false);
+});
+
+test('an overdue customer who got the SMS is in the sent list', () => {
+  assert.equal(inSentList(sentAt('overdue', '2026-11-10T10:00:00'), '2026-11-01'), true);
+});
+
+test('a customer with no SMS is never in the sent list', () => {
+  assert.equal(inSentList(sentAt('pending', null), '2000-01-01'), false);
+});
+
+test('the coming list goes from today to the last day', () => {
+  assert.equal(inComingList(coming('2026-11-15'), '2026-11-15', '2026-11-15'), true);
+  assert.equal(inComingList(coming('2026-11-22'), '2026-11-15', '2026-11-22'), true);
+  assert.equal(inComingList(coming('2026-11-23'), '2026-11-15', '2026-11-22'), false);
+});
+
+test('an expiry date before today is not in the coming list', () => {
+  assert.equal(inComingList(coming('2026-11-14'), '2026-11-15', '2026-12-15'), false);
 });

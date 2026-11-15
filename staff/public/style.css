@@ -49,12 +49,28 @@ body.sidebar-closed #sidebar-toggle i { transform: rotate(180deg); }
 .stat-label { font-size: 11px; letter-spacing: .06em; }
 .stat-value  { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
 
-.stat-accent  { border-left: 3px solid #0d6efd !important; }
-.stat-warning { border-left: 3px solid #ffc107 !important; }
-.stat-click { cursor: pointer; }
+.stat-period { font-size: 11px; color: #6c757d; }
+
+/* Each card has one colour. The active card uses it too. */
+.stat-accent  { --stat-color: #0d6efd; --stat-tint: #e7f1ff; }
+.stat-warning { --stat-color: #ffc107; --stat-tint: #fff8e1; }
+.stat-success { --stat-color: #198754; --stat-tint: #e8f5ee; }
+.stat-info    { --stat-color: #0dcaf0; --stat-tint: #e6f9fd; }
+.stat-danger  { --stat-color: #dc3545; --stat-tint: #fdecee; }
+.stat-accent, .stat-warning, .stat-success, .stat-info, .stat-danger {
+  border-left: 3px solid var(--stat-color) !important;
+}
+
+.stat-click { cursor: pointer; transition: box-shadow .15s, background-color .15s; }
 .stat-click:hover { box-shadow: 0 .25rem .75rem rgba(0,0,0,.12) !important; }
-.stat-success { border-left: 3px solid #198754 !important; }
-.stat-danger  { border-left: 3px solid #dc3545 !important; }
+/* The card of the list in the table. The staff must see it at a glance. */
+.stat-click.active {
+  background-color: var(--stat-tint);
+  border-left-width: 6px !important;
+  box-shadow: 0 0 0 2px var(--stat-color), 0 .25rem .75rem rgba(0,0,0,.12) !important;
+}
+.stat-click.active .stat-label { color: #212529 !important; }
+.stat-click.active .stat-period { color: #212529; font-weight: 600; }
 
 /* ── Table column headers ─────────────────────────────────────────── */
 .col-header {

@@ -63,25 +63,33 @@
   <!-- ─── Main ─────────────────────────────────────────────────── -->
   <main class="main flex-grow-1 p-4">
 
+    <!-- Each banner has a close button. A closed banner stays closed until a
+         reload, or until its problem goes away and comes back (scripts.js, showBanner). -->
     <!-- The server does not answer: nothing on the page can be saved or sent. -->
-    <div id="server-down" class="alert alert-danger fw-semibold d-none" role="alert">
+    <div id="server-down" class="alert alert-danger alert-dismissible fw-semibold d-none" role="alert">
       <i class="bi bi-x-octagon me-1"></i> Сървърът е спрян. Нищо не може да се запази или изпрати.
       Стартирайте програмата отново (start.bat).
+      <button type="button" class="btn-close" data-action="closeBanner" data-arg="server-down" title="Затвори" aria-label="Затвори"></button>
     </div>
 
     <!-- No Twilio keys: no SMS can go out. Always visible then. -->
-    <div id="sms-off" class="alert alert-warning fw-semibold d-none" role="alert">
+    <div id="sms-off" class="alert alert-warning alert-dismissible fw-semibold d-none" role="alert">
       <i class="bi bi-exclamation-triangle me-1"></i> SMS не могат да се изпращат: липсват ключовете за Twilio във файла .env
+      <button type="button" class="btn-close" data-action="closeBanner" data-arg="sms-off" title="Затвори" aria-label="Затвори"></button>
     </div>
 
     <!-- The Excel file cannot be read (example: a missing column). -->
-    <div id="data-error" class="alert alert-danger d-none" role="alert"></div>
+    <div id="data-error" class="alert alert-danger alert-dismissible d-none" role="alert">
+      <span id="data-error-text"></span>
+      <button type="button" class="btn-close" data-action="closeBanner" data-arg="data-error" title="Затвори" aria-label="Затвори"></button>
+    </div>
 
     <!-- Rows of the Excel file that did not load. -->
-    <div id="data-problems" class="alert alert-warning d-none" role="alert">
+    <div id="data-problems" class="alert alert-warning alert-dismissible d-none" role="alert">
       <strong>Във файла „клиенти.xlsx“ има редове с грешка. Те не са заредени.</strong>
       Поправете ги в Excel, запазете файла, затворете го и презаредете страницата.
       <ul class="mb-0 mt-2" id="data-problems-list"></ul>
+      <button type="button" class="btn-close" data-action="closeBanner" data-arg="data-problems" title="Затвори" aria-label="Затвори"></button>
     </div>
 
     <!-- ══ ТАБЛО ══════════════════════════════════════════════════ -->
@@ -97,8 +105,9 @@
         </button>
       </div>
 
-      <!-- Stat cards -->
-      <div class="row row-cols-2 row-cols-xl-4 g-3 mb-4">
+      <!-- Stat cards. A card with a list is a button: a click shows its customers
+           and its period row; the card of the shown list is "active" (scripts.js, CARDS). -->
+      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
         <div class="col">
           <div class="card border-0 shadow-sm h-100 stat-accent">
             <div class="card-body py-3 px-3">
@@ -108,30 +117,42 @@
           </div>
         </div>
         <div class="col">
-          <!-- A button: a click shows the send list (scripts.js, showSendList). -->
           <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-warning stat-click"
-                  data-action="showSendList" title="Покажи клиентите за SMS">
+                  data-action="showCardList" data-arg="send" aria-pressed="false" title="Покажи клиентите за SMS">
             <div class="card-body py-3 px-3">
               <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Очакващи SMS</div>
               <div class="stat-value" id="stat-pending">—</div>
+              <div class="stat-period" id="stat-pending-period"></div>
             </div>
           </button>
         </div>
         <div class="col">
-          <div class="card border-0 shadow-sm h-100 stat-success">
+          <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-success stat-click"
+                  data-action="showCardList" data-arg="sentin" aria-pressed="false" title="Покажи изпратените SMS">
             <div class="card-body py-3 px-3">
               <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Изпратени SMS</div>
               <div class="stat-value" id="stat-sent">—</div>
+              <div class="stat-period" id="stat-sent-period"></div>
             </div>
-          </div>
+          </button>
         </div>
         <div class="col">
-          <!-- A button: a click shows the overdue list (scripts.js, showOverdueList). -->
+          <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-info stat-click"
+                  data-action="showCardList" data-arg="coming" aria-pressed="false" title="Покажи клиентите, които идват за преглед">
+            <div class="card-body py-3 px-3">
+              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Очаквани за преглед</div>
+              <div class="stat-value" id="stat-coming">—</div>
+              <div class="stat-period" id="stat-coming-period"></div>
+            </div>
+          </button>
+        </div>
+        <div class="col">
           <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-danger stat-click"
-                  data-action="showOverdueList" title="Покажи просрочените клиенти">
+                  data-action="showCardList" data-arg="expired" aria-pressed="false" title="Покажи просрочените клиенти">
             <div class="card-body py-3 px-3">
               <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Просрочени</div>
               <div class="stat-value" id="stat-overdue">—</div>
+              <div class="stat-period" id="stat-overdue-period"></div>
             </div>
           </button>
         </div>
@@ -142,38 +163,64 @@
         <input type="text" class="form-control" id="search-input"
                placeholder="Търси по име, рег. номер, модел…"
                style="max-width:280px;" />
-        <select class="form-select" id="filter-status" style="max-width:200px;">
+        <select class="form-select" id="filter-status" style="max-width:250px;">
           <option value="">Всички статуси</option>
           <option value="overdue">Просрочени</option>
           <option value="due">За днес</option>
           <option value="pending">Очакващи</option>
           <option value="sent">Изпратени</option>
           <option value="send">Очакващи SMS</option>
+          <option value="sentin">Изпратени SMS (период)</option>
+          <option value="coming">Очаквани за преглед</option>
           <option value="expired">Просрочени (период)</option>
         </select>
       </div>
-      <!-- The period rows show only with their status in the filter (card-lists.js). -->
-      <!-- data-arg = days after today. -->
+      <!-- The period rows show only with their list in the filter (card-lists.js). -->
+      <!-- data-arg = card:days after today. -->
       <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="send-period">
         <span class="text-muted small">Напомняне до:</span>
-        <div class="btn-group btn-group-sm" role="group">
-          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="0">Днес</button>
-          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="7">7 дни</button>
-          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="10">10 дни</button>
-          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="30">1 месец</button>
+        <div class="btn-group btn-group-sm flex-wrap" role="group">
+          <button type="button" class="btn btn-outline-primary" data-action="setPeriod" data-arg="send:0">Днес</button>
+          <button type="button" class="btn btn-outline-primary" data-action="setPeriod" data-arg="send:7">7 дни</button>
+          <button type="button" class="btn btn-outline-primary" data-action="setPeriod" data-arg="send:10">10 дни</button>
+          <button type="button" class="btn btn-outline-primary" data-action="setPeriod" data-arg="send:30">1 месец</button>
         </div>
       </div>
-      <!-- data-arg = days before today. -->
-      <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="overdue-period">
+      <!-- data-arg = card:days before today. -->
+      <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="sentin-period">
+        <span class="text-muted small">Изпратени за:</span>
+        <div class="btn-group btn-group-sm flex-wrap" role="group">
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:0">Днес</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:7">7 дни</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:10">10 дни</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:30">1 месец</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:90">3 месеца</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:180">6 месеца</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:270">9 месеца</button>
+          <button type="button" class="btn btn-outline-success" data-action="setPeriod" data-arg="sentin:365">12 месеца</button>
+        </div>
+      </div>
+      <!-- data-arg = card:days after today. -->
+      <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="coming-period">
+        <span class="text-muted small">Преглед до:</span>
+        <div class="btn-group btn-group-sm flex-wrap" role="group">
+          <button type="button" class="btn btn-outline-info" data-action="setPeriod" data-arg="coming:0">Днес</button>
+          <button type="button" class="btn btn-outline-info" data-action="setPeriod" data-arg="coming:7">7 дни</button>
+          <button type="button" class="btn btn-outline-info" data-action="setPeriod" data-arg="coming:10">10 дни</button>
+          <button type="button" class="btn btn-outline-info" data-action="setPeriod" data-arg="coming:30">1 месец</button>
+        </div>
+      </div>
+      <!-- data-arg = card:days before today. -->
+      <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="expired-period">
         <span class="text-muted small">Изтекли преди:</span>
         <div class="btn-group btn-group-sm flex-wrap" role="group">
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="7">7 дни</button>
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="10">10 дни</button>
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="30">1 месец</button>
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="90">3 месеца</button>
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="180">6 месеца</button>
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="270">9 месеца</button>
-          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="365">12 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:7">7 дни</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:10">10 дни</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:30">1 месец</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:90">3 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:180">6 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:270">9 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setPeriod" data-arg="expired:365">12 месеца</button>
         </div>
       </div>
 

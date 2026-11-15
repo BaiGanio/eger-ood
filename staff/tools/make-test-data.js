@@ -108,8 +108,11 @@ function manyCustomers() {
   // 30 day edges of the filter.
   const pending = [8, 9, 9, 10, 11, 12, 13, 14, 14, 15, 16, 17, 17, 18, 19, 20, 22, 24,
     26, 28, 30, 33, 35, 37, 38, 40, 42];
-  const due = [1, 3, 5, 7];                 // reminder day reached, no SMS
-  const sent = [2, 6, 9, 12, 16, 21];       // SMS already sent this cycle
+  const due = [0, 1, 3, 5, 7];              // reminder day reached, no SMS (0 = expiry today)
+  // SMS already sent this cycle: [days to expiry, days since the SMS]. Spread
+  // over the periods of the card "Изпратени SMS" (today to 12 months).
+  const sent = [[0, 6], [2, 0], [6, 0], [9, 1], [12, 3], [16, 8], [21, 5], [45, 20],
+    [60, 50], [90, 120], [200, 150]];
   // Expiry date past. Spread over the periods of the card: 7 and 10 days, 1 to 12 months.
   const overdue = [-1, -5, -8, -14, -30, -45, -60, -120, -200, -300];
   const far = [75, 120, 180, 240, 300];     // reminder months away
@@ -117,7 +120,7 @@ function manyCustomers() {
   const plan = [
     ...pending.map(days => ({ days })),
     ...due.map(days => ({ days })),
-    ...sent.map((days, i) => ({ days, sentDaysAgo: 1 + (i % 5) })),
+    ...sent.map(([days, sentDaysAgo]) => ({ days, sentDaysAgo })),
     ...overdue.map(days => ({ days })),
     ...far.map(days => ({ days })),
   ];
@@ -137,7 +140,7 @@ function manyCustomers() {
       carModel: CARS[(i * 5) % CARS.length],
       carPlate: `${PREFIX[i % PREFIX.length]}${num}${'ABEHKMTX'[i % 8]}${'ABEHKMTX'[(i * 3) % 8]}`,
       lastServiceDate: inspectedFor(addDays(today, days)),
-      smsSentAt: sentDaysAgo ? `${addDays(today, -sentDaysAgo)}T10:${String(10 + i).slice(-2)}:00` : null,
+      smsSentAt: sentDaysAgo !== undefined ? `${addDays(today, -sentDaysAgo)}T10:${String(10 + i).slice(-2)}:00` : null,
     };
   });
 }

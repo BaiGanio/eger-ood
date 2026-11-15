@@ -64,6 +64,13 @@ Needs: chapter 06.
 - [x] The card count follows the chosen period (example: 6 today, 15 for 7 days). The card keeps the period, so its number and its list are the same.
 - [x] "Просрочени" works the same way: the card counts the last 7 days; a click shows them and the row "Изтекли преди: 7 дни / 10 дни / 1 месец / 3 / 6 / 9 / 12 месеца". The status option "Просрочени" still shows all.
 
+### Staff requests 6 (owner, 2026-11-15): more cards, active card, close banners (`specs.md` D22, D23)
+- [x] Each banner (server stopped, no Twilio keys, file error, bad rows) has a close button. It stays closed until a reload, or until the problem goes away and comes back.
+- [x] New card "Очаквани за преглед": expiry date from today to "Днес / 7 дни / 10 дни / 1 месец" ahead, with the rows that got the SMS. Sorted by expiry date.
+- [x] Card "Изпратени SMS" works like the others: SMS sent today by default; row "Изпратени за: Днес / 7 / 10 дни / 1 / 3 / 6 / 9 / 12 месеца".
+- [x] The card of the shown list is active: a tint and a ring in its colour. A second click shows all customers. The period shows under each count.
+- [x] Five cards in one row on a wide screen. Rules in `public/card-lists.js`, tests in `test/card-lists.test.js`. Test data: 70 customers, SMS sent from today to 150 days ago, expiry today.
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -80,4 +87,5 @@ Needs: chapter 06.
 4. "Добави клиент" with the phone `0887 123 456` → the question about +359 shows on top of the window.
 5. An "Изпратен" row and a "Просрочен" row have no "Изпрати" button. Type a new inspection date in a "Просрочен" row → "Очаква", next inspection one year later. Change the phone of an "Изпратен" row → the button is back.
 5a. `npm run test-data -- --force` (with `EGER_DATA_DIR=./data`). Four cards. Click "Очакващи SMS" → only "За днес" rows and the buttons row. "7 дни", "10 дни", "1 месец" → more "Очаква" rows, the last reminder date is in the period. The card number changes with the button. Another status in the filter → the buttons row hides. Click "Просрочени" → the last 7 days and its buttons row; each button changes the card number. Status "Просрочени" in the drop-down → all overdue rows, no buttons row.
+5b. With the test data: five cards. Close the yellow banners with × → they stay closed. Click "Очаквани за преглед" → the card has a blue ring and tint, rows with expiry today, row "Преглед до". Click it again → all customers, no ring. Click "Изпратени SMS" → SMS of today; "12 месеца" → more rows. The text under each count says the period.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

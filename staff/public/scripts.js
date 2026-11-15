@@ -1,7 +1,10 @@
 // A module: the page has no inline script, so the Content-Security-Policy of
 // the server can refuse each inline script (specs section 6).
 import { measureSms, fillTemplate } from './sms-text.js';
-import { OVERDUE_PERIODS, SEND_PERIODS, inOverdueList, inSendList } from './card-lists.js';
+import {
+  COMING_PERIODS, OVERDUE_PERIODS, SEND_PERIODS, SENT_PERIODS,
+  inComingList, inOverdueList, inSendList, inSentList,
+} from './card-lists.js';
 
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
@@ -12,9 +15,8 @@ let pricePerSegment = 0;
 let dataDay = null;
 let holidays = [];
 let pendingSendId = null;
-// The periods of the two cards (card-lists.js). The card count follows them.
-let sendPeriod = 0;      // "Очакващи SMS": days after today. 0 = today only.
-let overduePeriod = 7;   // "Просрочени": days before today.
+// The banners that the staff closed (showBanner).
+const closedBanners = new Set();
 
 // Order of the rows: what the staff must do first is on top.
 const STATUS_ORDER = { due: 0, pending: 1, sent: 2, overdue: 3 };
@@ -94,8 +96,8 @@ async function api(method, path, body) {
 const ACTIONS = {
   showView, openAddModal, openEditModal, closeModal, saveCustomer,
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
-  saveTemplate, addHoliday, removeHoliday, showSendList, setSendPeriod,
-  showOverdueList, setOverduePeriod,
+  saveTemplate, addHoliday, removeHoliday, showCardList, setPeriod,
+  closeBanner,
 };
 
 async function tick() {
@@ -114,7 +116,7 @@ async function checkServer() {
     const res = await serverFetch('/api/status', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
     const data = await readReply(res);
     // With no Twilio keys no SMS can go out. The banner says so.
-    document.getElementById('sms-off').classList.toggle('d-none', data.smsMode === 'live');
+    showBanner('sms-off', data.smsMode !== 'live');
   } catch (e) {
     // No toast: this runs every few seconds. The red box and the banner show it.
     console.error(e);
@@ -132,7 +134,7 @@ function setServerUp(up) {
   box.classList.add(up ? 'server-ok' : 'server-down');
   box.title = text;
   document.getElementById('server-state-text').textContent = text;
-  document.getElementById('server-down').classList.toggle('d-none', up);
+  showBanner('server-down', !up);
 
   // The staff started the server again: show the data of now.
   if (up && wasDown) {
@@ -166,19 +168,18 @@ function toggleSidebar() {
 }
 
 async function loadCustomers() {
-  const errorBox = document.getElementById('data-error');
   // Set before the answer: a load that fails must not start again every few seconds.
   dataDay = localDateInDays(0);
   try {
     const data = await api('GET', '/api/customers');
     customers  = data.customers || [];
-    errorBox.classList.add('d-none');
+    showBanner('data-error', false);
     refresh();
     loadDataProblems();
   } catch (e) {
     // The message stays on the page: a toast is gone after a few seconds.
-    errorBox.textContent = e.message;
-    errorBox.classList.remove('d-none');
+    document.getElementById('data-error-text').textContent = e.message;
+    showBanner('data-error', true);
     toast('Грешка при зареждане на клиентите: ' + e.message, 'danger');
   }
 }
@@ -209,8 +210,7 @@ async function loadDataProblems() {
 }
 
 function renderDataProblems(problems) {
-  const box = document.getElementById('data-problems');
-  box.classList.toggle('d-none', problems.length === 0);
+  showBanner('data-problems', problems.length > 0);
   document.getElementById('data-problems-list').innerHTML = problems.map(p => `
     <li>Лист „${escHtml(p.sheet)}“${p.row ? `, ред ${escHtml(p.row)}` : ''}: ${escHtml(p.reason)}</li>
   `).join('');
@@ -254,73 +254,100 @@ function showView(name) {
   navSet.classList.toggle('text-secondary',  name !== 'settings');
 }
 
-// ─── Stats ───────────────────────────────────────────────────────────
-function renderStats() {
-  const total    = customers.length;
-  // The engine computes the status (lib/reminders.js). "Waiting" = not sent yet.
-  const count    = (...statuses) => customers.filter(c => statuses.includes(c.status)).length;
-  // The two cards count the customers of their chosen period, so the staff
-  // see the number before a click (card-lists.js).
-  const until    = localDateInDays(sendPeriod);
-  const since    = localDateInDays(-overduePeriod);
-  const pending  = customers.filter(c => inSendList(c, until)).length;
-  const sent     = count('sent');
-  const overdue  = customers.filter(c => inOverdueList(c, since)).length;
-
-  document.getElementById('stat-total').textContent   = total;
-  document.getElementById('stat-pending').textContent = pending;
-  document.getElementById('stat-sent').textContent    = sent;
-  document.getElementById('stat-overdue').textContent = overdue;
+// ─── Banners ─────────────────────────────────────────────────────────
+// The staff can close a banner when they know the problem. The checks run
+// again every few seconds, so a closed banner must not come back at once.
+// It comes back after a reload, or when its problem goes away and comes again.
+function showBanner(id, problem) {
+  if (!problem) closedBanners.delete(id);
+  document.getElementById(id).classList.toggle('d-none', !problem || closedBanners.has(id));
 }
 
-// ─── Card lists ("Очакващи SMS", "Просрочени") ───────────────────────
+function closeBanner(id) {
+  if (!document.getElementById(id)?.classList.contains('alert')) return;
+  closedBanners.add(id);
+  document.getElementById(id).classList.add('d-none');
+}
+
+// ─── Cards with a list (card-lists.js) ───────────────────────────────
 // A click on the card shows its customers. The buttons row changes the period;
-// the card count changes with it (card-lists.js). Before a holiday the staff
-// send in advance with a longer period.
-// The card keeps the chosen period, so its number and its list stay the same.
-function showCardList(status) {
-  document.getElementById('filter-status').value = status;
+// the card count changes with it. Before a holiday the staff send in advance
+// with a longer period. The card keeps the chosen period, so its number and
+// its list stay the same. The key is also the value in the status filter.
+// `period` lives until a reload (specs D22).
+const CARDS = {
+  send:    { stat: 'stat-pending', periods: SEND_PERIODS,    period: 0, ahead: true,
+             has: (c, p) => inSendList(c, localDateInDays(p)) },
+  sentin:  { stat: 'stat-sent',    periods: SENT_PERIODS,    period: 0, ahead: false,
+             has: (c, p) => inSentList(c, localDateInDays(-p)) },
+  coming:  { stat: 'stat-coming',  periods: COMING_PERIODS,  period: 0, ahead: true,
+             has: (c, p) => inComingList(c, localDateInDays(0), localDateInDays(p)) },
+  expired: { stat: 'stat-overdue', periods: OVERDUE_PERIODS, period: 7, ahead: false,
+             has: (c, p) => inOverdueList(c, localDateInDays(-p)) },
+};
+
+// The short text of a period under the card count.
+// A month is 30 days, but 365 days is "12 месеца", not 12.17.
+function periodText(days, ahead) {
+  if (days === 0) return 'днес';
+  if (days === 30) return ahead ? 'следващия месец' : 'последния месец';
+  const span = days < 30 ? `${days} дни` : `${Math.round(days / 30)} месеца`;
+  return (ahead ? 'следващите ' : 'последните ') + span;
+}
+
+function renderStats() {
+  document.getElementById('stat-total').textContent = customers.length;
+  for (const card of Object.values(CARDS)) {
+    document.getElementById(card.stat).textContent =
+      customers.filter(c => card.has(c, card.period)).length;
+    document.getElementById(card.stat + '-period').textContent = periodText(card.period, card.ahead);
+  }
+}
+
+// A second click on the active card shows all customers again.
+// No scroll: the list is just under the cards. A scroll moved the page by a
+// different amount for each list (a short list cannot scroll far), and it
+// cut the page heading.
+function showCardList(key) {
+  if (!Object.hasOwn(CARDS, key)) return;
+  const filter = document.getElementById('filter-status');
+  filter.value = filter.value === key ? '' : key;
   renderTable();
-  document.getElementById('filter-status').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Function declarations: ACTIONS (above) uses them before this line runs.
-function showSendList()    { showCardList('send'); }
-function showOverdueList() { showCardList('expired'); }
-
-function setSendPeriod(arg) {
-  const days = Number(arg);
-  if (!SEND_PERIODS.includes(days)) return;
-  sendPeriod = days;
+// `arg` = "card:days", from a button of a period row.
+function setPeriod(arg) {
+  const [key, value] = String(arg).split(':');
+  const days = Number(value);
+  if (!Object.hasOwn(CARDS, key) || !CARDS[key].periods.includes(days)) return;
+  CARDS[key].period = days;
   refresh();
 }
 
-function setOverduePeriod(arg) {
-  const days = Number(arg);
-  if (!OVERDUE_PERIODS.includes(days)) return;
-  overduePeriod = days;
-  refresh();
-}
-
-function renderPeriodRow(id, visible, period) {
-  const row = document.getElementById(id);
-  row.classList.toggle('d-none', !visible);
-  row.classList.toggle('d-flex', visible);
-  row.querySelectorAll('[data-arg]').forEach(btn => {
-    const on = Number(btn.dataset.arg) === period;
-    btn.classList.toggle('active', on);
-    btn.setAttribute('aria-pressed', String(on));
-  });
+// The period row and the "active" look of each card follow the filter.
+function renderCardState(filterStatus) {
+  for (const [key, card] of Object.entries(CARDS)) {
+    const on = filterStatus === key;
+    const row = document.getElementById(key + '-period');
+    row.classList.toggle('d-none', !on);
+    row.classList.toggle('d-flex', on);
+    row.querySelectorAll('[data-arg]').forEach(btn => {
+      const pressed = Number(btn.dataset.arg.split(':')[1]) === card.period;
+      btn.classList.toggle('active', pressed);
+      btn.setAttribute('aria-pressed', String(pressed));
+    });
+    const button = document.querySelector(`[data-action="showCardList"][data-arg="${key}"]`);
+    button.classList.toggle('active', on);
+    button.setAttribute('aria-pressed', String(on));
+  }
 }
 
 // ─── Dashboard table ─────────────────────────────────────────────────
 function renderTable() {
   const search       = document.getElementById('search-input').value.toLowerCase();
   const filterStatus = document.getElementById('filter-status').value;
-  const untilDate    = localDateInDays(sendPeriod);
-  const sinceDate    = localDateInDays(-overduePeriod);
-  renderPeriodRow('send-period', filterStatus === 'send', sendPeriod);
-  renderPeriodRow('overdue-period', filterStatus === 'expired', overduePeriod);
+  const card         = Object.hasOwn(CARDS, filterStatus) ? CARDS[filterStatus] : null;
+  renderCardState(filterStatus);
 
   let filtered = customers.filter(c => {
     const matchText = !search ||
@@ -328,17 +355,17 @@ function renderTable() {
       c.carPlate.toLowerCase().includes(search) ||
       c.carModel.toLowerCase().includes(search);
 
-    const matchStatus =
-      filterStatus === 'send'    ? inSendList(c, untilDate) :
-      filterStatus === 'expired' ? inOverdueList(c, sinceDate) :
-      !filterStatus || c.status === filterStatus;
+    const matchStatus = card ? card.has(c, card.period)
+                             : !filterStatus || c.status === filterStatus;
     return matchText && matchStatus;
   });
 
-  // Sort: the SMS of now first, then by reminder date ascending
-  filtered.sort((a, b) =>
-    (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
-    a.nextReminderDate.localeCompare(b.nextReminderDate));
+  // Sort: the SMS of now first, then by reminder date ascending. The
+  // "Очаквани за преглед" list goes by the day the customer must come.
+  filtered.sort(filterStatus === 'coming'
+    ? (a, b) => a.nextServiceDate.localeCompare(b.nextServiceDate)
+    : (a, b) => (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
+                a.nextReminderDate.localeCompare(b.nextReminderDate));
 
   const tbody = document.getElementById('table-body');
 
