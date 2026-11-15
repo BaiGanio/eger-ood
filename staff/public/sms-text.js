@@ -74,6 +74,15 @@ const TEMPLATE_KEYS = {
   'телефон': 'phone',  phone: 'phone',
 };
 
+// Not `\w`: it does not match Cyrillic letters.
+const TEMPLATE_NAME = /{{([^{}\s]+)}}/g;
+
+/** The `{{…}}` names in the template that the app does not fill. No doubles. */
+export function unknownTemplateNames(template) {
+  const names = [...String(template ?? '').matchAll(TEMPLATE_NAME)].map(m => m[1]);
+  return [...new Set(names.filter(name => !Object.hasOwn(TEMPLATE_KEYS, name)))];
+}
+
 /** Put the customer's values into the template. */
 export function fillTemplate(template, customer) {
   const values = {
@@ -85,8 +94,7 @@ export function fillTemplate(template, customer) {
     phone: customer.phone,
   };
   // One pass: a value that has "{{…}}" in it is not filled a second time.
-  // Not `\w`: it does not match Cyrillic letters.
-  return String(template ?? '').replace(/{{([^{}\s]+)}}/g, (whole, key) => {
+  return String(template ?? '').replace(TEMPLATE_NAME, (whole, key) => {
     const field = Object.hasOwn(TEMPLATE_KEYS, key) ? TEMPLATE_KEYS[key] : null;
     return field ? String(values[field] ?? '') : whole;
   });

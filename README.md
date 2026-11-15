@@ -66,15 +66,9 @@ TZ=UTC npm test
 
 ### SMS
 
-With no Twilio keys, the app sends nothing. It only prints the SMS in the console.
+With no Twilio keys, the app sends nothing. The send is refused and the dashboard shows a banner.
 
-For real SMS, make a `.env` file in `staff/`:
-
-```
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_PHONE_NUMBER=
-```
+For real SMS, copy `staff/.env.example` to `staff/.env` and fill in the three Twilio values. Each send is then a real, paid SMS.
 
 **Never commit `.env`.** This repo is public.
 
@@ -91,7 +85,9 @@ tools/
 .github/workflows/
   pages.yml              publishes site/ to GitHub Pages
 staff/                   staff app (local only)
-  server.js              local server + API
+  server.js              starts the local server
+  app.js                 the API routes
+  .env.example           copy to .env, then fill in the Twilio keys
   public/
     index.html           staff dashboard
     scripts.js           staff dashboard logic
@@ -100,6 +96,10 @@ staff/                   staff app (local only)
   lib/
     store.js             the only code that touches the Excel file
     dates.js             date math
+    reminders.js         status and due rules
+    sms.js               builds the SMS, sends it through Twilio
+    validate.js          checks of the request input
+    guard.js             who can call the server, security headers
     paths.js             data folder, backup folder, .env
   tools/
     make-test-data.js    makes клиенти.xlsx with invented customers

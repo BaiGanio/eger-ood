@@ -1,0 +1,211 @@
+// The routes of the staff app. No business logic, and no start: `server.js`
+// starts the server, and a test can load the routes with no open port.
+
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { measureSms } from './public/sms-text.js';
+import { localDateText } from './lib/dates.js';
+import { apiGuard, securityHeaders } from './lib/guard.js';
+import { startNewCycle, withComputed } from './lib/reminders.js';
+import { SendError, buildSmsText, sendReminder, smsMode } from './lib/sms.js';
+import { StoreError, generateId, readData, writeData } from './lib/store.js';
+import { checkCustomer, checkHolidays, checkTemplate } from './lib/validate.js';
+
+const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+
+const NOT_FOUND = 'Клиентът не е намерен. Презаредете страницата.';
+
+// The Excel file holds only what the staff or the app enter. The next
+// inspection date, the reminder date and the status are computed on each read
+// (specs section 4). The rules are in lib/reminders.js.
+async function loadData() {
+  const data = await readData();
+  const today = localDateText();
+  data.customers = data.customers.map(c => withComputed(c, data, today));
+  return data;
+}
+
+// Express 4 does not catch an error from an async route. Without this, a
+// locked Excel file would stop the whole server.
+const route = handler => (req, res, next) => handler(req, res, next).catch(next);
+
+export function createApp() {
+  const app = express();
+  app.disable('x-powered-by');
+
+  app.use(securityHeaders);
+  app.use('/api', apiGuard);
+  app.use(express.json({ limit: '100kb' }));
+  // Only public/ is served. The engine code, the data, and .env stay private.
+  // The dashboard is public/index.html, so it opens at "/".
+  app.use(express.static(PUBLIC_DIR));
+
+  // ─── Customers ─────────────────────────────────────────────────────────────
+
+  app.get('/api/customers', route(async (req, res) => {
+    res.json(await loadData());
+  }));
+
+  app.get('/api/customers/:id', route(async (req, res) => {
+    const data = await loadData();
+    const customer = data.customers.find(c => c.id === req.params.id);
+    if (!customer) return res.status(404).json({ error: NOT_FOUND });
+    res.json(customer);
+  }));
+
+  app.post('/api/customers', route(async (req, res) => {
+    const data = await loadData();
+    const today = localDateText();
+    const { value, error } = checkCustomer(req.body, { today });
+    if (error) return res.status(400).json({ error });
+
+    const customer = withComputed({
+      id: generateId(new Set(data.customers.map(c => c.id))),
+      ...value,
+      smsSentAt: null,
+      disabled: false,
+    }, data, today);
+
+    data.customers.push(customer);
+    await writeData(data);
+    res.status(201).json(customer);
+  }));
+
+  app.put('/api/customers/:id', route(async (req, res) => {
+    const data = await loadData();
+    const idx = data.customers.findIndex(c => c.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: NOT_FOUND });
+
+    const existing = data.customers[idx];
+    const today = localDateText();
+    const { value, error } = checkCustomer(req.body, { existing, today });
+    if (error) return res.status(400).json({ error });
+
+    // `value` has only the fields that the staff can edit. The ID, the SMS
+    // mark and `disabled` stay as they are in the file.
+    let merged = { ...existing, ...value };
+
+    // A new inspection date starts a new cycle: no SMS was sent for it yet.
+    if (merged.lastServiceDate !== existing.lastServiceDate) {
+      merged = startNewCycle(merged, merged.lastServiceDate);
+    }
+
+    const updated = withComputed(merged, data, today);
+    data.customers[idx] = updated;
+    await writeData(data);
+    res.json(updated);
+  }));
+
+  app.delete('/api/customers/:id', route(async (req, res) => {
+    const data = await loadData();
+    const idx = data.customers.findIndex(c => c.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: NOT_FOUND });
+    data.customers.splice(idx, 1);
+    await writeData(data);
+    res.json({ success: true });
+  }));
+
+  // `{ "force": true }` sends a second time.
+  app.post('/api/customers/:id/send-sms', route(async (req, res) => {
+    const result = await sendReminder(req.params.id, { force: req.body?.force === true });
+    res.json({ success: true, ...result });
+  }));
+
+  app.patch('/api/customers/:id/toggle-disabled', route(async (req, res) => {
+    const data = await loadData();
+    const idx = data.customers.findIndex(c => c.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: NOT_FOUND });
+    data.customers[idx].disabled = !data.customers[idx].disabled;
+    await writeData(data);
+    // The status depends on `disabled`, so it is computed again.
+    res.json(withComputed(data.customers[idx], data, localDateText()));
+  }));
+
+  // The SMS text for one customer. It changes nothing, but it is a POST.
+  app.post('/api/preview-sms/:id', route(async (req, res) => {
+    const data = await loadData();
+    const customer = data.customers.find(c => c.id === req.params.id);
+    if (!customer) return res.status(404).json({ error: NOT_FOUND });
+    const body = buildSmsText(data.smsTemplate, customer);
+    res.json({
+      body,
+      measure: measureSms(body),
+      pricePerSegment: data.smsPricePerSegment,
+    });
+  }));
+
+  // ─── State ─────────────────────────────────────────────────────────────────
+
+  // "live" or "off" (no Twilio keys). The dashboard shows a banner when it is off.
+  app.get('/api/status', (req, res) => {
+    res.json({ smsMode: smsMode() });
+  });
+
+  // The rows of the Excel file that did not load (sheet, row, reason).
+  app.get('/api/data-problems', route(async (req, res) => {
+    const data = await readData();
+    res.json({ problems: data.problems });
+  }));
+
+  // ─── Settings ──────────────────────────────────────────────────────────────
+
+  app.get('/api/template', route(async (req, res) => {
+    const data = await loadData();
+    res.json({ template: data.smsTemplate, pricePerSegment: data.smsPricePerSegment });
+  }));
+
+  app.put('/api/template', route(async (req, res) => {
+    const { value, error, unknownNames } = checkTemplate(req.body);
+    if (error) return res.status(400).json({ error });
+    const data = await loadData();
+    data.smsTemplate = value.template;
+    if (value.pricePerSegment !== null) data.smsPricePerSegment = value.pricePerSegment;
+    await writeData(data);
+    res.json({
+      template: data.smsTemplate,
+      pricePerSegment: data.smsPricePerSegment,
+      unknownNames,
+    });
+  }));
+
+  app.get('/api/holidays', route(async (req, res) => {
+    const data = await loadData();
+    res.json({ holidays: data.holidays });
+  }));
+
+  app.put('/api/holidays', route(async (req, res) => {
+    const { value, error } = checkHolidays(req.body?.holidays);
+    if (error) return res.status(400).json({ error });
+    const data = await loadData();
+    data.holidays = value;
+    await writeData(data);
+    res.json({ holidays: value });
+  }));
+
+  // An address that is not there gets JSON too, not the HTML page of Express.
+  app.use('/api', (req, res) => res.status(404).json({ error: 'Невалидна заявка.' }));
+
+  // ─── Errors ────────────────────────────────────────────────────────────────
+  // The user sees a clear Bulgarian message. The stack trace stays in the console.
+  app.use((err, req, res, next) => {
+    if (err instanceof StoreError) {
+      // 423 Locked: Excel has the file. 500: the file itself is wrong.
+      return res.status(err.code === 'LOCKED' ? 423 : 500).json({ error: err.message, code: err.code });
+    }
+    if (err instanceof SendError) {
+      const status = { NOT_FOUND: 404, DISABLED: 400, ALREADY_SENT: 409, NO_KEYS: 503, SEND_FAILED: 502 }[err.code] || 500;
+      return res.status(status).json({ error: err.message, code: err.code, sentAt: err.sentAt });
+    }
+    if (err.type === 'entity.parse.failed') {
+      return res.status(400).json({ error: 'Невалидна заявка.' });
+    }
+    if (err.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Заявката е твърде голяма.' });
+    }
+    console.error('[ГРЕШКА]', err);
+    res.status(500).json({ error: 'Възникна грешка. Вижте черния прозорец на програмата.' });
+  });
+
+  return app;
+}

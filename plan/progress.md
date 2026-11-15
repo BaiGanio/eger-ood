@@ -2,11 +2,11 @@
 
 Update this file at the end of each work session. Rules are in `specs.md`.
 
-Last update: 2026-11-14.
+Last update: 2026-11-15.
 
 ## Where we are
 
-**Now:** chapter 08 staff requests are done in code. Chapter 06 (reminder logic) is done in code. It waits for the owner's commit, his checks in the browser, and his screenshots about the "Прегледът мина" button. Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 07 (security).
+**Now:** chapter 07 (security) is done in code and waits for the owner's commit and his checks in the browser (`07-security.md`, "Owner checks"). Chapter 08 staff requests are done in code. Chapter 06 (reminder logic) is done in code. It waits for the owner's commit, his checks in the browser, and his screenshots about the "Прегледът мина" button. Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** the rest of chapter 08 (dashboard cleanup).
 
 ## Chapters
 
@@ -21,7 +21,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 04 | Public site: static + GitHub Pages | 🟨 | 2026-11-13. Code is done. Owner must set Pages → "GitHub Actions", push, and check the live URL. |
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
 | 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
-| 07 | Security | ⬜ | Any time after 03. |
+| 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
 | 08 | Dashboard cleanup | 🟨 | 2026-11-14. Staff requests done: Bulgarian template names, plates with no spaces, server state that shows a stopped server, sidebar that closes. 74 tests. The rest of the chapter is not started. Owner must check the page in a browser. |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
@@ -116,3 +116,11 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-14 (ch08, staff requests): there is no test for the routes in `server.js` (the plate fix on save). `server.js` starts the server on import. Chapter 07 or 08 can move the routes so that a test can load them.
 - 2026-11-14 (ch08, staff requests): a template saved in the Excel file before this change still has `{{carPlate}}` and `{{serviceDate}}`. It still works. The staff can type the Bulgarian names in "Настройки" if they want.
 - 2026-11-14 (ch08, staff requests): all browser calls now go through `serverFetch()` in `scripts.js`. The `api()` helper of chapter 08 can build on it.
+- 2026-11-15 (ch07): chapter 07 done in code: `staff/app.js` (routes), `lib/guard.js` (`Host`, `Origin`, `Content-Type`, CSP), `lib/validate.js` (fixed field list, phone, dates, holidays, template), `express.json` with 100 kb, `cors` and `body-parser` removed, `staff/.env.example`, `escHtml` escapes `'`, no customer text in a handler. `npm audit` = 0. 104 tests pass in Sofia and UTC.
+- 2026-11-15 (ch07): these "found" items above are closed by it: `cors` and any field from the request body, English route errors, the future inspection date, no `.env.example`, no test for the routes, inline `onclick`, `previewSms` / `loadTemplate` / `loadHolidays` without `readReply`, no `api()` helper. Still open for chapter 08: `confirm()`, the status after midnight.
+- 2026-11-15 (ch07): the agent checked the dashboard in a headless Chrome (clicks through the debug port) on a copy of the test data. A person did not look at the page.
+- 2026-11-15 (ch07): test customer `c001` still has a future date (2027-12-29) in `tools/make-test-data.js`. The app lets it stay, but a request cannot set such a date. Change the test data if it is not wanted.
+- 2026-11-15 (ch07): a plate accepts any character (example: `PB11'11<B>`). The page shows it safely. A rule for the plate (letters and digits only) goes with the Cyrillic question above. Ask the owner.
+- 2026-11-15 (ch07): the server gives 404 for `/favicon.ico`. Chapter 08 can add an icon.
+- 2026-11-15 (ch07): the test data still has invented phone numbers. With real Twilio keys a send to them is a paid SMS to a stranger. Not solved in chapter 07. Chapter 09.
+- 2026-11-15 (ch07): the dashboard loads Bootstrap and the fonts from the internet with no integrity check (`integrity="sha384-…"`). Chapter 08 or 09 can add it, or keep the files in `staff/public/`.

@@ -19,6 +19,8 @@ import {
   backupDir, backupFile, dataDir, dataFile, lockFile, DATA_FILE_NAME,
 } from './paths.js';
 import { normalizePlate } from '../public/sms-text.js';
+// One phone rule for a row of the Excel file and for a request.
+import { PHONE } from './validate.js';
 
 // ─── Defaults (their one home) ───────────────────────────────────────────────
 
@@ -31,7 +33,6 @@ export const DEFAULT_PRICE = 0.1466;          // Twilio price per segment to a B
 export const DEFAULT_WEEKLY_DAYS_OFF = [0, 1]; // Sunday, Monday (specs D7)
 
 const KEEP_BACKUPS = 30;
-const PHONE = /^\+[1-9]\d{7,14}$/;
 
 // ─── Layout of the workbook ──────────────────────────────────────────────────
 

@@ -1,3 +1,7 @@
+// A module: the page has no inline script, so the Content-Security-Policy of
+// the server can refuse each inline script (specs section 6).
+import { measureSms, fillTemplate } from './sms-text.js';
+
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
 let smsTemplate = '';
@@ -19,6 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
   bsCustomerModal   = new bootstrap.Modal(document.getElementById('customer-modal'));
   bsSmsPreviewModal = new bootstrap.Modal(document.getElementById('sms-preview-modal'));
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+  // One listener for all buttons, also for the rows that are drawn later.
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el || !Object.hasOwn(ACTIONS, el.dataset.action)) return;
+    ACTIONS[el.dataset.action](el.dataset.arg);
+  });
+  document.getElementById('search-input').addEventListener('input', renderTable);
+  document.getElementById('filter-status').addEventListener('change', renderTable);
+  document.getElementById('sms-template-input').addEventListener('input', updatePreview);
+  document.getElementById('f-price').addEventListener('input', updatePreview);
   document.getElementById('var-chips').addEventListener('click', e => {
     const chip = e.target.closest('[data-var]');
     if (chip) insertVar(chip.dataset.var);
@@ -53,6 +67,25 @@ async function serverFetch(url, options) {
   setServerUp(true);
   return res;
 }
+
+// One call to the engine. It gives the answer as an object, or throws the
+// Bulgarian text of the server. Each write goes out as JSON: the server
+// refuses a write of another type (lib/guard.js).
+async function api(method, path, body) {
+  const options = { method };
+  if (method !== 'GET') {
+    options.headers = { 'Content-Type': 'application/json' };
+    options.body = JSON.stringify(body ?? {});
+  }
+  return readReply(await serverFetch(path, options));
+}
+
+// What a button with `data-action` starts. `data-arg` is the one argument.
+const ACTIONS = {
+  showView, openAddModal, openEditModal, closeModal, saveCustomer,
+  previewSms, closeSmsPreviewModal, confirmSend, toggleDisabled, deleteCustomer,
+  saveTemplate, addHoliday, removeHoliday,
+};
 
 async function checkServer() {
   try {
@@ -112,7 +145,7 @@ function toggleSidebar() {
 async function loadCustomers() {
   const errorBox = document.getElementById('data-error');
   try {
-    const data = await readReply(await serverFetch('/api/customers'));
+    const data = await api('GET', '/api/customers');
     customers  = data.customers || [];
     errorBox.classList.add('d-none');
     renderTable();
@@ -139,7 +172,7 @@ async function readReply(res) {
 // Rows of the Excel file that did not load. The staff correct them in Excel.
 async function loadDataProblems() {
   try {
-    const data = await readReply(await serverFetch('/api/data-problems'));
+    const data = await api('GET', '/api/data-problems');
     renderDataProblems(data.problems || []);
   } catch (e) {
     console.error(e);
@@ -156,24 +189,26 @@ function renderDataProblems(problems) {
 
 async function loadTemplate() {
   try {
-    const res  = await serverFetch('/api/template');
-    const data = await res.json();
+    const data = await api('GET', '/api/template');
     smsTemplate     = data.template || '';
     pricePerSegment = Number.isFinite(data.pricePerSegment) ? data.pricePerSegment : 0.1466;
 
     document.getElementById('sms-template-input').value = smsTemplate;
     document.getElementById('f-price').value            = pricePerSegment;
     updatePreview();
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function loadHolidays() {
   try {
-    const res  = await serverFetch('/api/holidays');
-    const data = await res.json();
+    const data = await api('GET', '/api/holidays');
     holidays = data.holidays || [];
     renderHolidays();
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // ─── View switcher ───────────────────────────────────────────────────
@@ -266,7 +301,7 @@ function renderTable() {
     const sendLabel = eff === 'sent' ? 'Изпрати отново' : 'Изпрати';
 
     return `
-    <tr class="${c.disabled ? 'row-disabled' : ''}" id="row-${c.id}">
+    <tr class="${c.disabled ? 'row-disabled' : ''}">
       <td>
         <div class="fw-semibold">${escHtml(c.name)}</div>
         <div class="text-muted" style="font-size:11px;">${escHtml(c.address || '—')}</div>
@@ -285,7 +320,7 @@ function renderTable() {
         <div class="d-flex gap-1 flex-wrap">
           ${canSend
             ? `<button class="btn ${sendClass} btn-sm d-flex align-items-center gap-1"
-                       onclick="previewSms('${c.id}')">
+                       data-action="previewSms" data-arg="${escHtml(c.id)}">
                  <i class="bi bi-send"></i> ${sendLabel}
                </button>`
             : `<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
@@ -293,10 +328,10 @@ function renderTable() {
                  <i class="bi bi-send"></i> Изпрати
                </button>`
           }
-          <button class="btn btn-outline-secondary btn-sm" onclick="openEditModal('${c.id}')"
+          <button class="btn btn-outline-secondary btn-sm" data-action="openEditModal" data-arg="${escHtml(c.id)}"
                   title="Редактирай"><i class="bi bi-pencil"></i></button>
           <button class="btn ${c.disabled ? 'btn-outline-success' : 'btn-outline-warning'} btn-sm"
-                  onclick="toggleDisabled('${c.id}')"
+                  data-action="toggleDisabled" data-arg="${escHtml(c.id)}"
                   title="${c.disabled ? 'Активирай' : 'Деактивирай'}">
             <i class="bi bi-${c.disabled ? 'play-circle' : 'pause-circle'}"></i>
           </button>
@@ -328,11 +363,11 @@ function renderSettingsTable() {
       <td>
         <div class="d-flex gap-1">
           <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
-                  onclick="openEditModal('${c.id}')">
+                  data-action="openEditModal" data-arg="${escHtml(c.id)}">
             <i class="bi bi-pencil"></i> Редактирай
           </button>
           <button class="btn btn-outline-danger btn-sm"
-                  onclick="deleteCustomer('${c.id}', '${escHtml(c.name).replace(/'/g, "\\'")}')">
+                  data-action="deleteCustomer" data-arg="${escHtml(c.id)}" title="Изтрий">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -347,8 +382,7 @@ async function previewSms(id) {
   if (customer && customer.status === 'sent' &&
       !confirm(`Вече е изпратен на ${formatDateTime(customer.smsSentAt)}. Изпрати отново?`)) return;
   try {
-    const res  = await serverFetch(`/api/preview-sms/${id}`, { method: 'POST' });
-    const data = await res.json();
+    const data = await api('POST', `/api/preview-sms/${encodeURIComponent(id)}`);
     document.getElementById('preview-modal-body').textContent = data.body;
     renderCounter(
       document.getElementById('preview-modal-count'),
@@ -358,7 +392,7 @@ async function previewSms(id) {
     pendingSendId = id;
     bsSmsPreviewModal.show();
   } catch (e) {
-    toast('Грешка при зареждане на SMS преглед', 'danger');
+    toast('Грешка при зареждане на SMS преглед: ' + e.message, 'danger');
   }
 }
 
@@ -377,11 +411,7 @@ async function confirmSend() {
     const idx = customers.findIndex(c => c.id === pendingSendId);
     // The staff said yes to a second SMS before this window opened.
     const force = idx !== -1 && customers[idx].status === 'sent';
-    const data = await readReply(await serverFetch(`/api/customers/${pendingSendId}/send-sms`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ force })
-    }));
+    const data = await api('POST', `/api/customers/${encodeURIComponent(pendingSendId)}/send-sms`, { force });
 
     if (idx !== -1) customers[idx] = data.customer;
 
@@ -403,7 +433,7 @@ async function confirmSend() {
 // ─── Toggle disabled ──────────────────────────────────────────────────
 async function toggleDisabled(id) {
   try {
-    const updated = await readReply(await serverFetch(`/api/customers/${id}/toggle-disabled`, { method: 'PATCH' }));
+    const updated = await api('PATCH', `/api/customers/${encodeURIComponent(id)}/toggle-disabled`);
     const idx = customers.findIndex(c => c.id === id);
     if (idx !== -1) customers[idx] = updated;
     renderTable();
@@ -416,10 +446,15 @@ async function toggleDisabled(id) {
 }
 
 // ─── Delete customer ──────────────────────────────────────────────────
-async function deleteCustomer(id, name) {
+// Only the ID comes from the button. The name is read from the list, so no
+// customer text is ever part of the page's code.
+async function deleteCustomer(id) {
+  const customer = customers.find(c => c.id === id);
+  if (!customer) return;
+  const name = customer.name;
   if (!confirm(`Изтриване на клиент "${name}"? Действието е необратимо.`)) return;
   try {
-    await readReply(await serverFetch(`/api/customers/${id}`, { method: 'DELETE' }));
+    await api('DELETE', `/api/customers/${encodeURIComponent(id)}`);
     customers = customers.filter(c => c.id !== id);
     renderTable();
     renderStats();
@@ -438,6 +473,7 @@ function openAddModal() {
   ['name','phone','address','carModel','carPlate'].forEach(f =>
     document.getElementById('f-' + f).value = '');
   document.getElementById('f-lastServiceDate').value = '';
+  limitInspectionDate();
   bsCustomerModal.show();
 }
 
@@ -453,10 +489,23 @@ function openEditModal(id) {
   document.getElementById('f-carModel').value        = c.carModel;
   document.getElementById('f-carPlate').value        = c.carPlate;
   document.getElementById('f-lastServiceDate').value = c.lastServiceDate;
+  limitInspectionDate();
   bsCustomerModal.show();
 }
 
 function closeModal() { bsCustomerModal.hide(); }
+
+// An inspection cannot be in the future. The server checks it too.
+function limitInspectionDate() {
+  document.getElementById('f-lastServiceDate').max = localDateInDays(0);
+}
+
+// "0887 123 456" → "+359887123456". Null when the text is not a Bulgarian
+// number that starts with 0.
+function bulgarianToE164(phone) {
+  const digits = phone.replace(/[\s-]/g, '');
+  return /^0\d{8,9}$/.test(digits) ? '+359' + digits.slice(1) : null;
+}
 
 async function saveCustomer() {
   const id   = document.getElementById('f-id').value;
@@ -474,25 +523,23 @@ async function saveCustomer() {
     return;
   }
 
+  // Twilio needs the country code. The staff often type the number with 0.
+  const e164 = bulgarianToE164(body.phone);
+  if (e164) {
+    if (!confirm(`Телефонът трябва да започва с +359. Да го променя ли на ${e164}?`)) return;
+    body.phone = e164;
+    document.getElementById('f-phone').value = e164;
+  }
+
   try {
-    let res, data;
+    let data;
     if (id) {
-      res  = await serverFetch(`/api/customers/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      data = await readReply(res);
+      data = await api('PUT', `/api/customers/${encodeURIComponent(id)}`, body);
       const idx = customers.findIndex(c => c.id === id);
       if (idx !== -1) customers[idx] = data;
       toast('Клиентът е обновен', 'success');
     } else {
-      res  = await serverFetch('/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      data = await readReply(res);
+      data = await api('POST', '/api/customers', body);
       customers.push(data);
       toast('Клиентът е добавен', 'success');
     }
@@ -520,7 +567,7 @@ function updatePreview() {
     phone:           '+359881234567'
   };
   // The same function fills the real SMS in the engine.
-  const preview = window.SmsText.fillTemplate(tmpl, sample);
+  const preview = fillTemplate(tmpl, sample);
 
   document.getElementById('sms-preview-box').textContent = preview || '—';
   renderCounter(document.getElementById('sms-counter'), preview, pricePerSegment);
@@ -531,7 +578,7 @@ function updatePreview() {
  * It is the only place that explains why a message suddenly costs 3x.
  */
 function renderCounter(el, text, price) {
-  const m    = window.SmsText.measureSms(text);
+  const m    = measureSms(text);
   const cost = m.segments * (Number.isFinite(price) ? price : 0);
   const tone = m.segments === 1 ? 'success' : m.segments === 2 ? 'warning' : 'danger';
   const over = m.segments > 1;
@@ -570,13 +617,14 @@ function insertVar(v) {
 async function saveTemplate() {
   const template = document.getElementById('sms-template-input').value;
   try {
-    await readReply(await serverFetch('/api/template', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template, pricePerSegment })
-    }));
+    const data = await api('PUT', '/api/template', { template, pricePerSegment });
     smsTemplate = template;
     toast('Шаблонът е запазен!', 'success');
+    // A name with a typing error stays in the SMS as it is. Say so.
+    if (data.unknownNames?.length) {
+      toast('Непознати променливи: ' + data.unknownNames.map(n => `{{${n}}}`).join(', ') +
+            '. Те остават в SMS-а без промяна.', 'warning');
+    }
   } catch (e) {
     toast('Грешка при запазване: ' + e.message, 'danger');
   }
@@ -592,7 +640,7 @@ function renderHolidays() {
   list.innerHTML = [...holidays].sort().map(h => `
     <div class="d-flex align-items-center justify-content-between bg-light border rounded px-3 py-2">
       <span class="small"><i class="bi bi-calendar2-x text-danger me-2"></i>${formatDate(h)}</span>
-      <button class="btn btn-link btn-sm text-danger p-0 ms-2" onclick="removeHoliday('${h}')" title="Премахни">
+      <button class="btn btn-link btn-sm text-danger p-0 ms-2" data-action="removeHoliday" data-arg="${escHtml(h)}" title="Премахни">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
@@ -618,11 +666,7 @@ async function removeHoliday(date) {
 
 async function saveHolidays() {
   try {
-    await readReply(await serverFetch('/api/holidays', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ holidays })
-    }));
+    await api('PUT', '/api/holidays', { holidays });
   } catch (e) {
     toast('Грешка при запазване на почивните дни: ' + e.message, 'danger');
     // The page must show what is in the file, not what failed to save.
@@ -664,7 +708,8 @@ function escHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // Bootstrap toast helper

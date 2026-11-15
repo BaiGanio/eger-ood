@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-14.
+Last update: 2026-11-15.
 
 ## 1. The product
 
@@ -60,11 +60,14 @@ Last update: 2026-11-14.
 
 ### Staff app
 - The engine listens on `127.0.0.1` only. It serves only `staff/public/`.
-- One job per file. Layers go one way: `server.js` (routes) → `lib/reminders.js`, `lib/sms.js` → `lib/store.js`, `lib/dates.js`. A lower layer never imports a higher one.
+- One job per file. Layers go one way: `server.js` (start) → `app.js` (routes) → `lib/reminders.js`, `lib/sms.js` → `lib/store.js`, `lib/dates.js`. A lower layer never imports a higher one.
 
 | File | Job |
 |---|---|
-| `staff/server.js` | Start, routes, static files. No business logic. |
+| `staff/server.js` | Start only: `.env`, data file, port, browser. |
+| `staff/app.js` | Routes and static files (`createApp()`). No business logic. A test loads it with no open port. |
+| `staff/lib/validate.js` | Checks of the request input. Pure functions. |
+| `staff/lib/guard.js` | Who can call the server (`Host`, `Origin`, `Content-Type`). Security headers. |
 | `staff/lib/store.js` | The only code that touches the Excel file (repository pattern). |
 | `staff/lib/dates.js` | All date math. Pure functions. |
 | `staff/lib/reminders.js` | Status and due rules. Pure functions. |
@@ -94,9 +97,9 @@ Last update: 2026-11-14.
 
 - **Secrets:** Twilio keys live in `.env` only. `.env` is in `.gitignore`. Keys never reach the browser and never go into a log. `.env.example` has empty values.
 - **Data in git:** only invented test customers. Never a real name, phone, or plate. `staff/data/`, `backups/`, `*.xlsx` are in `.gitignore`.
-- **Local server:** no `cors` package. Each `/api/*` request must have `Host` = `localhost:PORT` or `127.0.0.1:PORT`. A write request with a foreign `Origin` gets 403. A write request must be `Content-Type: application/json`.
-- **Input:** the server checks every field. It accepts a fixed list of fields and ignores all others. Phone: `^\+[1-9]\d{7,14}$`. Dates: real `YYYY-MM-DD`. Body limit 100 kb.
-- **Output:** all customer text goes through `escHtml` (it escapes `& < > " '`). No customer text inside an `onclick`. No inline `onclick` at all. A `Content-Security-Policy` header allows self and the CDN hosts only.
+- **Local server:** no `cors` package. Each `/api/*` request must have `Host` = `localhost:PORT` or `127.0.0.1:PORT`. A request with a foreign `Origin` gets 403 (read or write). A write request must be `Content-Type: application/json`, or it gets 415. The server sends no CORS header.
+- **Input:** the server checks every field. It accepts a fixed list of fields and ignores all others. Phone: `^\+[1-9]\d{7,14}$` (one rule, in `lib/validate.js`, for a request and for an Excel row). Dates: real `YYYY-MM-DD`. A request cannot set an inspection date in the future; a future date that is already in the file can stay. Template: 500 characters at most. Body limit 100 kb.
+- **Output:** all customer text goes through `escHtml` (it escapes `& < > " '`). No customer text inside an `onclick`. No inline `onclick` at all and no inline script: a button has `data-action`, and `scripts.js` is a module. A `Content-Security-Policy` header allows self and the CDN hosts only (inline styles are allowed, Bootstrap needs them).
 - **Logs:** in live mode, log the customer ID and the Twilio SID. Never the phone with the text.
 - **Dependencies:** `npm audit` shows no high or critical finding before a release. Do not use the `xlsx` npm package. Use `exceljs`.
 - **Errors:** the user sees a clear Bulgarian message. The stack trace stays in the console.

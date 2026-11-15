@@ -14,8 +14,6 @@
     "build:linux": "caxa -i . -o ЕГЕР-Сервиз-linux -- \"{{caxa}}/node_modules/.bin/node\" \"{{caxa}}/server.js\""
   },
   "dependencies": {
-    "body-parser": "^1.20.9",
-    "cors": "^2.8.5",
     "dotenv": "^17.3.1",
     "exceljs": "^4.4.0",
     "express": "^4.22.3",
