@@ -11,8 +11,24 @@ const STAFF_DIR = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 export const DATA_FILE_NAME = 'клиенти.xlsx';
 
-/** The `.env` file with the Twilio keys. It sits next to the app. */
-export const ENV_FILE = path.join(STAFF_DIR, '.env');
+/** The file with the Twilio keys in the data folder (the staff PC). */
+export const SETTINGS_ENV_NAME = 'настройки.env';
+
+/**
+ * The files with the Twilio keys, the first one first. The built app unpacks
+ * into a temp folder, so the keys of the staff PC live in the data folder.
+ * The `.env` next to the code is for developers. dotenv does not overwrite a
+ * value that is already set, so the first file wins.
+ */
+export function envFiles() {
+  return [path.join(dataDir(), SETTINGS_ENV_NAME), path.join(STAFF_DIR, '.env')];
+}
+
+/** The name of a copy that the staff save by hand (D27): `клиенти-копие-YYYY-MM-DD.xlsx`. */
+export function manualCopyName(dateText) {
+  const ext = path.extname(DATA_FILE_NAME);
+  return `${path.basename(DATA_FILE_NAME, ext)}-копие-${dateText}${ext}`;
+}
 
 /** Folder of the Excel file. `EGER_DATA_DIR` overrides the default (specs O3). */
 export function dataDir() {

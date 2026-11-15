@@ -34,7 +34,9 @@ cd site
 python3 -m http.server 8000     # http://localhost:8000/
 ```
 
-A push to `master` that changes `site/` publishes the site (`.github/workflows/pages.yml`).
+### Deploy the public site
+
+A push to `master` that changes `site/` publishes the site (`.github/workflows/pages.yml`). In GitHub: Settings → Pages → Source = "GitHub Actions". Later the site moves to Cloudflare with its own domain; all paths are relative, so the files stay the same.
 
 ### Holidays (one time per year, in December)
 
@@ -46,7 +48,7 @@ It computes the Bulgarian days off from the law (fixed dates, Orthodox Easter, t
 
 ### Data (staff app)
 
-The staff app keeps all data in one Excel file: `Documents/The-App/clients.xlsx`. The app makes an empty file on the first start. `EGER_DATA_DIR` (in `.env` or in the shell) gives another folder.
+The staff app keeps all data in one Excel file: `Documents/ЕГЕР-Сервиз/клиенти.xlsx`. The app makes an empty file on the first start. `EGER_DATA_DIR` (in the shell or in `staff/.env`) gives another folder. One copy a day goes to `backups/` in the same folder (30 are kept). The sidebar button "Копие на USB" saves a copy where the staff choose.
 
 ```bash
 cd staff
@@ -68,9 +70,28 @@ TZ=UTC npm test
 
 With no Twilio keys, the app sends nothing. The send is refused and the dashboard shows a banner.
 
-For real SMS, copy `staff/.env.example` to `staff/.env` and fill in the three Twilio values. Each send is then a real, paid SMS.
+For real SMS, fill in the three Twilio values of `staff/.env.example`:
+
+- development: copy it to `staff/.env`;
+- staff PC: copy it to `Documents\ЕГЕР-Сервиз\настройки.env`. The built app reads this file first.
+
+Each send is then a real, paid SMS. Use your own phone number in the test data.
 
 **Never commit `.env`.** This repo is public.
+
+### Build the staff app (one file, no Node on the staff PC)
+
+```bash
+cd staff
+npm install
+npm run build        # dist/ЕГЕР-Сервиз.exe on Windows, dist/ЕГЕР-Сервиз on a Mac
+```
+
+- caxa packs the Node that runs the build. So build the Windows file **on Windows**, and the Mac file on a Mac.
+- Use the Node from <https://nodejs.org> (LTS). Homebrew's Node needs an extra library file; the build stops with a message then. Run `/path/to/nodejs.org/node tools/build.mjs` in place of `npm run build`.
+- The built file has no data, no keys, no tests (`tools/build.mjs`, `EXCLUDE`). At start it unpacks into a temp folder. The data stays in `Documents/ЕГЕР-Сервиз/`, so a new build never touches it.
+- If port 3000 is busy: the app opens the browser on a running copy of itself, or takes 3001–3010.
+- Install on the staff PC: [`staff/ИНСТРУКЦИЯ.md`](staff/ИНСТРУКЦИЯ.md) (Bulgarian).
 
 ## Layout
 
@@ -85,9 +106,11 @@ tools/
 .github/workflows/
   pages.yml              publishes site/ to GitHub Pages
 staff/                   staff app (local only)
-  server.js              starts the local server
+  server.js              starts the local server (keys, data file, port, browser)
   app.js                 the API routes
-  .env.example           copy to .env, then fill in the Twilio keys
+  .env.example           copy to .env (or настройки.env on the staff PC), fill in the Twilio keys
+  ИНСТРУКЦИЯ.md          install and use, for the staff PC (Bulgarian)
+  start.sh, start.bat    developer start with Node (not for the staff)
   public/
     index.html           staff dashboard
     scripts.js           staff dashboard logic
@@ -100,8 +123,12 @@ staff/                   staff app (local only)
     sms.js               builds the SMS, sends it through Twilio
     validate.js          checks of the request input
     guard.js             who can call the server, security headers
-    paths.js             data folder, backup folder, .env
+    paths.js             data folder, backup folder, key files
+    port.js              port at start (3000–3010, running copy)
+    holidays.js          official days off by the law
+    holiday-check.js     one-time days off from the internet
   tools/
+    build.mjs            builds the one-file app (npm run build)
     make-test-data.js    makes клиенти.xlsx with invented customers
     json-to-xlsx.js      one-time: old customers.json → клиенти.xlsx
   test/                  node --test
@@ -116,8 +143,9 @@ plan/                    the work plan, specs, progress
 | [`plan/progress.md`](plan/progress.md) | What is done, what is next |
 | [`plan/README.md`](plan/README.md) | The chapters of the work plan |
 | [`CLAUDE.md`](CLAUDE.md) | Short brief for the AI agent |
+| [`staff/ИНСТРУКЦИЯ.md`](staff/ИНСТРУКЦИЯ.md) | Install and daily start on the staff PC (Bulgarian) |
 
-A guide for the staff (in Bulgarian) comes when the staff app is done.
+The staff guide with pictures is in the app: menu "Помощ" (`staff/public/help.html`).
 
 ## Security and privacy
 

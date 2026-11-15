@@ -1,41 +1,34 @@
-// Graceful error handling — keep terminal open on crash
+// Keep the window open on a crash, so the staff can read the error.
 process.on('uncaughtException', (err) => {
   console.error('\n  [ГРЕШКА]', err.message);
   console.error('  ', err.stack);
-  console.log('\n  Натиснете Enter за да затворите...');
-  process.stdin.resume();
-  process.stdin.once('data', () => process.exit(1));
+  waitForEnter(1);
 });
- 
+
 process.on('unhandledRejection', (reason) => {
   console.error('\n  [ГРЕШКА]', reason);
-  console.log('\n  Натиснете Enter за да затворите...');
-  process.stdin.resume();
-  process.stdin.once('data', () => process.exit(1));
+  waitForEnter(1);
 });
-import { createRequire } from 'module';
-import { ENV_FILE, dataFile } from './lib/paths.js';
-const _require = createRequire(import.meta.url);
-try { _require('dotenv').config({ path: ENV_FILE }); } catch(e) { /* no .env file, that's ok */ }
+
+import http from 'http';
 import { execSync } from 'child_process';
-import { createApp } from './app.js';
-import { ensureDataFile } from './lib/store.js';
+import dotenv from 'dotenv';
+import { dataFile, envFiles } from './lib/paths.js';
+import { askIsOurApp, candidatePorts, choosePort, FIRST_PORT, LAST_PORT } from './lib/port.js';
 
-// The routes are in app.js. This file only starts the server.
-// The holiday check goes to the internet at most once a month (lib/holiday-check.js).
-const app = createApp({ autoHolidayCheck: true });
-const PORT = process.env.PORT || 3000;
+// Before the app loads: the Twilio keys. A missing file is no error (no keys = no SMS).
+const keyFiles = envFiles();
+dotenv.config({ path: keyFiles, quiet: true });
 
-// ─── Start ────────────────────────────────────────────────────────────────────
-// Make an empty Excel file if there is none (first run).
-try {
-  const { created } = await ensureDataFile();
-  console.log(`[INIT] ${created ? 'Created an empty data file' : 'Data file'}: ${dataFile()}`);
-} catch (err) {
-  console.error('\n  [ГРЕШКА] Файлът с данни не може да се създаде:', dataFile());
-  throw err;
+const { createApp } = await import('./app.js');
+const { ensureDataFile } = await import('./lib/store.js');
+
+function waitForEnter(code) {
+  console.log('\n  Натиснете Enter, за да затворите прозореца...');
+  process.stdin.resume();
+  process.stdin.once('data', () => process.exit(code));
 }
- 
+
 function openBrowser(url) {
   try {
     if (process.platform === 'win32') {
@@ -46,20 +39,64 @@ function openBrowser(url) {
       execSync(`xdg-open "${url}"`, { stdio: 'ignore' });
     }
   } catch (e) {
-    console.log(`  Не може да се отвори браузърът автоматично.`);
-    console.log(`  Моля отворете ръчно: ${url}`);
+    console.log('  Не може да се отвори браузърът автоматично.');
+    console.log(`  Моля, отворете ръчно: ${url}`);
   }
 }
- 
-app.listen(PORT, '127.0.0.1', () => {
-  const url = `http://localhost:${PORT}`;
-  console.log('');
-  console.log('  ╔══════════════════════════════════════╗');
-  console.log('  ║       ЕГЕР ООД — SMS Сервиз          ║');
-  console.log(`  ║   Отворете: ${url}     ║`);
-  console.log('  ╚══════════════════════════════════════╝');
-  console.log('');
-  console.log('  Затворете този прозорец за да спрете сървъра.');
-  console.log('');
-  openBrowser(url);
-});
+
+// The routes are in app.js. This file only starts the server.
+// The holiday check goes to the internet at most once a month (lib/holiday-check.js).
+const server = http.createServer(createApp({ autoHolidayCheck: true }));
+
+function listen(port) {
+  return new Promise((resolve, reject) => {
+    const onError = err => { server.off('listening', onListening); reject(err); };
+    const onListening = () => { server.off('error', onError); resolve(); };
+    server.once('error', onError);
+    server.once('listening', onListening);
+    server.listen(port, '127.0.0.1');
+  });
+}
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+
+// Make an empty Excel file if there is none (first run).
+try {
+  const { created } = await ensureDataFile();
+  console.log(`[INIT] ${created ? 'Created an empty data file' : 'Data file'}: ${dataFile()}`);
+} catch (err) {
+  console.error('\n  [ГРЕШКА] Файлът с данни не може да се създаде:', dataFile());
+  throw err;
+}
+console.log(`[INIT] Twilio keys: ${keyFiles.join(' | ')}`);
+
+let choice;
+try {
+  choice = await choosePort(candidatePorts(process.env.PORT), { listen, isOurApp: askIsOurApp });
+} catch (err) {
+  if (err.code !== 'EADDRINUSE') throw err;
+  console.error(`\n  [ГРЕШКА] Портовете ${FIRST_PORT}–${LAST_PORT} са заети от други програми.`);
+  console.error('  Рестартирайте компютъра и стартирайте програмата отново.');
+  waitForEnter(1);
+}
+
+if (choice) {
+  const url = `http://localhost:${choice.port}`;
+
+  if (choice.running) {
+    // A second double-click: the app runs already. Show it and close this window.
+    console.log('\n  Програмата вече работи. Отварям браузъра...');
+    openBrowser(url);
+    setTimeout(() => process.exit(0), 3000);
+  } else {
+    console.log('');
+    console.log('  ╔══════════════════════════════════════╗');
+    console.log('  ║       ЕГЕР ООД — SMS Сервиз          ║');
+    console.log(`  ║   Отворете: ${url.padEnd(25)}║`);
+    console.log('  ╚══════════════════════════════════════╝');
+    console.log('');
+    console.log('  Затворете този прозорец, за да спрете програмата.');
+    console.log('');
+    openBrowser(url);
+  }
+}

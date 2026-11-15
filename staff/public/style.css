@@ -14,6 +14,7 @@ body.sidebar-closed .main    { margin-left: 64px; }
 body.sidebar-closed .sidebar-label { display: none; }
 body.sidebar-closed .sidebar .nav-link,
 body.sidebar-closed #sidebar-toggle,
+body.sidebar-closed #backup-copy,
 body.sidebar-closed .server-state { justify-content: center; }
 body.sidebar-closed #sidebar-toggle i { transform: rotate(180deg); }
 

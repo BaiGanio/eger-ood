@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-15 (D25).
+Last update: 2026-11-15 (D27 design, chapter 09).
 
 ## 1. The product
 
@@ -45,7 +45,7 @@ Last update: 2026-11-15 (D25).
 | D24 | The customer table shows one page of rows: 25 (default) / 50 / 100 per page, chosen under the table, kept until a reload. The split is in the browser only (`public/pages.js`); the server still sends all customers, and the cards count all. Under the table: "Показани 26–50 от 312", page buttons (first, last, two on each side, "…" for a gap) and "Редове". A new search, filter, card or period goes to page 1. A send, edit or delete keeps the page. | 2026-11-15 |
 | D25 | The staff app knows the official days off by itself, for any year (2000–2099): `lib/holidays.js` computes them from the law (fixed dates, Orthodox Easter, Labour Code art. 154 weekend rule). The Nager.Date API adds the one-time days off: the app checks it at most once in 30 days (this year and the next), when the app starts or the page loads, and on "Провери сега". This is not a timer job (D4). Only the year and the country go out. No internet = the law and the last good check stay. The check result is in the Excel sheet "Официални празници" and the setting "Последна проверка на празниците" (the app writes them). The staff add their own days off (force majeure) in a calendar in "Настройки": one month at a time (◀ ▶), grey = weekly day off, red = official holiday (always red, also if the staff added it), orange = added by the staff; a click adds or removes a staff day; no extra list and no long text (staff, 2026-11-15). After each change the customers load again and a toast says how many reminders moved (staff, 2026-11-15). | 2026-11-15 |
 | D26 | No "Прегледът мина" button. A customer who passed the inspection gets the new date in "Последен преглед" (pencil or Excel). The app then sets "Следващ преглед" one year later, clears the SMS mark, and the status is "Очаква". A customer who did not come stays "Просрочен" (owner, 2026-11-15). | 2026-11-15 |
-| D27 | Backup: the daily copy stays (one a day, 30 kept). The staff also get a button in the sidebar to save a copy of the data file to a place they choose (for example a USB stick). Only when they click it. Design in chapter 09 (owner, 2026-11-15). | 2026-11-15 |
+| D27 | Backup: the daily copy stays (one a day, 30 kept). The staff also get a button in the sidebar to save a copy of the data file to a place they choose (for example a USB stick). Only when they click it. Design (owner OK, 2026-11-15): button "Копие на USB" (icon `bi-usb-drive`) in its own block under the menu, above the server state. Edge / Chrome open the "Save as" window of Windows; other browsers save to "Downloads" and a toast says to move the file. Name `клиенти-копие-YYYY-MM-DD.xlsx`. The copy is the file on the disk. | 2026-11-15 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions
@@ -72,7 +72,7 @@ Last update: 2026-11-15 (D25).
 
 | File | Job |
 |---|---|
-| `staff/server.js` | Start only: `.env`, data file, port, browser. |
+| `staff/server.js` | Start only: key files, data file, port, browser. |
 | `staff/app.js` | Routes and static files (`createApp()`). No business logic. A test loads it with no open port. |
 | `staff/lib/validate.js` | Checks of the request input. Pure functions. |
 | `staff/lib/guard.js` | Who can call the server (`Host`, `Origin`, `Content-Type`). Security headers. |
@@ -82,7 +82,8 @@ Last update: 2026-11-15 (D25).
 | `staff/lib/holiday-check.js` | The check of the days off on the internet (D25). Same layer as `sms.js`. |
 | `staff/lib/reminders.js` | Status and due rules. Pure functions. |
 | `staff/lib/sms.js` | Build text, send through Twilio. |
-| `staff/lib/paths.js` | Data folder, backup folder, `.env` path. |
+| `staff/lib/paths.js` | Data folder, backup folder, key files (`настройки.env` in the data folder first, `staff/.env` second). |
+| `staff/lib/port.js` | The port at start: 3000–3010; a running copy of the app gets the browser, not a second server. |
 | `staff/public/sms-text.js` | SMS length, cost, template fill. Shared by engine and browser. |
 
 - A value has one home. No number or text is written two times (example: the SMS price).
@@ -109,7 +110,7 @@ Last update: 2026-11-15 (D25).
 
 ## 6. Security rules
 
-- **Secrets:** Twilio keys live in `.env` only. `.env` is in `.gitignore`. Keys never reach the browser and never go into a log. `.env.example` has empty values.
+- **Secrets:** Twilio keys live only in `staff/.env` (developer) or `Documents\ЕГЕР-Сервиз\настройки.env` (staff PC; the built app unpacks into a temp folder). `.env` and `*.env` are in `.gitignore`. Keys never reach the browser and never go into a log. `.env.example` has empty values.
 - **Data in git:** only invented test customers. Never a real name, phone, or plate. `staff/data/`, `backups/`, `*.xlsx` are in `.gitignore`.
 - **Local server:** no `cors` package. Each `/api/*` request must have `Host` = `localhost:PORT` or `127.0.0.1:PORT`. A request with a foreign `Origin` gets 403 (read or write). A write request must be `Content-Type: application/json`, or it gets 415. The server sends no CORS header.
 - **Input:** the server checks every field. It accepts a fixed list of fields and ignores all others. Phone: `^\+[1-9]\d{7,14}$` (one rule, in `lib/validate.js`, for a request and for an Excel row). Dates: real `YYYY-MM-DD`. A request cannot set an inspection date in the future; a future date that is already in the file can stay. Template: 500 characters at most. Body limit 100 kb.
@@ -122,7 +123,7 @@ Last update: 2026-11-15 (D25).
 
 - Write to a temp file in the same folder, then rename it over the real file.
 - Before the first write of each day, copy the file to `backups/`. Keep 30.
-- A copy to a place the staff choose (USB stick) happens only on their click (D27).
+- A copy to a place the staff choose (USB stick) happens only on their click (D27). `GET /api/backup-copy` gives the file; the browser saves it.
 - Check the Excel lock **before** an SMS send, not after.
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash.
 - `Телефон` is a text column.

@@ -5,6 +5,7 @@ plan/01-dev-notes/
 # Secrets
 .env
 .env.*
+*.env
 !.env.example
 
 # Node
@@ -21,6 +22,7 @@ backups/
 *.xlsx.*.tmp
 
 # Build outputs (caxa)
+staff/dist/
 ЕГЕР-Сервиз
 ЕГЕР-Сервиз.exe
 ЕГЕР-Сервиз-linux

@@ -20,7 +20,7 @@ export class SendError extends Error {
 }
 
 /**
- * 'live' with Twilio keys in `.env`, 'off' with none.
+ * 'live' with Twilio keys in `настройки.env` or `.env`, 'off' with none.
  * There is no pretend send: an SMS that did not go out must never look sent.
  */
 export function smsMode(env = process.env) {
@@ -71,7 +71,7 @@ export async function sendReminder(customerId, { now = new Date(), send = null }
   }
 
   if (!send && smsMode() !== 'live') {
-    throw new SendError('NO_KEYS', 'SMS не може да се изпрати: липсват ключовете за Twilio във файла .env.');
+    throw new SendError('NO_KEYS', 'SMS не може да се изпрати: липсват ключовете за Twilio във файла „настройки.env“.');
   }
 
   // Before the send, not after: a sent SMS is paid, and a locked file cannot

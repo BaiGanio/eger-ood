@@ -589,6 +589,21 @@ export async function assertWritable() {
   if (await isLocked()) throw new StoreError('LOCKED', LOCKED_MESSAGE);
 }
 
+/**
+ * The bytes of the data file as it is on the disk, for a copy that the staff
+ * save by hand (D27). A read works also when Excel has the file open; the
+ * changes that are not saved in Excel are then not in it.
+ */
+export async function readDataFileBytes() {
+  try {
+    return await fs.readFile(dataFile());
+  } catch (err) {
+    if (isLockError(err)) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+    console.error('[STORE] Cannot read the data file for a copy:', err);
+    throw new StoreError('UNREADABLE', `Файлът „${DATA_FILE_NAME}“ не може да се прочете.`);
+  }
+}
+
 /** Makes an empty file with all the sheets when there is none. */
 export async function ensureDataFile() {
   if (await exists(dataFile())) return { file: dataFile(), created: false };

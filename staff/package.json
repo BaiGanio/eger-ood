@@ -1,7 +1,7 @@
 {
-  "name": "car-service-sms",
+  "name": "eger-staff",
   "version": "1.0.0",
-  "description": "Car service annual check SMS reminder system",
+  "description": "ЕГЕР ООД staff app: customers and ГТП reminder SMS",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -9,9 +9,7 @@
     "dev": "nodemon server.js",
     "test": "node --test test/",
     "test-data": "node tools/make-test-data.js",
-    "build:win": "caxa -i . -o ЕГЕР-Сервиз.exe -- \"{{caxa}}/node_modules/.bin/node\" \"{{caxa}}/server.js\"",
-    "build:mac": "caxa -i . -o ЕГЕР-Сервиз     -- /opt/homebrew/bin/node \"{{caxa}}/server.js\"",
-    "build:linux": "caxa -i . -o ЕГЕР-Сервиз-linux -- \"{{caxa}}/node_modules/.bin/node\" \"{{caxa}}/server.js\""
+    "build": "node tools/build.mjs"
   },
   "dependencies": {
     "dotenv": "^17.3.1",

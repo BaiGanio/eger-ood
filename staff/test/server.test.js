@@ -361,3 +361,43 @@ test('PUT with a new phone clears the SMS mark; the same phone keeps it', async 
   assert.equal(res.status, 200);
   assert.equal((await readData()).customers[0].smsSentAt, null);
 });
+
+// ─── State and the copy to a USB stick (chapter 09) ──────────────────────────
+
+test('/api/status names our app, so a second start can find it (lib/port.js)', async t => {
+  const { call } = await start(t);
+  const res = await call('GET', '/api/status');
+  assert.equal(res.status, 200);
+  assert.equal(res.json.app, 'eger-staff');
+});
+
+test('/api/backup-copy gives the data file as a download with the dated name (D27)', async t => {
+  const { call } = await start(t);
+  const res = await call('GET', '/api/backup-copy');
+  assert.equal(res.status, 200);
+  assert.match(res.headers['content-type'], /spreadsheetml\.sheet/);
+  const name = `клиенти-копие-${localDateText()}.xlsx`;
+  assert.match(res.headers['content-disposition'], /^attachment;/);
+  assert.ok(res.headers['content-disposition'].includes(`filename*=UTF-8''${encodeURIComponent(name)}`));
+  assert.equal(res.headers['cache-control'], 'no-store');
+  // The same bytes as the file on the disk (an .xlsx is a zip: "PK").
+  const file = await fs.readFile(path.join(process.env.EGER_DATA_DIR, 'клиенти.xlsx'));
+  assert.equal(Number(res.headers['content-length']), file.length);
+  assert.ok(res.raw.startsWith('PK'));
+});
+
+test('/api/backup-copy: a foreign Host gets 403 and no file', async t => {
+  const { call } = await start(t);
+  const res = await call('GET', '/api/backup-copy', { headers: { Host: 'evil.example' } });
+  assert.equal(res.status, 403);
+  assert.equal(res.headers['content-disposition'], undefined);
+});
+
+test('/api/backup-copy: no data file gives a clear Bulgarian error', async t => {
+  const { call } = await start(t);
+  await fs.rm(path.join(process.env.EGER_DATA_DIR, 'клиенти.xlsx'));
+  t.mock.method(console, 'error', () => {});
+  const res = await call('GET', '/api/backup-copy');
+  assert.equal(res.status, 500);
+  assert.match(res.json.error, /не може да се прочете/);
+});

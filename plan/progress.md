@@ -6,7 +6,7 @@ Last update: 2026-11-15.
 
 ## Where we are
 
-**Now:** chapter 08 (dashboard cleanup) is closed (owner checked the page, 2026-11-15). No "Прегледът мина" button (D26). Chapters 06 and 07 wait for the owner's checks in the browser ("Owner checks" in each chapter file). Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 09 (packaging), with the USB backup button (D27). Then the rest of chapter 10 (staff guide).
+**Now:** chapter 09 (packaging) is in work: code, Mac build, USB copy button, README and `staff/ИНСТРУКЦИЯ.md` are done; the Windows test on the real PC and the "Отвори папката" proposal are open. Chapter 08 (dashboard cleanup) is closed (owner checked the page, 2026-11-15). No "Прегледът мина" button (D26). Chapters 06 and 07 wait for the owner's checks in the browser ("Owner checks" in each chapter file). Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** the Windows test (`09-packaging.md`, "Windows test"). Then the rest of chapter 10 (staff guide).
 
 ## Chapters
 
@@ -23,7 +23,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). No "Прегледът мина" button (D26). |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
 | 08 | Dashboard cleanup | ✅ | 2026-11-15. Closed: owner checked the page. 162 tests. No "Прегледът мина" button (D26). History: code and tests (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). New dashboard requests go to a new chapter or to chapter 09. |
-| 09 | Packaging | ⬜ | |
+| 09 | Packaging | 🟨 | 2026-11-15. Key file `настройки.env` in the data folder, port 3000–3010 with "already running", one `npm run build` with excludes, Mac build checked, "Копие на USB" button (D27), README, `staff/ИНСТРУКЦИЯ.md`. 176 tests. Owner: Windows test, "Отвори папката" proposal, `start.bat` / `check-node.bat` decision. |
 | 10 | Staff guide | 🟨 | 2026-11-15. Help page in the app (`staff/public/help.html`, D11). Example task "Как да изпратя SMS напомняне" done, waits for the owner's OK on the style. The other tasks wait for the end of chapter 08. |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
@@ -43,6 +43,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 
 See `specs.md` section 3. Nothing blocks the next chapter.
 
+- 2026-11-15 (ch09): keep or delete `staff/start.bat`, `start.sh`, `check-node.bat`? The built file is the one way for the staff. `check-node.bat` downloads Node v20.11.0 from a fixed URL.
 - ~~2026-11-15 (staff request): a backup button.~~ Decided 2026-11-15 (D27): the daily copy stays; a sidebar button saves a copy to a place the staff choose (USB). Built in chapter 09.
 
 ## Found on the way
@@ -106,6 +107,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 08, staff requests 13 fix: the calendar shows one month (owner: 12 months too big); official days always red; no extra list or long text (D25). The error "calData.official" came from a server that ran the old code; the page now copes with it. Checked in a headless Chrome. 161 tests pass in both time zones. |
 | 2026-11-15 | Chapter 10 started: guide form decided (D11). `staff/public/help.html` + `help.css`, example task "Как да изпратя SMS напомняне" with 2 screenshots made on fake data by `staff/tools/guide-shots.mjs`. No link from the dashboard yet (waits for the owner's OK). Checked in a headless Chrome, no console errors. `test/public.test.js` now reads only the text files of `public/` (the new `help/` folder broke it). 161 tests pass in both time zones. |
 | 2026-11-15 | Chapter 10: owner approved the example style. Link "Помощ" in the dashboard menu. No contact name or phone in the guide (owner): it says "обадете се за помощ". Staff request for a backup button: not built; backup stays as it is until a talk with the staff. |
+| 2026-11-15 | Chapter 09 started. Key file `настройки.env` in the data folder (first) and `staff/.env` (second). `lib/port.js`: busy 3000 → open the running app, or 3001–3010. One `npm run build` (`tools/build.mjs`): excludes data, keys, tests, tools; prunes dev packages; output `staff/dist/`; stops on a Homebrew Node. Mac build run: data file made in `Documents/ЕГЕР-Сервиз/`, restart keeps it. "Копие на USB" button in the sidebar + `GET /api/backup-copy` (D27, owner OK). Banner texts: desktop icon, `„настройки.env“`. `package.json` name `eger-staff`. README build/deploy parts, `staff/ИНСТРУКЦИЯ.md`. 176 tests pass in both time zones. |
 | 2026-11-15 | Chapter 08 closed: owner checked the page. No "Прегледът мина" button (D26): the rule "a new last inspection date → Очаква, expiry +1 year" was in the code and in unit tests; one server test added for the real edit route. Backup decided (D27): daily copy stays, a sidebar "copy to USB" button comes in chapter 09. 162 tests pass in both time zones. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
@@ -167,4 +169,11 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-15 (ch08, staff requests 6): "Изпратени SMS" counts only the SMS of the present cycle. After the staff type a new inspection date, the old SMS is gone from the list (the app keeps no SMS history). So "12 месеца" shows fewer SMS than went out. A full count needs an SMS log. Ask the owner if the staff need it.
 - 2026-11-15 (ch08, staff requests 6): a closed "bad rows" banner does not come back for a new bad row until a reload.
 - 2026-11-15 (ch10): the "Сървърът е спрян" banner says "Стартирайте програмата отново (start.bat)". The staff start the app with a desktop icon. Change the text in chapter 09.
+- 2026-11-15 (ch09): closed: the "start.bat" text of the "Сървърът е спрян" banner (now the desktop icon), the `package.json` name `car-service-sms` (now `eger-staff`), `check-node.bat` checked (not in the built file; owner decides).
+- 2026-11-15 (ch09): Homebrew's Node (`/opt/homebrew/bin/node`) needs `libnode.dylib`, so a caxa build with it does not start. `tools/build.mjs` stops with a message. The Mac test build used `/usr/local/bin/node` (v21.1.0, old). For a real Mac build install Node LTS from nodejs.org.
+- 2026-11-15 (ch09): caxa unpacks each new build into a new folder in `%TEMP%\caxa\applications\`. Old folders stay (about 100 MB each). Windows may clean them. Not a data risk.
+- 2026-11-15 (ch09): a key file `настройки.env` in a folder that `EGER_DATA_DIR` sets in `staff/.env` is not read (the data folder is worked out before `staff/.env` loads). A developer sets the keys in `staff/.env`. Written in `.env.example`.
+- 2026-11-15 (ch09): the caxa build prints a Node warning `DEP0190` (inside caxa). It does no harm.
+- 2026-11-15 (ch09): the page saves "sidebar closed" in `localStorage`, which is per port. If the app starts on 3001, the sidebar state of 3000 is not there.
+- 2026-11-15 (ch09): the save window ("Копие на USB") was not checked in a browser by the agent: a headless Chrome cannot click it. The route was checked with `curl` (same bytes as the file).
 - 2026-11-15 (later): the bad-rows banner always says „Те не са заредени“. For a bad value in sheet „Настройки“ (SMS price not a number, unknown day off) this is wrong: the app uses the default value, it does not skip the row. Change the banner text for these. Owner wants this later.

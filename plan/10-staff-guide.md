@@ -46,7 +46,8 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [ ] Task 5: Какво значи „Просрочени“.
 - [ ] Task 6: Почивни дни и защо SMS идва по-рано.
 - [ ] Task 7: SMS шаблон и цена.
-- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. A sidebar button "copy to USB" comes in chapter 09 (D27, owner, 2026-11-15): explain it here too, with a screenshot.
+- [ ] Chapter 09 made the screenshots `help/sms-1-list.png` and `help/sms-2-preview.png` old if they show the sidebar or a banner: the sidebar has a new block "Копие на USB" (under "Помощ"), the yellow "no keys" banner now names `„настройки.env“`, and the red "Сървърът е спрян" banner names the desktop icon. Make them again (`tools/guide-shots.mjs`).
+- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. The sidebar button "Копие на USB" is built (chapter 09, D27): explain it here too, with a screenshot. Text for it is in `staff/ИНСТРУКЦИЯ.md`, part 4.
 - [ ] Task 9: Ако нещо не работи (all banners).
 - [ ] Remove the "Ръководството още се пише" note.
 

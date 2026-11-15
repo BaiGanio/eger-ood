@@ -11,7 +11,11 @@ import { checkHolidaysInBackground, lastCheckError, runHolidayCheck } from './li
 import { FIRST_YEAR, LAST_YEAR, officialHolidays } from './lib/holidays.js';
 import { startNewCycle, startNewSend, withComputed } from './lib/reminders.js';
 import { SendError, buildSmsText, sendReminder, smsMode } from './lib/sms.js';
-import { StoreError, generateId, readData, writeData } from './lib/store.js';
+import { StoreError, generateId, readData, readDataFileBytes, writeData } from './lib/store.js';
+import { manualCopyName } from './lib/paths.js';
+import { APP_ID } from './lib/port.js';
+
+const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 import { checkCustomer, checkHolidays, checkTemplate } from './lib/validate.js';
 
 const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
@@ -141,9 +145,20 @@ export function createApp({ autoHolidayCheck = false, fetchHolidays } = {}) {
   // ─── State ─────────────────────────────────────────────────────────────────
 
   // "live" or "off" (no Twilio keys). The dashboard shows a banner when it is off.
+  // `app` lets a second start see that our app runs on this port (lib/port.js).
   app.get('/api/status', (req, res) => {
-    res.json({ smsMode: smsMode() });
+    res.json({ app: APP_ID, smsMode: smsMode() });
   });
+
+  // A copy of the data file that the staff save where they choose, for
+  // example on a USB stick (D27). The daily copy in backups/ is apart.
+  app.get('/api/backup-copy', route(async (req, res) => {
+    const bytes = await readDataFileBytes();
+    res.attachment(manualCopyName(localDateText()));
+    res.type(XLSX_TYPE);
+    res.set('Cache-Control', 'no-store');
+    res.send(bytes);
+  }));
 
   // The rows of the Excel file that did not load (sheet, row, reason).
   app.get('/api/data-problems', route(async (req, res) => {
