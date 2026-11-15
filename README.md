@@ -48,7 +48,7 @@ It computes the Bulgarian days off from the law (fixed dates, Orthodox Easter, t
 
 ### Data (staff app)
 
-The staff app keeps all data in one Excel file: `Documents/ЕГЕР-Сервиз/клиенти.xlsx`. The app makes an empty file on the first start. `EGER_DATA_DIR` (in the shell or in `staff/.env`) gives another folder. One copy a day goes to `backups/` in the same folder (30 are kept). The sidebar button "Копие на USB" saves a copy where the staff choose.
+The staff app keeps all data in one Excel file: `Documents/ЕГЕР-Сервиз/клиенти.xlsx`. The app makes an empty file on the first start. `EGER_DATA_DIR` (in the shell or in `staff/.env`) gives another folder. One copy a day goes to `backups/` in the same folder (30 are kept).
 
 ```bash
 cd staff

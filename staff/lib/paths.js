@@ -24,12 +24,6 @@ export function envFiles() {
   return [path.join(dataDir(), SETTINGS_ENV_NAME), path.join(STAFF_DIR, '.env')];
 }
 
-/** The name of a copy that the staff save by hand (D27): `клиенти-копие-YYYY-MM-DD.xlsx`. */
-export function manualCopyName(dateText) {
-  const ext = path.extname(DATA_FILE_NAME);
-  return `${path.basename(DATA_FILE_NAME, ext)}-копие-${dateText}${ext}`;
-}
-
 /** Folder of the Excel file. `EGER_DATA_DIR` overrides the default (specs O3). */
 export function dataDir() {
   const override = process.env.EGER_DATA_DIR;

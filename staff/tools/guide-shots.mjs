@@ -159,5 +159,66 @@ await page.screenshot({ path: `${OUT}edit-3-delete.png` });
 await clearMarks();
 await page.click('#ask-no');
 
+// ── Task 4 (passed.html) ──────────────────────────────────────────────
+await openDashboard();
+
+// The customer comes from the card "Очаквани за преглед": the staff wait for him.
+await page.click('[data-arg="coming"]');
+await page.waitForTimeout(200);
+const plate = (await page.textContent('#table-body tr:first-child td:nth-child(2) .text-muted')).trim();
+
+// Shot 1: "Всички клиенти", the plate in the search, the pencil.
+await page.click('[data-action="showAllCustomers"]');
+await page.fill('#search-input', plate);
+await page.waitForTimeout(200);
+await page.mouse.move(0, 0);
+await mark('[data-action="showAllCustomers"]', '1');
+await mark('#search-input', '2');
+await mark('#table-body [data-action="openEditModal"]', '3');
+await page.screenshot({ path: `${OUT}passed-1-row.png` });
+await clearMarks();
+
+// Shot 2: the edit window with today in "Дата на последен преглед". Then "Отказ".
+await page.click('#table-body [data-action="openEditModal"]');
+await page.waitForSelector('#customer-modal.show');
+await page.waitForTimeout(400);
+await page.fill('#f-lastServiceDate', localDate(0));
+await page.locator('#f-lastServiceDate').blur();
+await page.mouse.move(0, 0);
+await mark('#f-lastServiceDate', '4');
+await mark('[data-action="saveCustomer"]', '5');
+await page.screenshot({ path: `${OUT}passed-2-date.png` });
+await clearMarks();
+await page.click('#customer-modal [data-action="closeModal"]');
+
+// ── Task 5 (cards.html) ───────────────────────────────────────────────
+await openDashboard();
+
+// Shot 1: the card "Очакващи SMS" with its list of today.
+await page.click('[data-arg="send"]');
+await page.waitForTimeout(400); await page.mouse.move(0, 0);
+await mark('[data-arg="send"]', '1');
+await page.screenshot({ path: `${OUT}cards-1-send.png` });
+await clearMarks();
+
+// Shot 2: the period "7 дни" and the new count with its period text.
+await page.click('[data-arg="send:7"]');
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await mark('[data-arg="send:7"]', '2');
+await mark('[data-arg="send"]', '3');   // the whole card: a small mark hides the count
+await page.screenshot({ path: `${OUT}cards-2-period.png` });
+await clearMarks();
+
+// Shot 3: the other cards; the list of "Изпратени SMS" is open.
+await openDashboard();
+await page.click('[data-arg="sentin"]');
+await page.waitForTimeout(400); await page.mouse.move(0, 0);
+await mark('[data-arg="sentin"]', '4');
+await mark('[data-arg="coming"]', '5');
+await mark('[data-arg="expired"]', '6');
+await mark('[data-action="showAllCustomers"]', '7');
+await page.screenshot({ path: `${OUT}cards-3-other.png` });
+await clearMarks();
+
 await browser.close();
 server.close();

@@ -20,7 +20,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - Task 6 ("Просрочени"): never tell the staff to delete. Overdue more than 12 months: the status filter "Просрочени", or search in "Всички клиенти".
 - Task 3 keeps the bin button (a wrong row).
 - Task 8: the staff may change the SMS price. Task 7: the weekly days off are Sunday and Monday; to change them, call for help. No Excel steps.
-- Task 9 (file): the daily copy and "Копие на USB". Restore of a copy: a grey box "само с помощ" with the steps, first line "обадете се за помощ".
+- Task 9 (file): the daily copy (no "Копие на USB": removed, owner 2026-11-15). Restore of a copy: a grey box "само с помощ" with the steps, first line "обадете се за помощ".
 - Task 10 (errors): text only, no screenshot of each banner.
 - Work one task at a time. The owner checks each task before the next.
 - One page per task (owner, 2026-11-15; specs D11). "Помощ" in the sidebar opens the list of tasks (the dashboard code changes for this, owner OK). A task opens in the same tab. Sidebar closed → "Помощ" opens the contents page. A task that is not written is grey, with no link.
@@ -60,13 +60,14 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [x] One page per task; "Помощ" list in the sidebar (owner, 2026-11-15). Task 1 moved to `help/sms.html`.
 - [x] Task 2: Как да добавя клиент (`help/add.html`, 3 screenshots). Search the plate first (no guard against double rows yet). Waits for the owner's check.
 - [x] Task 3: Как да променя или изтрия клиент (`help/edit.html`, 3 screenshots; nothing saved or deleted). Delete only a wrong or double row; never an overdue customer. Waits for the owner's check.
-- [ ] Task 4 (new): Клиентът мина прегледа (D26).
-- [ ] Task 5: Кой трябва да получи SMS днес (cards and periods).
+- [x] Task 4 (new): Клиентът мина прегледа (D26) (`help/passed.html`, 2 screenshots; the customer of "Очаквани за преглед"; nothing saved). Waits for the owner's check.
+- [x] Task 5: Кой трябва да получи SMS днес (cards and periods) (`help/cards.html`, 3 screenshots, status meanings). Waits for the owner's check.
+- [x] "Копие на USB" removed (owner, 2026-11-15; D27): button, route, helpers, 4 tests, docs. All pictures made again without it.
 - [ ] Task 6: Какво значи „Просрочени“.
 - [ ] Task 7: Почивни дни и защо SMS идва по-рано.
 - [ ] Task 8: SMS шаблон и цена.
 - [x] Chapter 09 made the screenshots `help/sms-1-list.png` and `help/sms-2-preview.png` old if they show the sidebar or a banner: the sidebar has a new block "Копие на USB" (under "Помощ"), the yellow "no keys" banner now names `„настройки.env“`, and the red "Сървърът е спрян" banner names the desktop icon. Make them again (`tools/guide-shots.mjs`).
-- [ ] Task 9: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. The sidebar button "Копие на USB" is built (chapter 09, D27): explain it here too, with a screenshot. Text for it is in `staff/ИНСТРУКЦИЯ.md`, part 4.
+- [ ] Task 9: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Explain the daily copy. Text for it is in `staff/ИНСТРУКЦИЯ.md`, part 4. No "Копие на USB" (removed, D27).
 - [ ] Task 10: Ако нещо не работи (all banners).
 - [ ] Remove the "Ръководството още се пише" note.
 
@@ -79,3 +80,6 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 5. Click "Скрий менюто", then the "?" icon: the contents page opens.
 6. Read task 2 (`help/add.html`). Do the steps match the dashboard? Do "back / next" at the bottom work?
 7. Read task 3 (`help/edit.html`). Do the steps match the dashboard?
+8. Read task 4 (`help/passed.html`). Do the steps match the dashboard?
+9. Read task 5 (`help/cards.html`). Do the steps match the dashboard?
+10. The sidebar has no "Копие на USB".

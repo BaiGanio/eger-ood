@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Картите и периодите</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D11, D22). Each step is one click. The red
+     numbers in a picture match the numbers in the steps. Screenshots:
+     staff/tools/guide-shots.mjs. The task number and the links at the
+     bottom come from tasks.js (help-nav.js). -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Кой трябва да получи SMS днес</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Петте карти горе са бутони. Щракнете карта и под нея се показват нейните клиенти.
+          Числото в картата е броят на тези клиенти. Под числото пише за кой период е.
+        </div>
+      </div>
+
+      <h2 class="step-group">Вижте кой чака SMS днес</h2>
+      <figure class="shot">
+        <img src="cards-1-send.png" width="1280" height="760"
+             alt="Таблото. Картата „Очакващи SMS“ е щракната и отбелязана с 1. Под картите е списъкът на клиентите за днес.">
+      </figure>
+      <ol class="steps">
+        <li>Всяка сутрин щракнете картата <span class="ui-btn">Очакващи SMS</span>. <span class="mark">1</span>
+          <div class="hint">Картата светва. В таблицата са клиентите, на които трябва да пратите SMS днес. Как се праща: тема 1.</div>
+          <div class="hint">Пропуснахте ден? Клиентът остава в този списък, докато не пратите SMS или прегледът му не изтече.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Пратете по-рано, преди почивни дни</h2>
+      <figure class="shot">
+        <img src="cards-2-period.png" width="1280" height="760"
+             alt="Списъкът „Очакващи SMS“. Бутонът „7 дни“ е отбелязан с 2. Картата с новото число и текста „следващите 7 дни“ е отбелязана с 3.">
+      </figure>
+      <ol class="steps" start="2">
+        <li>Над таблицата, до <strong>„Напомняне до:“</strong>, щракнете <span class="ui-btn">7 дни</span>. <span class="mark">2</span>
+          <div class="hint">Има още „10 дни“ и „1 месец“. Изберете толкова дни, колкото няма да работите.</div>
+        </li>
+        <li>Погледнете картата. Числото е по-голямо. Под него пише <strong>„следващите 7 дни“</strong>. <span class="mark">3</span>
+          <div class="hint">В списъка са и клиентите, чийто ден за SMS идва в следващите 7 дни.</div>
+        </li>
+        <li>Пратете SMS на всеки клиент от списъка (тема 1).
+          <div class="hint">SMS-ът пише истинската дата, на която изтича прегледът. Затова текстът е верен и когато е пратен по-рано.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Другите карти</h2>
+      <figure class="shot">
+        <img src="cards-3-other.png" width="1280" height="760"
+             alt="Таблото. Картата „Изпратени SMS“ е щракната и отбелязана с 4. Картата „Очаквани за преглед“ е отбелязана с 5. Картата „Просрочени“ е отбелязана с 6. Картата „Всички клиенти“ е отбелязана с 7.">
+      </figure>
+      <ol class="steps" start="5">
+        <li>Щракнете <span class="ui-btn">Изпратени SMS</span>, за да видите на кого сте пратили SMS днес. <span class="mark">4</span>
+          <div class="hint">Колоната „Изпратен SMS“ показва деня и часа. Най-новите са горе. С бутоните над таблицата виждате и по-стари: до 12 месеца.</div>
+        </li>
+        <li>Щракнете <span class="ui-btn">Очаквани за преглед</span>, за да видите кой трябва да дойде днес. <span class="mark">5</span>
+          <div class="hint">Тук са само клиентите, които са получили SMS. С бутоните над таблицата виждате и следващите 7, 10 или 30 дни.</div>
+        </li>
+        <li>Щракнете <span class="ui-btn">Просрочени</span>, за да видите кой не е дошъл. <span class="mark">6</span>
+          <div class="hint">Показва клиентите, чийто преглед е изтекъл в последните 7 дни. Повече: тема 6.</div>
+        </li>
+        <li>Щракнете <span class="ui-btn">Всички клиенти</span>, за да видите пак всички. <span class="mark">7</span>
+          <div class="hint">Или щракнете още веднъж картата, която свети.</div>
+        </li>
+      </ol>
+
+      <h2 class="step-group">Какво значи статусът в таблицата</h2>
+      <dl class="trouble">
+        <dt><span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"><i class="bi bi-bell me-1"></i>За днес</span></dt>
+        <dd>Денят за SMS е днес или е минал. Пратете SMS.</dd>
+        <dt><span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-clock me-1"></i>Очаква</span></dt>
+        <dd>Денят за SMS още не е дошъл. Не правете нищо.</dd>
+        <dt><span class="badge bg-success-subtle text-success-emphasis border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Изпратен</span></dt>
+        <dd>SMS е пратено. Чакаме клиента за преглед.</dd>
+        <dt><span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle"><i class="bi bi-exclamation-triangle me-1"></i>Просрочен</span></dt>
+        <dd>Прегледът е изтекъл, а нова дата няма. SMS не се праща. Тема 6.</dd>
+      </dl>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>Картите и бутоните само показват. Те не променят нищо и не пращат SMS.</li>
+        <li>Избраният период остава, докато не презаредите страницата (<kbd>F5</kbd>). После картите пак показват „днес“, а „Просрочени“ — „последните 7 дни“.</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Картата показва 0, а знам, че има клиент.</dt>
+        <dd>Погледнете периода под числото. Щракнете картата и изберете по-дълъг период.</dd>
+        <dt>Списъкът е празен, а картата показва число.</dt>
+        <dd>В полето „Търси…“ има текст. Изтрийте го.</dd>
+        <dt>Няма бутон „Изпрати“.</dt>
+        <dd>Бутонът е само в картата „Очакващи SMS“.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>

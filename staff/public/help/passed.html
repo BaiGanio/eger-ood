@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЕГЕР ООД — Помощ: Минал преглед</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../help.css">
+</head>
+<body class="bg-light">
+
+<!-- Staff guide, one task (specs D11, D26). Each step is one click. The red
+     numbers in a picture match the numbers in the steps. Screenshots:
+     staff/tools/guide-shots.mjs. The task number and the links at the
+     bottom come from tasks.js (help-nav.js). -->
+<main class="guide mx-auto p-4">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="../" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Обратно към таблото</a>
+      <a href="../help.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ol"></i> Съдържание</a>
+    </div>
+    <span class="text-muted small">За печат или PDF: натиснете <kbd>Ctrl</kbd> + <kbd>P</kbd></span>
+  </div>
+
+  <section class="card border-0 shadow-sm mb-4 task">
+    <div class="card-body">
+      <h1 class="task-title"><span class="task-no"></span> Клиентът мина прегледа</h1>
+
+      <div class="info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          Направете това в деня на прегледа, за всеки клиент, който мина ГТП.
+          Пишете само новата дата. Програмата сама започва новата година за клиента.
+        </div>
+      </div>
+
+      <h2 class="step-group">Намерете клиента</h2>
+      <figure class="shot">
+        <img src="passed-1-row.png" width="1280" height="760"
+             alt="Таблото. Картата „Всички клиенти“ е отбелязана с 1. Полето „Търси…“ с номера на колата е отбелязано с 2. Бутонът с молив е отбелязан с 3.">
+      </figure>
+      <ol class="steps">
+        <li>Щракнете картата <span class="ui-btn">Всички клиенти</span>. <span class="mark">1</span>
+          <div class="hint">В картата „Очаквани за преглед“ няма бутон с молив.</div>
+        </li>
+        <li>Напишете номера на колата в полето <span class="ui-btn">Търси…</span>. <span class="mark">2</span>
+          <div class="hint">Колата не е в списъка? Добавете клиента (тема 2). Датата на последния преглед е днешната.</div>
+        </li>
+        <li>На реда на клиента щракнете бутона с молив <span class="ui-btn"><i class="bi bi-pencil"></i></span>. <span class="mark">3</span></li>
+      </ol>
+
+      <h2 class="step-group">Напишете новата дата</h2>
+      <figure class="shot">
+        <img src="passed-2-date.png" width="1280" height="760"
+             alt="Прозорецът „Редактирай клиент“. Полето „Дата на последен преглед“ с днешната дата е отбелязано с 4. Бутонът „Запази промените“ е отбелязан с 5.">
+      </figure>
+      <ol class="steps" start="4">
+        <li>Отваря се прозорец <strong>„Редактирай клиент“</strong>. В <strong>„Дата на последен преглед“</strong> напишете датата на днешния преглед. <span class="mark">4</span>
+          <div class="hint">Пишете датата на прегледа, не датата, на която изтича. Можете и да щракнете иконата календар и да изберете деня.</div>
+        </li>
+        <li>Щракнете синия бутон <span class="ui-btn ui-blue"><i class="bi bi-check-lg"></i> Запази промените</span>. <span class="mark">5</span></li>
+        <li>Долу вдясно излиза зелено съобщение <span class="ui-green">Клиентът е обновен</span>.</li>
+      </ol>
+
+      <h2 class="step-group">Готово. Какво стана?</h2>
+      <ul class="done-list">
+        <li>„Следващ преглед“ = новата дата + 1 година.</li>
+        <li>Статусът е <strong>„Очаква“</strong>. След една година клиентът пак получава едно SMS.</li>
+        <li>Клиентът излиза от „Очаквани за преглед“ и от „Просрочени“.</li>
+        <li>SMS-ът от тази година вече не се брои в „Изпратени SMS“.</li>
+      </ul>
+
+      <h2 class="step-group">Ако нещо не стане</h2>
+      <dl class="trouble">
+        <dt>Клиентът не дойде за преглед.</dt>
+        <dd>Не правете нищо. След датата на изтичане той е „Просрочен“ (тема 6). Дойде по-късно? Направете тази тема в деня, в който мина прегледа.</dd>
+        <dt>Написахте грешна дата.</dt>
+        <dd>Направете стъпки 1–6 още веднъж с вярната дата.</dd>
+        <dt>Излиза червено съобщение „… не може да е в бъдещето“.</dt>
+        <dd>Датата е след днес. Напишете датата на прегледа, който вече мина.</dd>
+        <dt>Излиза червено съобщение „… е отворен в Excel“.</dt>
+        <dd>Нищо не е променено. Затворете файла „клиенти.xlsx“ в Excel. Щракнете пак „Запази промените“.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <nav class="d-flex justify-content-between flex-wrap gap-2 no-print" id="task-nav" aria-label="Други теми"></nav>
+
+</main>
+<script type="module" src="help-nav.js"></script>
+</body>
+</html>

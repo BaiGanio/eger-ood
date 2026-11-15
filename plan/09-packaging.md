@@ -45,7 +45,7 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
   - [ ] Save works. With the file open in Excel, the clear message shows.
   - [ ] Windows SmartScreen warning: write down what staff must click.
   - [ ] Stop and start again: the data is still there.
-- [x] Staff request (D27): a button in the sidebar that saves a copy of `клиенти.xlsx` to a place the staff choose (USB stick). The daily copy stays. Show the owner a proposal (place, name, icon, how the save window works in the staff browser) and get an OK before any code. Tests. Add it to `10-staff-guide.md`, task 8. (Owner OK on the proposal; route `GET /api/backup-copy`; the save window itself is checked on the Windows PC.)
+- [x] Staff request (D27): a button in the sidebar that saves a copy of `клиенти.xlsx` to a place the staff choose (USB stick). The daily copy stays. Show the owner a proposal (place, name, icon, how the save window works in the staff browser) and get an OK before any code. Tests. Add it to `10-staff-guide.md`, task 8. (Owner OK on the proposal; route `GET /api/backup-copy`.) **Removed in chapter 10** (owner, 2026-11-15): button, route, helpers and tests are gone. The daily copy stays (D27).
 - [x] Rewrite `README.md`: what the two apps are, how to run each for development, how to build, how to deploy the site.
 - [x] Write `staff/ИНСТРУКЦИЯ.md` in Bulgarian for staff: install, start, daily use, where the Excel file is, "close Excel before you save", what the yellow test banner means (now: the yellow "no keys" banner; the test mode is gone), how to restore a backup.
 
@@ -62,8 +62,7 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 4. Follow `staff/ИНСТРУКЦИЯ.md`, part 1. Write down the exact SmartScreen text and buttons.
 5. Check the list above (browser opens, Bulgarian text in the black window, save, Excel open → clear message, stop and start → data stays).
 6. Double-click the icon a second time: no second server, the browser opens.
-7. "Копие на USB" with a USB stick in Edge: the "Save as" window, the name `клиенти-копие-<date>.xlsx`, the green toast, the file opens in Excel. "Cancel": no toast.
-8. `настройки.env` with keys: the yellow banner goes away. One real SMS to your own phone, short English words (specs §9).
+7. `настройки.env` with keys: the yellow banner goes away. One real SMS to your own phone, short English words (specs §9).
 
 ## Later items (not in this plan)
 - Automatic daily send (needs the PC to be on, or a Windows scheduled task).

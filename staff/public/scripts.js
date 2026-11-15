@@ -119,7 +119,7 @@ const ACTIONS = {
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
   saveTemplate, showCardList, showAllCustomers, setPeriod,
   closeBanner, goToPage, changeCalMonth, toggleDay, checkHolidaysNow,
-  saveBackupCopy, toggleHelpMenu,
+  toggleHelpMenu,
 };
 
 async function tick() {
@@ -243,65 +243,6 @@ async function readReply(res) {
   try { data = await res.json(); } catch (e) { /* no JSON body: the status decides */ }
   if (!res.ok) throw new Error(data.error || 'Сървърът върна грешка.');
   return data;
-}
-
-// ─── Copy of the data file to a USB stick (D27) ──────────────────────
-// Edge and Chrome open the "Save as" window of Windows, so the staff choose
-// the USB stick. Other browsers save to "Downloads".
-async function saveBackupCopy() {
-  let blob, name;
-  try {
-    const res = await serverFetch('/api/backup-copy', { cache: 'no-store' });
-    if (!res.ok) await readReply(res);   // throws the server text
-    blob = await res.blob();
-    name = fileNameOf(res) || 'клиенти-копие.xlsx';
-  } catch (e) {
-    toast('Копието не е запазено: ' + e.message, 'danger');
-    return;
-  }
-
-  if (window.showSaveFilePicker) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: name,
-        types: [{
-          description: 'Excel',
-          accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
-        }],
-      });
-      const out = await handle.createWritable();
-      await out.write(blob);
-      await out.close();
-      toast(`Копието е запазено: ${handle.name}`, 'success');
-      return;
-    } catch (e) {
-      if (e.name === 'AbortError') return;   // the staff clicked "Cancel"
-      console.error(e);
-      // The browser refused the window (example: SecurityError). Download instead.
-      if (e.name !== 'SecurityError' && e.name !== 'NotAllowedError') {
-        toast('Копието не е запазено. Опитайте друго място.', 'danger');
-        return;
-      }
-    }
-  }
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = name;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
-  toast(`Копието е в папка „Изтегляния“: ${name}. Преместете го на USB.`, 'info');
-}
-
-// The file name from the server (`filename*=UTF-8''…`). The name rule lives in lib/paths.js.
-function fileNameOf(res) {
-  const header = res.headers.get('Content-Disposition') || '';
-  const match = header.match(/filename\*=UTF-8''([^;]+)/i);
-  if (!match) return '';
-  try { return decodeURIComponent(match[1]); } catch (e) { return ''; }
 }
 
 // Rows of the Excel file that did not load. The staff correct them in Excel.

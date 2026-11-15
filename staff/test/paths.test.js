@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { dataDir, envFiles, manualCopyName } from '../lib/paths.js';
+import { dataDir, envFiles } from '../lib/paths.js';
 
 test('envFiles: the data folder first, the developer .env second', t => {
   const saved = process.env.EGER_DATA_DIR;
@@ -13,8 +13,4 @@ test('envFiles: the data folder first, the developer .env second', t => {
   assert.equal(first, path.join(dataDir(), 'настройки.env'));
   assert.equal(path.basename(second), '.env');
   assert.notEqual(path.dirname(second), dataDir());
-});
-
-test('manualCopyName: dated name of the copy to a USB stick (D27)', () => {
-  assert.equal(manualCopyName('2026-11-15'), 'клиенти-копие-2026-11-15.xlsx');
 });
