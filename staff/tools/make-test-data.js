@@ -80,7 +80,67 @@ const customers = [
   // A bad row: no phone. The dashboard must report it and load the other rows.
   { ...base, id: 'c013', name: 'Тест Без Телефон', phone: '',
     carModel: 'Lada Niva', carPlate: 'PB0013TT', lastServiceDate: inspectedFor(addDays(today, 90)) },
+
+  ...manyCustomers(),
 ];
+
+/**
+ * 50 more customers (c014–c063), so a list has the size of a real month.
+ * Most of them are "Очаква" with a reminder in the next 1 to 35 days: the
+ * staff send in advance before a holiday and filter by 7, 10 and 30 days.
+ * The "Просрочен" ones spread over the periods of their card.
+ * The days are relative to today, like customers 6 to 12.
+ */
+function manyCustomers() {
+  const FIRST = ['Петър', 'Димитър', 'Стефан', 'Христо', 'Тодор', 'Васил', 'Ангел', 'Борис', 'Калин',
+    'Росен', 'Пламен', 'Марин', 'Йордан', 'Здравко', 'Красимир'];
+  const FIRST_F = ['Десислава', 'Цветелина', 'Габриела', 'Радка', 'Веселина', 'Милена', 'Силвия',
+    'Теодора', 'Надежда', 'Яна'];
+  const LAST = ['Колев', 'Митев', 'Тонев', 'Динев', 'Генчев', 'Пеев', 'Радев', 'Славов', 'Бонев',
+    'Кирилов', 'Маринов', 'Ангелов'];
+  const CARS = ['VW Passat', 'Opel Corsa', 'BMW 320d', 'Audi A4', 'Toyota Corolla', 'Kia Ceed',
+    'Hyundai i30', 'Skoda Fabia', 'Renault Megane', 'Citroen C3', 'Mazda 3', 'Nissan Qashqai',
+    'Suzuki Vitara', 'Dacia Duster', 'Ford Fiesta', 'Volvo V60'];
+  const PREFIX = ['PB', 'PB', 'PB', 'CB', 'PA', 'C', 'A', 'EH'];
+
+  // Days from today to the expiry date, one entry per customer, by group.
+  // Pending: reminder (expiry − 7) in 1–35 days. Some sit on the 7, 10 and
+  // 30 day edges of the filter.
+  const pending = [8, 9, 9, 10, 11, 12, 13, 14, 14, 15, 16, 17, 17, 18, 19, 20, 22, 24,
+    26, 28, 30, 33, 35, 37, 38, 40, 42];
+  const due = [1, 3, 5, 7];                 // reminder day reached, no SMS
+  const sent = [2, 6, 9, 12, 16, 21];       // SMS already sent this cycle
+  // Expiry date past. Spread over the periods of the card: 7 and 10 days, 1 to 12 months.
+  const overdue = [-1, -5, -8, -14, -30, -45, -60, -120, -200, -300];
+  const far = [75, 120, 180, 240, 300];     // reminder months away
+
+  const plan = [
+    ...pending.map(days => ({ days })),
+    ...due.map(days => ({ days })),
+    ...sent.map((days, i) => ({ days, sentDaysAgo: 1 + (i % 5) })),
+    ...overdue.map(days => ({ days })),
+    ...far.map(days => ({ days })),
+  ];
+
+  return plan.map(({ days, sentDaysAgo }, i) => {
+    const n = 14 + i;
+    const female = i % 3 === 2;
+    const first = female ? FIRST_F[i % FIRST_F.length] : FIRST[i % FIRST.length];
+    // Bulgarian family names take "-а" for a woman.
+    const last = LAST[(i * 7) % LAST.length] + (female ? 'а' : '');
+    const num = String(n).padStart(4, '0');
+    return {
+      ...base,
+      id: `c${String(n).padStart(3, '0')}`,
+      name: `${first} ${last}`,
+      phone: `+3598800${String(n).padStart(5, '0')}`,
+      carModel: CARS[(i * 5) % CARS.length],
+      carPlate: `${PREFIX[i % PREFIX.length]}${num}${'ABEHKMTX'[i % 8]}${'ABEHKMTX'[(i * 3) % 8]}`,
+      lastServiceDate: inspectedFor(addDays(today, days)),
+      smsSentAt: sentDaysAgo ? `${addDays(today, -sentDaysAgo)}T10:${String(10 + i).slice(-2)}:00` : null,
+    };
+  });
+}
 
 // Fixed-date public holidays, this year and the next. Enough for a test file.
 const FIXED = ['01-01', '03-03', '05-01', '05-06', '05-24', '09-06', '09-22', '12-24', '12-25', '12-26'];

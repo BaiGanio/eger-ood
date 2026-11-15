@@ -98,7 +98,7 @@
       </div>
 
       <!-- Stat cards -->
-      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+      <div class="row row-cols-2 row-cols-xl-4 g-3 mb-4">
         <div class="col">
           <div class="card border-0 shadow-sm h-100 stat-accent">
             <div class="card-body py-3 px-3">
@@ -108,20 +108,14 @@
           </div>
         </div>
         <div class="col">
-          <div class="card border-0 shadow-sm h-100 stat-warning">
+          <!-- A button: a click shows the send list (scripts.js, showSendList). -->
+          <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-warning stat-click"
+                  data-action="showSendList" title="Покажи клиентите за SMS">
             <div class="card-body py-3 px-3">
               <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Очакващи SMS</div>
               <div class="stat-value" id="stat-pending">—</div>
             </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card border-0 shadow-sm h-100 stat-info">
-            <div class="card-body py-3 px-3">
-              <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">За днес</div>
-              <div class="stat-value" id="stat-today">—</div>
-            </div>
-          </div>
+          </button>
         </div>
         <div class="col">
           <div class="card border-0 shadow-sm h-100 stat-success">
@@ -132,12 +126,14 @@
           </div>
         </div>
         <div class="col">
-          <div class="card border-0 shadow-sm h-100 stat-danger">
+          <!-- A button: a click shows the overdue list (scripts.js, showOverdueList). -->
+          <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-danger stat-click"
+                  data-action="showOverdueList" title="Покажи просрочените клиенти">
             <div class="card-body py-3 px-3">
               <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Просрочени</div>
               <div class="stat-value" id="stat-overdue">—</div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -152,7 +148,33 @@
           <option value="due">За днес</option>
           <option value="pending">Очакващи</option>
           <option value="sent">Изпратени</option>
+          <option value="send">Очакващи SMS</option>
+          <option value="expired">Просрочени (период)</option>
         </select>
+      </div>
+      <!-- The period rows show only with their status in the filter (card-lists.js). -->
+      <!-- data-arg = days after today. -->
+      <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="send-period">
+        <span class="text-muted small">Напомняне до:</span>
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="0">Днес</button>
+          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="7">7 дни</button>
+          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="10">10 дни</button>
+          <button type="button" class="btn btn-outline-primary" data-action="setSendPeriod" data-arg="30">1 месец</button>
+        </div>
+      </div>
+      <!-- data-arg = days before today. -->
+      <div class="d-none align-items-center gap-2 mb-3 flex-wrap" id="overdue-period">
+        <span class="text-muted small">Изтекли преди:</span>
+        <div class="btn-group btn-group-sm flex-wrap" role="group">
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="7">7 дни</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="10">10 дни</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="30">1 месец</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="90">3 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="180">6 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="270">9 месеца</button>
+          <button type="button" class="btn btn-outline-danger" data-action="setOverduePeriod" data-arg="365">12 месеца</button>
+        </div>
       </div>
 
       <!-- Table -->

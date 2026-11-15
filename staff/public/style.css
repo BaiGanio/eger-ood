@@ -51,7 +51,8 @@ body.sidebar-closed #sidebar-toggle i { transform: rotate(180deg); }
 
 .stat-accent  { border-left: 3px solid #0d6efd !important; }
 .stat-warning { border-left: 3px solid #ffc107 !important; }
-.stat-info    { border-left: 3px solid #0dcaf0 !important; }
+.stat-click { cursor: pointer; }
+.stat-click:hover { box-shadow: 0 .25rem .75rem rgba(0,0,0,.12) !important; }
 .stat-success { border-left: 3px solid #198754 !important; }
 .stat-danger  { border-left: 3px solid #dc3545 !important; }
 

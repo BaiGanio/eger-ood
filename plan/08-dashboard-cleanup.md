@@ -54,7 +54,15 @@ Needs: chapter 06.
 - [x] "За днес" = the reminder day is today or past, no SMS yet, the expiry date is not past.
 - [x] "Изпрати" only in a "За днес" or "Очаква" row. No "Изпрати отново". The server refuses the other sends, also with `force`.
 - [x] A new phone number in the edit window clears the SMS mark.
-- [x] Rows: "За днес" on top, then "Очаква", "Изпратен", "Просрочен". The card "Очакващи SMS" counts "Очаква" + "За днес".
+- [x] Rows: "За днес" on top, then "Очаква", "Изпратен", "Просрочен". ~~The card "Очакващи SMS" counts "Очаква" + "За днес".~~ Changed by staff requests 4.
+
+### Staff requests 4 (owner, 2026-11-15): send in advance before a holiday (`specs.md` D22)
+- [x] The card "Очакващи SMS" counts the "За днес" customers. The card "За днес" is removed (owner chose it: same number two times).
+- [x] A click on "Очакващи SMS" shows the send list: status filter "Очакващи SMS", period "Днес" = the "За днес" rows.
+- [x] A buttons row "Напомняне до: Днес / 7 дни / 10 дни / 1 месец" adds the "Очаква" rows whose reminder date is in that period. "1 месец" = 30 days. Rule in `public/card-lists.js`, tests in `test/card-lists.test.js`.
+- [x] Test data: 64 customers (50 new, `c014`–`c063`), most of them "Очаква" with a reminder in the next 1 to 35 days, and 10 "Просрочен" over the year.
+- [x] The card count follows the chosen period (example: 6 today, 15 for 7 days). The card keeps the period, so its number and its list are the same.
+- [x] "Просрочени" works the same way: the card counts the last 7 days; a click shows them and the row "Изтекли преди: 7 дни / 10 дни / 1 месец / 3 / 6 / 9 / 12 месеца". The status option "Просрочени" still shows all.
 
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
@@ -71,4 +79,5 @@ Needs: chapter 06.
 3a. No pause button in a row. No "Деактивиран" in the status filter. "Настройки" has no customer table.
 4. "Добави клиент" with the phone `0887 123 456` → the question about +359 shows on top of the window.
 5. An "Изпратен" row and a "Просрочен" row have no "Изпрати" button. Type a new inspection date in a "Просрочен" row → "Очаква", next inspection one year later. Change the phone of an "Изпратен" row → the button is back.
+5a. `npm run test-data -- --force` (with `EGER_DATA_DIR=./data`). Four cards. Click "Очакващи SMS" → only "За днес" rows and the buttons row. "7 дни", "10 дни", "1 месец" → more "Очаква" rows, the last reminder date is in the period. The card number changes with the button. Another status in the filter → the buttons row hides. Click "Просрочени" → the last 7 days and its buttons row; each button changes the card number. Status "Просрочени" in the drop-down → all overdue rows, no buttons row.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

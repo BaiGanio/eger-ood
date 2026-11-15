@@ -1,6 +1,7 @@
 // A module: the page has no inline script, so the Content-Security-Policy of
 // the server can refuse each inline script (specs section 6).
 import { measureSms, fillTemplate } from './sms-text.js';
+import { OVERDUE_PERIODS, SEND_PERIODS, inOverdueList, inSendList } from './card-lists.js';
 
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
@@ -11,6 +12,9 @@ let pricePerSegment = 0;
 let dataDay = null;
 let holidays = [];
 let pendingSendId = null;
+// The periods of the two cards (card-lists.js). The card count follows them.
+let sendPeriod = 0;      // "Очакващи SMS": days after today. 0 = today only.
+let overduePeriod = 7;   // "Просрочени": days before today.
 
 // Order of the rows: what the staff must do first is on top.
 const STATUS_ORDER = { due: 0, pending: 1, sent: 2, overdue: 3 };
@@ -90,7 +94,8 @@ async function api(method, path, body) {
 const ACTIONS = {
   showView, openAddModal, openEditModal, closeModal, saveCustomer,
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
-  saveTemplate, addHoliday, removeHoliday,
+  saveTemplate, addHoliday, removeHoliday, showSendList, setSendPeriod,
+  showOverdueList, setOverduePeriod,
 };
 
 async function tick() {
@@ -254,22 +259,68 @@ function renderStats() {
   const total    = customers.length;
   // The engine computes the status (lib/reminders.js). "Waiting" = not sent yet.
   const count    = (...statuses) => customers.filter(c => statuses.includes(c.status)).length;
-  const pending  = count('pending', 'due');
+  // The two cards count the customers of their chosen period, so the staff
+  // see the number before a click (card-lists.js).
+  const until    = localDateInDays(sendPeriod);
+  const since    = localDateInDays(-overduePeriod);
+  const pending  = customers.filter(c => inSendList(c, until)).length;
   const sent     = count('sent');
-  const overdue  = count('overdue');
-  const dueToday = count('due');
+  const overdue  = customers.filter(c => inOverdueList(c, since)).length;
 
   document.getElementById('stat-total').textContent   = total;
   document.getElementById('stat-pending').textContent = pending;
   document.getElementById('stat-sent').textContent    = sent;
   document.getElementById('stat-overdue').textContent = overdue;
-  document.getElementById('stat-today').textContent   = dueToday;
+}
+
+// ─── Card lists ("Очакващи SMS", "Просрочени") ───────────────────────
+// A click on the card shows its customers. The buttons row changes the period;
+// the card count changes with it (card-lists.js). Before a holiday the staff
+// send in advance with a longer period.
+// The card keeps the chosen period, so its number and its list stay the same.
+function showCardList(status) {
+  document.getElementById('filter-status').value = status;
+  renderTable();
+  document.getElementById('filter-status').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Function declarations: ACTIONS (above) uses them before this line runs.
+function showSendList()    { showCardList('send'); }
+function showOverdueList() { showCardList('expired'); }
+
+function setSendPeriod(arg) {
+  const days = Number(arg);
+  if (!SEND_PERIODS.includes(days)) return;
+  sendPeriod = days;
+  refresh();
+}
+
+function setOverduePeriod(arg) {
+  const days = Number(arg);
+  if (!OVERDUE_PERIODS.includes(days)) return;
+  overduePeriod = days;
+  refresh();
+}
+
+function renderPeriodRow(id, visible, period) {
+  const row = document.getElementById(id);
+  row.classList.toggle('d-none', !visible);
+  row.classList.toggle('d-flex', visible);
+  row.querySelectorAll('[data-arg]').forEach(btn => {
+    const on = Number(btn.dataset.arg) === period;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', String(on));
+  });
 }
 
 // ─── Dashboard table ─────────────────────────────────────────────────
 function renderTable() {
   const search       = document.getElementById('search-input').value.toLowerCase();
   const filterStatus = document.getElementById('filter-status').value;
+  const untilDate    = localDateInDays(sendPeriod);
+  const sinceDate    = localDateInDays(-overduePeriod);
+  renderPeriodRow('send-period', filterStatus === 'send', sendPeriod);
+  renderPeriodRow('overdue-period', filterStatus === 'expired', overduePeriod);
 
   let filtered = customers.filter(c => {
     const matchText = !search ||
@@ -277,7 +328,10 @@ function renderTable() {
       c.carPlate.toLowerCase().includes(search) ||
       c.carModel.toLowerCase().includes(search);
 
-    const matchStatus = !filterStatus || c.status === filterStatus;
+    const matchStatus =
+      filterStatus === 'send'    ? inSendList(c, untilDate) :
+      filterStatus === 'expired' ? inOverdueList(c, sinceDate) :
+      !filterStatus || c.status === filterStatus;
     return matchText && matchStatus;
   });
 
