@@ -43,6 +43,8 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 
 See `specs.md` section 3. Nothing blocks the next chapter.
 
+- 2026-11-15 (staff request): a backup button in "Настройки" for the end of the work day. Design proposal given to the owner; waits for the OK. Work for chapter 08 (staff requests).
+
 ## Found on the way
 
 Write here what you see but must not fix in the present chapter.
@@ -103,6 +105,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 08, staff requests 13: the staff app computes the official days off from the law for any year, checks the API once in 30 days for one-time days, and shows a year calendar in "Настройки" (D25). Reminders reload after a holiday change. 161 tests pass in both time zones. Not checked in a browser: the extension was not connected. |
 | 2026-11-15 | Chapter 08, staff requests 13 fix: the calendar shows one month (owner: 12 months too big); official days always red; no extra list or long text (D25). The error "calData.official" came from a server that ran the old code; the page now copes with it. Checked in a headless Chrome. 161 tests pass in both time zones. |
 | 2026-11-15 | Chapter 10 started: guide form decided (D11). `staff/public/help.html` + `help.css`, example task "Как да изпратя SMS напомняне" with 2 screenshots made on fake data by `staff/tools/guide-shots.mjs`. No link from the dashboard yet (waits for the owner's OK). Checked in a headless Chrome, no console errors. `test/public.test.js` now reads only the text files of `public/` (the new `help/` folder broke it). 161 tests pass in both time zones. |
+| 2026-11-15 | Chapter 10: owner approved the example style. Link "Помощ" in the dashboard menu. Contact name and phone in the guide. Staff request for a backup button: proposal only, not built. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.

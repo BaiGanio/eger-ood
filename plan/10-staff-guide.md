@@ -35,10 +35,10 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 ## Steps
 
 - [x] Example task: "Как да изпратя SMS напомняне", 2 screenshots. "In progress" note on the page.
-- [ ] Owner approves the style of the example.
-- [ ] Owner gives the name and phone for "[име и телефон]" (who the staff call).
-- [ ] Owner confirms the name of the desktop icon ("ЕГЕР-Сервиз") after chapter 09.
-- [ ] Link "Помощ" in the dashboard menu. Needs the owner's OK on the place.
+- [x] Owner approves the style of the example (2026-11-15: "small polishing").
+- [x] Contact for errors: Любен Киков, 0899 731 772 (owner, 2026-11-15).
+- [x] Desktop icon name stays "ЕГЕР-Сервиз" for now. Change it if the staff want another name.
+- [x] Link "Помощ" in the dashboard menu, under "Настройки" (owner, 2026-11-15).
 - [ ] After chapter 08: make all screenshots again (`tools/guide-shots.mjs`).
 - [ ] Task 2: Как да добавя клиент.
 - [ ] Task 3: Как да променя или изтрия клиент.
@@ -46,7 +46,7 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 - [ ] Task 5: Какво значи „Просрочени“.
 - [ ] Task 6: Почивни дни и защо SMS идва по-рано.
 - [ ] Task 7: SMS шаблон и цена.
-- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`).
+- [ ] Task 8: Къде е файлът с клиентите (Excel, backups, the lock file `~$клиенти.xlsx`). Staff asked how the backup works: each change is saved at once; one copy a day goes to `backups/`, 30 are kept. Add the backup button here if the owner approves it (see `progress.md`, "Waiting for an answer").
 - [ ] Task 9: Ако нещо не работи (all banners).
 - [ ] Remove the "Ръководството още се пише" note.
 
