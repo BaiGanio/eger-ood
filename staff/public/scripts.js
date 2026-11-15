@@ -422,12 +422,18 @@ function renderTable() {
     : (a, b) => (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
                 a.nextReminderDate.localeCompare(b.nextReminderDate));
 
+  // "Очаквани за преглед": the staff only wait. No reminder day, no buttons.
+  const waitList = filterStatus === 'coming';
+  const cols     = waitList ? 5 : 7;
+  document.getElementById('col-reminder').classList.toggle('d-none', waitList);
+  document.getElementById('col-actions').classList.toggle('d-none', waitList);
+
   const tbody = document.getElementById('table-body');
   page = clampPage(page, filtered.length, pageSize);
   renderPager(filtered.length);
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center text-muted py-5">
       <i class="bi bi-inbox d-block mb-2 fs-3 opacity-25"></i>Няма намерени клиенти</td></tr>`;
     return;
   }
@@ -475,10 +481,10 @@ function renderTable() {
         <div class="text-muted mt-1" style="font-size:11px;">${escHtml(c.carPlate)}</div>
       </td>
       <td><code class="text-body">${escHtml(c.phone)}</code></td>
-      <td><span class="${rdClass}">${rdLabel}</span></td>
+      ${waitList ? '' : `<td><span class="${rdClass}">${rdLabel}</span></td>`}
       <td><span class="${eff === 'overdue' ? 'date-overdue' : ''}">${formatDate(c.nextServiceDate)}</span></td>
       <td>${badge}</td>
-      <td>
+      ${waitList ? '' : `<td>
         <div class="d-flex gap-1 flex-nowrap">
           ${canSend ? `<button class="btn btn-primary btn-sm d-flex align-items-center gap-1 text-nowrap"
                   data-action="previewSms" data-arg="${escHtml(c.id)}">
@@ -489,7 +495,7 @@ function renderTable() {
           <button class="btn btn-outline-danger btn-sm" data-action="deleteCustomer" data-arg="${escHtml(c.id)}"
                   title="Изтрий"><i class="bi bi-trash"></i></button>
         </div>
-      </td>
+      </td>`}
     </tr>`;
   }).join('');
 }

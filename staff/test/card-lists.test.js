@@ -36,7 +36,7 @@ test('only "overdue" customers are in the overdue list', () => {
 });
 
 const sentAt = (status, smsSentAt) => ({ status, smsSentAt });
-const coming = (nextServiceDate) => ({ nextServiceDate });
+const coming = (nextServiceDate, status = 'sent') => ({ status, nextServiceDate });
 
 test('an SMS of today is in the sent list of today', () => {
   assert.equal(inSentList(sentAt('sent', '2026-11-15T08:01:00'), '2026-11-15'), true);
@@ -64,4 +64,10 @@ test('the coming list goes from today to the last day', () => {
 
 test('an expiry date before today is not in the coming list', () => {
   assert.equal(inComingList(coming('2026-11-14'), '2026-11-15', '2026-12-15'), false);
+});
+
+test('a customer with no SMS is never in the coming list', () => {
+  for (const status of ['due', 'pending']) {
+    assert.equal(inComingList(coming('2026-11-20', status), '2026-11-15', '2026-12-15'), false);
+  }
 });

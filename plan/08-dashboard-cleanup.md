@@ -76,6 +76,11 @@ Needs: chapter 06.
 - [x] Page buttons under the table, with "Показани 1–25 от N". Page 1 after a new search, filter, card or period. Same page after a send, edit or delete.
 - [x] Rules in `public/pages.js`, tests in `test/pages.test.js`. Checked in a headless Chrome with the test data.
 
+### Staff requests 8 (owner, 2026-11-15): "Очаквани за преглед" fix (`specs.md` D22)
+- [x] Bug: the list showed "За днес" and "Очаква" rows (no SMS). Now only "Изпратен" rows. The rule D22 was wrong ("with or without an SMS"); the code and its test followed it.
+- [x] The list has no "Напомняне" and no "Действия" column.
+- [x] New `test/business-rules.test.js`: staff stories through the real engine and the card lists (7 tests).
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -93,5 +98,6 @@ Needs: chapter 06.
 5. An "Изпратен" row and a "Просрочен" row have no "Изпрати" button. Type a new inspection date in a "Просрочен" row → "Очаква", next inspection one year later. Change the phone of an "Изпратен" row → the button is back.
 5a. `npm run test-data -- --force` (with `EGER_DATA_DIR=./data`). Four cards. Click "Очакващи SMS" → only "За днес" rows and the buttons row. "7 дни", "10 дни", "1 месец" → more "Очаква" rows, the last reminder date is in the period. The card number changes with the button. Another status in the filter → the buttons row hides. Click "Просрочени" → the last 7 days and its buttons row; each button changes the card number. Status "Просрочени" in the drop-down → all overdue rows, no buttons row.
 5b. With the test data: five cards. Close the yellow banners with × → they stay closed. Click "Очаквани за преглед" → the card has a blue ring and tint, rows with expiry today, row "Преглед до". Click it again → all customers, no ring. Click "Изпратени SMS" → SMS of today; "12 месеца" → more rows. The text under each count says the period.
+5d. Click "Очаквани за преглед", then "1 месец" → only "Изпратен" rows. Columns: Клиент, Автомобил, Телефон, Следващ преглед, Статус. "Йордан Кирилов" and "Димитър Славов" are not in it. Click the card again → all 7 columns are back.
 5c. With the test data: the table has 25 rows and the page buttons under it. Click "2" → rows 26–50, the page shows the top of the table. "Редове: 50" → page 1, 50 rows. Type a name in the search → page 1. On page 2, edit a row → still page 2.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

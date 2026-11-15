@@ -40,11 +40,15 @@ export function inSentList(customer, sinceDate) {
 }
 
 /**
- * The customers whose expiry date is from `today` to `untilDate`: they
- * must come for the inspection by then. With or without an SMS.
+ * The customers who got the SMS of this cycle and whose expiry date is from
+ * `today` to `untilDate`: the staff wait for them. A customer with no SMS
+ * ("За днес", "Очаква") did not hear from us, so the staff do not wait for
+ * him (staff requests, 2026-11-15). "Изпратен" = SMS of this cycle and the
+ * expiry date is not past (lib/reminders.js, statusOf).
  */
 export function inComingList(customer, today, untilDate) {
-  return customer.nextServiceDate >= today && customer.nextServiceDate <= untilDate;
+  return customer.status === 'sent' &&
+    customer.nextServiceDate >= today && customer.nextServiceDate <= untilDate;
 }
 
 /** The overdue customers whose expiry date is on or after `sinceDate`. */
