@@ -6,7 +6,7 @@ Last update: 2026-11-15.
 
 ## Where we are
 
-**Now:** chapter 07 (security) is done in code and waits for the owner's commit and his checks in the browser (`07-security.md`, "Owner checks"). Chapter 08 staff requests are done in code. Chapter 06 (reminder logic) is done in code. It waits for the owner's commit, his checks in the browser, and his screenshots about the "Прегледът мина" button. Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** the rest of chapter 08 (dashboard cleanup).
+**Now:** chapter 08 (dashboard cleanup) is done in code, but for two items that wait for the owner: the second customer table in settings (O4) and the "Прегледът мина" button (screenshots). Chapters 06, 07 and 08 wait for the owner's commit and his checks in the browser ("Owner checks" in each chapter file). Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** chapter 09 (packaging).
 
 ## Chapters
 
@@ -22,7 +22,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
 | 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). The "Прегледът мина" button waits for the owner's screenshots. |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
-| 08 | Dashboard cleanup | 🟨 | 2026-11-14. Staff requests done: Bulgarian template names, plates with no spaces, server state that shows a stopped server, sidebar that closes. 74 tests. The rest of the chapter is not started. Owner must check the page in a browser. |
+| 08 | Dashboard cleanup | 🟨 | 2026-11-15. Code and tests are done (109 tests). Staff requests, `refresh()`, price only from the server, load errors in the toast, own yes / no dialog, reload on a new day, name "ЕГЕР ООД", icon. Open: the second customer table (O4, owner decides) and the "Прегледът мина" button (owner's screenshots). Owner must check the page in a browser (`08-dashboard-cleanup.md`, "Owner checks"). |
 | 09 | Packaging | ⬜ | |
 | 10 | Staff guide | ⬜ | After the staff app is done. Form is decided with the staff (`specs.md` D11). |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
@@ -124,3 +124,9 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-15 (ch07): the server gives 404 for `/favicon.ico`. Chapter 08 can add an icon.
 - 2026-11-15 (ch07): the test data still has invented phone numbers. With real Twilio keys a send to them is a paid SMS to a stranger. Not solved in chapter 07. Chapter 09.
 - 2026-11-15 (ch07): the dashboard loads Bootstrap and the fonts from the internet with no integrity check (`integrity="sha384-…"`). Chapter 08 or 09 can add it, or keep the files in `staff/public/`.
+- 2026-11-15 (ch08): the rest of chapter 08 done in code: `refresh()`, the price number only in `lib/store.js`, load errors in the toast, the same toast text shows one time, own yes / no dialog (`ask()`, a native `<dialog>`) in place of `confirm()`, reload of the customers on a new day, name "ЕГЕР ООД", `public/favicon.svg`, `test/public.test.js`. 109 tests pass in Sofia and UTC.
+- 2026-11-15 (ch08): these "found" items above are closed by it: `confirm()`, the status after midnight, the 404 for `/favicon.ico`, the dashboard title "АвтоСервиз".
+- 2026-11-15 (ch08): bug found and fixed: a holiday that failed to save stayed in the list on the page. Bug found and fixed: an empty price field saved the price 0.
+- 2026-11-15 (ch08): the agent checked the page in a headless Chrome on a copy of the test data, with no Twilio keys: the three questions, add, delete, holidays, a stopped server (red toasts) and the return of the server. The reload on a new day was not checked in a browser. A person did not look at the page.
+- 2026-11-15 (ch08): `staff/package.json` still has the name `car-service-sms`. Chapter 09.
+- 2026-11-15 (ch08): the start box in `server.js` and the heading of the page say "SMS Сервиз" / "SMS Напомняния". Not changed.

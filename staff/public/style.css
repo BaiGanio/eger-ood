@@ -82,3 +82,7 @@ tr.row-disabled { opacity: .45; }
 /* ── Spinner ─────────────────────────────────────────────────────── */
 .spin { animation: spin .7s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Yes / no question (native <dialog>) ─────────────────────────── */
+.ask-dialog { width: min(420px, calc(100vw - 32px)); }
+.ask-dialog::backdrop { background: rgba(0, 0, 0, .5); }

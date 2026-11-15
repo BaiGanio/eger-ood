@@ -18,17 +18,24 @@ Needs: chapter 06.
 | Customers show two times: the dashboard table and the settings table. | `ati.html:234` |
 
 ## Steps
-- [ ] Add one `api(method, path, body)` helper. It sends JSON, checks `res.ok`, and throws the server's error text.
-- [ ] Add one `refresh()` function that calls the three render functions.
-- [ ] Move the template fill into `sms-text.js` as `fillTemplate(template, customer)`. Use it on both sides.
-- [ ] Take the price default only from the server.
-- [ ] Replace inline `onclick` with one click listener per table that reads `data-action` and `data-id`.
-- [ ] Show load errors with the toast. Remove empty `catch` blocks.
-- [ ] Use the computed `status` from the server (chapter 06). Remove `effectiveStatus` from the browser.
-- [ ] Add the "Прегледът мина" button and its small dialog (chapter 06).
-- [ ] Add the test-mode banner and the bad-rows banner (chapters 05, 06).
-- [ ] Set the name to "ЕГЕР ООД" in the title and the sidebar.
-- [ ] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it.
+- [x] Add one `api(method, path, body)` helper. It sends JSON, checks `res.ok`, and throws the server's error text. (Done in chapter 07.)
+- [x] Add one `refresh()` function that calls the three render functions.
+- [x] Move the template fill into `sms-text.js` as `fillTemplate(template, customer)`. Use it on both sides. (Done in chapter 06.)
+- [x] Take the price default only from the server. The number is only in `lib/store.js`. An empty price field saves no price.
+- [x] Replace inline `onclick` with one click listener that reads `data-action` and `data-arg`. (Done in chapter 07.)
+- [x] Show load errors with the toast. Remove empty `catch` blocks. The same toast text shows one time.
+- [x] Use the computed `status` from the server (chapter 06). Remove `effectiveStatus` from the browser. (Done in chapter 06.)
+- [ ] ~~Add the "Прегледът мина" button and its small dialog.~~ Not built: `specs.md` section 5. Waits for the owner's screenshots.
+- [x] The no-keys banner and the bad-rows banner (chapters 05, 06). There is no test mode (owner, 2026-11-14).
+- [x] Set the name to "ЕГЕР ООД" in the title and the sidebar.
+- [ ] Decide with the user: keep the second customer table in settings, or move "delete" into the main table and remove it. (`specs.md` O4. Asked on 2026-11-15.)
+
+### Found in the earlier chapters (done 2026-11-15)
+- [x] No `confirm()`. The page has its own yes / no dialog (`ask()` in `scripts.js`, a native `<dialog>`). It opens on top of the customer window.
+- [x] A page that stays open over midnight loads the customers again on the new day.
+- [x] The page has an icon (`public/favicon.svg`). No 404 for `/favicon.ico`.
+- [x] A holiday that did not save does not stay in the list on the page.
+- [x] `test/public.test.js`: no inline handler, no browser dialog, no price number, no empty `catch` in `public/`.
 
 ### Staff requests (screenshot, 2026-11-14)
 - [x] Bulgarian template variables: `{{име}}`, `{{модел}}`, `{{номер}}`, `{{дата}}`, `{{телефон}}`. The chips show and insert these. `fillTemplate` accepts them. The old English tokens (`{{name}}`, `{{carModel}}`, `{{carPlate}}`, `{{serviceDate}}`, `{{phone}}`) still work, so a saved template does not break. Note: the regex `\w` does not match Cyrillic. Change it. Add tests.
@@ -41,6 +48,14 @@ Needs: chapter 06.
 - No framework. No build step. Plain JavaScript stays.
 
 ## Done when
-- No `onclick=` in `staff/public/`.
-- A stopped server gives a red toast on each action, never a green one.
-- Hand test of every button passes.
+- [x] No `onclick=` in `staff/public/`.
+- [x] A stopped server gives a red toast on each action, never a green one. (Checked in a headless Chrome.)
+- [ ] Hand test of every button passes. (Owner.)
+
+## Owner checks
+1. `cd staff`, then `EGER_DATA_DIR=./data npm start`.
+2. The browser tab shows the name "ЕГЕР ООД" and a blue icon.
+3. "Настройки" → the red bin button → a question shows in the page, not a browser box. "Отказ" keeps the customer.
+4. "Добави клиент" with the phone `0887 123 456` → the question about +359 shows on top of the window.
+5. A row with "Изпрати отново" → the question shows first, then the SMS preview.
+6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

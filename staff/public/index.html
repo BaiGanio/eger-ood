@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>АвтоСервиз — SMS Напомняния</title>
+  <title>ЕГЕР ООД — SMS Напомняния</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,7 +24,7 @@
         <i class="bi bi-wrench-adjustable"></i>
       </div>
       <div class="sidebar-label">
-        <div class="fw-bold lh-1" style="font-family:'Syne',sans-serif;font-size:14px;">АвтоСервиз</div>
+        <div class="fw-bold lh-1" style="font-family:'Syne',sans-serif;font-size:14px;">ЕГЕР ООД</div>
         <div class="text-muted" style="font-size:10px;">SMS Напомняния</div>
       </div>
     </div>
@@ -221,7 +222,7 @@
               <div class="mt-3" style="max-width:220px;">
                 <label class="form-label col-header" for="f-price">Цена за 1 SMS (USD)</label>
                 <input type="number" class="form-control form-control-sm" id="f-price"
-                       step="0.0001" min="0" value="0.1466" />
+                       step="0.0001" min="0" />
               </div>
 
               <div class="mt-3">
@@ -373,6 +374,17 @@
     </div>
   </div>
 </div>
+
+<!-- ══ Въпрос с „да“ / „не“ (scripts.js, ask) ═════════════════════ -->
+<dialog id="ask-dialog" class="ask-dialog border-0 rounded-3 shadow p-0">
+  <div class="p-4">
+    <p class="mb-4" id="ask-text"></p>
+    <div class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" id="ask-no">Отказ</button>
+      <button type="button" class="btn btn-primary" id="ask-yes">Да</button>
+    </div>
+  </div>
+</dialog>
 
 <!-- Bootstrap Toast container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index:9999;"></div>

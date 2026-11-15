@@ -45,7 +45,7 @@ Last update: 2026-11-15.
 |---|---|---|
 | O2 | "Send to all due today" button? | No. One SMS at a time. |
 | O3 | Where is the Excel file on the staff PC? | `Documents\ЕГЕР-Сервиз\клиенти.xlsx`. `EGER_DATA_DIR` overrides it. |
-| O4 | Second customer table in settings: keep or remove? | Ask in chapter 08. |
+| O4 | Second customer table in settings: keep or remove? | Keep. Asked on 2026-11-15. |
 | O5 | Extra pages that the staff want. | Wait for the talks with the staff. |
 
 ## 4. Architecture rules
@@ -119,6 +119,7 @@ Last update: 2026-11-15.
 - Node ESM (`import`), `async`/`await`. Plain JavaScript in the browser.
 - Small functions. Logic that has a rule gets a pure function and a test.
 - Browser: one `api(method, path, body)` helper. It checks `res.ok` and throws the server text. No empty `catch`.
+- Browser: no `confirm()`, `alert()` or `prompt()`. A yes / no question uses `ask()` in `scripts.js` (chapter 08, 2026-11-15).
 - Code comments and identifiers in English. Text that the user sees in Bulgarian.
 - A comment says **why**, not what.
 - No new dependency without a reason written in the commit message.

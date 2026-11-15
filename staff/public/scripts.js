@@ -5,7 +5,10 @@ import { measureSms, fillTemplate } from './sms-text.js';
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
 let smsTemplate = '';
-let pricePerSegment = 0.1466;
+// The price has one home: the engine (lib/store.js). It comes with the template.
+let pricePerSegment = 0;
+// The day of the statuses on the page. See reloadOnNewDay().
+let dataDay = null;
 let holidays = [];
 let pendingSendId = null;
 
@@ -37,10 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const chip = e.target.closest('[data-var]');
     if (chip) insertVar(chip.dataset.var);
   });
+  const askDialog = document.getElementById('ask-dialog');
+  document.getElementById('ask-yes').addEventListener('click', () => askDialog.close('yes'));
+  document.getElementById('ask-no').addEventListener('click', () => askDialog.close('no'));
   init();
-  setInterval(checkServer, SERVER_CHECK_MS);
+  setInterval(tick, SERVER_CHECK_MS);
   // A browser slows down timers in a hidden tab. Check at once when the staff come back.
-  window.addEventListener('focus', checkServer);
+  window.addEventListener('focus', tick);
 });
 
 async function init() {
@@ -87,6 +93,17 @@ const ACTIONS = {
   saveTemplate, addHoliday, removeHoliday,
 };
 
+async function tick() {
+  await checkServer();
+  reloadOnNewDay();
+}
+
+// The engine computes each status for its "today". A page that stays open
+// over midnight would show the statuses of the day before.
+function reloadOnNewDay() {
+  if (dataDay !== null && dataDay !== localDateInDays(0) && serverUp) loadCustomers();
+}
+
 async function checkServer() {
   try {
     const res = await serverFetch('/api/status', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
@@ -94,6 +111,7 @@ async function checkServer() {
     // With no Twilio keys no SMS can go out. The banner says so.
     document.getElementById('sms-off').classList.toggle('d-none', data.smsMode === 'live');
   } catch (e) {
+    // No toast: this runs every few seconds. The red box and the banner show it.
     console.error(e);
   }
 }
@@ -144,20 +162,27 @@ function toggleSidebar() {
 
 async function loadCustomers() {
   const errorBox = document.getElementById('data-error');
+  // Set before the answer: a load that fails must not start again every few seconds.
+  dataDay = localDateInDays(0);
   try {
     const data = await api('GET', '/api/customers');
     customers  = data.customers || [];
     errorBox.classList.add('d-none');
-    renderTable();
-    renderStats();
-    renderSettingsTable();
+    refresh();
     loadDataProblems();
   } catch (e) {
     // The message stays on the page: a toast is gone after a few seconds.
     errorBox.textContent = e.message;
     errorBox.classList.remove('d-none');
-    toast('Грешка при зареждане на клиентите', 'danger');
+    toast('Грешка при зареждане на клиентите: ' + e.message, 'danger');
   }
+}
+
+// Draw all that shows the customer list.
+function refresh() {
+  renderTable();
+  renderStats();
+  renderSettingsTable();
 }
 
 // The answer of the server as an object. A failed request throws the
@@ -175,7 +200,7 @@ async function loadDataProblems() {
     const data = await api('GET', '/api/data-problems');
     renderDataProblems(data.problems || []);
   } catch (e) {
-    console.error(e);
+    toast('Грешка при проверка на файла: ' + e.message, 'danger');
   }
 }
 
@@ -191,13 +216,13 @@ async function loadTemplate() {
   try {
     const data = await api('GET', '/api/template');
     smsTemplate     = data.template || '';
-    pricePerSegment = Number.isFinite(data.pricePerSegment) ? data.pricePerSegment : 0.1466;
+    pricePerSegment = Number.isFinite(data.pricePerSegment) ? data.pricePerSegment : 0;
 
     document.getElementById('sms-template-input').value = smsTemplate;
     document.getElementById('f-price').value            = pricePerSegment;
     updatePreview();
   } catch (e) {
-    console.error(e);
+    toast('Грешка при зареждане на шаблона: ' + e.message, 'danger');
   }
 }
 
@@ -207,7 +232,7 @@ async function loadHolidays() {
     holidays = data.holidays || [];
     renderHolidays();
   } catch (e) {
-    console.error(e);
+    toast('Грешка при зареждане на почивните дни: ' + e.message, 'danger');
   }
 }
 
@@ -265,7 +290,7 @@ function renderTable() {
   const tbody = document.getElementById('table-body');
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-5">
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">
       <i class="bi bi-inbox d-block mb-2 fs-3 opacity-25"></i>Няма намерени клиенти</td></tr>`;
     return;
   }
@@ -380,7 +405,7 @@ function renderSettingsTable() {
 async function previewSms(id) {
   const customer = customers.find(c => c.id === id);
   if (customer && customer.status === 'sent' &&
-      !confirm(`Вече е изпратен на ${formatDateTime(customer.smsSentAt)}. Изпрати отново?`)) return;
+      !await ask(`Вече е изпратен на ${formatDateTime(customer.smsSentAt)}. Изпрати отново?`, 'Изпрати отново')) return;
   try {
     const data = await api('POST', `/api/preview-sms/${encodeURIComponent(id)}`);
     document.getElementById('preview-modal-body').textContent = data.body;
@@ -416,9 +441,7 @@ async function confirmSend() {
     if (idx !== -1) customers[idx] = data.customer;
 
     closeSmsPreviewModal();
-    renderTable();
-    renderStats();
-    renderSettingsTable();
+    refresh();
     toast(`SMS изпратен до ${data.customer.name}!`, 'success');
   } catch (e) {
     toast('Грешка при изпращане: ' + e.message, 'danger');
@@ -436,9 +459,7 @@ async function toggleDisabled(id) {
     const updated = await api('PATCH', `/api/customers/${encodeURIComponent(id)}/toggle-disabled`);
     const idx = customers.findIndex(c => c.id === id);
     if (idx !== -1) customers[idx] = updated;
-    renderTable();
-    renderStats();
-    renderSettingsTable();
+    refresh();
     toast(updated.disabled ? 'Клиентът е деактивиран' : 'Клиентът е активиран', 'info');
   } catch (e) {
     toast('Грешка при промяна на статуса: ' + e.message, 'danger');
@@ -452,13 +473,11 @@ async function deleteCustomer(id) {
   const customer = customers.find(c => c.id === id);
   if (!customer) return;
   const name = customer.name;
-  if (!confirm(`Изтриване на клиент "${name}"? Действието е необратимо.`)) return;
+  if (!await ask(`Изтриване на клиент "${name}"? Действието е необратимо.`, 'Изтрий', 'btn-danger')) return;
   try {
     await api('DELETE', `/api/customers/${encodeURIComponent(id)}`);
     customers = customers.filter(c => c.id !== id);
-    renderTable();
-    renderStats();
-    renderSettingsTable();
+    refresh();
     toast(`Клиент ${name} е изтрит`, 'secondary');
   } catch (e) {
     toast('Грешка при изтриване: ' + e.message, 'danger');
@@ -526,7 +545,7 @@ async function saveCustomer() {
   // Twilio needs the country code. The staff often type the number with 0.
   const e164 = bulgarianToE164(body.phone);
   if (e164) {
-    if (!confirm(`Телефонът трябва да започва с +359. Да го променя ли на ${e164}?`)) return;
+    if (!await ask(`Телефонът трябва да започва с +359. Да го променя ли на ${e164}?`, 'Промени')) return;
     body.phone = e164;
     document.getElementById('f-phone').value = e164;
   }
@@ -544,9 +563,7 @@ async function saveCustomer() {
       toast('Клиентът е добавен', 'success');
     }
     closeModal();
-    renderTable();
-    renderStats();
-    renderSettingsTable();
+    refresh();
   } catch (e) {
     toast('Грешка при запазване: ' + e.message, 'danger');
   }
@@ -556,8 +573,7 @@ async function saveCustomer() {
 function updatePreview() {
   const tmpl = document.getElementById('sms-template-input').value;
   smsTemplate     = tmpl;
-  const price     = parseFloat(document.getElementById('f-price').value);
-  pricePerSegment = Number.isFinite(price) && price >= 0 ? price : 0;
+  pricePerSegment = readPrice() ?? 0;
 
   const sample = {
     name:            'Иван Петров',
@@ -605,6 +621,12 @@ function renderCounter(el, text, price) {
     </div>` : ''}`;
 }
 
+// The price in the field, or null when the field has no valid number.
+function readPrice() {
+  const price = parseFloat(document.getElementById('f-price').value);
+  return Number.isFinite(price) && price >= 0 ? price : null;
+}
+
 function insertVar(v) {
   const ta    = document.getElementById('sms-template-input');
   const start = ta.selectionStart, end = ta.selectionEnd;
@@ -617,7 +639,9 @@ function insertVar(v) {
 async function saveTemplate() {
   const template = document.getElementById('sms-template-input').value;
   try {
-    const data = await api('PUT', '/api/template', { template, pricePerSegment });
+    // A null price changes nothing in the file (lib/validate.js). So an empty
+    // field, or a page that did not load the price, never saves a price of 0.
+    const data = await api('PUT', '/api/template', { template, pricePerSegment: readPrice() });
     smsTemplate = template;
     toast('Шаблонът е запазен!', 'success');
     // A name with a typing error stays in the SMS as it is. Say so.
@@ -652,25 +676,24 @@ async function addHoliday() {
   const val   = input.value;
   if (!val) { toast('Изберете дата', 'warning'); return; }
   if (holidays.includes(val)) { toast('Датата вече е в списъка', 'info'); return; }
-  holidays.push(val);
-  await saveHolidays();
-  renderHolidays();
-  input.value = '';
+  if (await saveHolidays([...holidays, val])) input.value = '';
 }
 
 async function removeHoliday(date) {
-  holidays = holidays.filter(h => h !== date);
-  await saveHolidays();
-  renderHolidays();
+  await saveHolidays(holidays.filter(h => h !== date));
 }
 
-async function saveHolidays() {
+// The list on the page changes only after the file has the new list. A save
+// that failed leaves the page as it was. True when the save was good.
+async function saveHolidays(next) {
   try {
-    await api('PUT', '/api/holidays', { holidays });
+    const data = await api('PUT', '/api/holidays', { holidays: next });
+    holidays = data.holidays || next;
+    renderHolidays();
+    return true;
   } catch (e) {
     toast('Грешка при запазване на почивните дни: ' + e.message, 'danger');
-    // The page must show what is in the file, not what failed to save.
-    await loadHolidays();
+    return false;
   }
 }
 
@@ -712,10 +735,33 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// A yes / no question. It gives true for yes. A native <dialog>, not a
+// Bootstrap modal: it must open on top of the customer window, and Bootstrap
+// cannot show two modals at one time. Not the dialog of the browser: a
+// browser can block it.
+function ask(text, yesLabel, yesClass = 'btn-primary') {
+  const dialog = document.getElementById('ask-dialog');
+  const yes    = document.getElementById('ask-yes');
+  document.getElementById('ask-text').textContent = text;
+  yes.textContent = yesLabel;
+  yes.className   = 'btn ' + yesClass;
+  // Esc closes the dialog and keeps the old value. Start from "no".
+  dialog.returnValue = '';
+  dialog.showModal();
+  return new Promise(resolve => {
+    dialog.addEventListener('close', () => resolve(dialog.returnValue === 'yes'), { once: true });
+  });
+}
+
+let toastCount = 0;
+
 // Bootstrap toast helper
 function toast(msg, type = 'secondary') {
   const container = document.getElementById('toast-container');
-  const id  = 'toast-' + Date.now();
+  // One failure can come from many requests at one time (example: the Excel
+  // file is open). Show the same text one time.
+  if ([...container.children].some(t => t.dataset.msg === msg)) return;
+  const id  = 'toast-' + (++toastCount);
   const icon = {
     success:   'bi-check-circle-fill',
     danger:    'bi-x-circle-fill',
@@ -737,6 +783,7 @@ function toast(msg, type = 'secondary') {
   `);
 
   const el   = document.getElementById(id);
+  el.dataset.msg = msg;
   const bsT  = new bootstrap.Toast(el, { delay: 3500 });
   bsT.show();
   el.addEventListener('hidden.bs.toast', () => el.remove());
