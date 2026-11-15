@@ -91,6 +91,10 @@ Needs: chapter 06.
 ### Staff requests 11 (owner, 2026-11-15): "Очакващи SMS" buttons (`specs.md` D22)
 - [x] In the "Очакващи SMS" card list, "Действия" has only "Изпрати". No edit, no delete button.
 
+### Staff requests 12 (owner, 2026-11-15): "Всички клиенти" card, "Действия" (`specs.md` D22)
+- [x] The card "Всички клиенти" is a button. A click shows all customers (status filter cleared, search kept). It looks active when no list or status filter is on.
+- [x] Outside the "Очакващи SMS" card list, "Действия" has only edit and delete. No "Изпрати" there.
+
 ## Do not do here
 - No framework. No build step. Plain JavaScript stays.
 
@@ -112,5 +116,6 @@ Needs: chapter 06.
 5e. Click "Изпратени SMS", then "1 месец" → columns: Клиент, Автомобил, Телефон, Изпратен SMS, Следващ преглед, Статус. Example: "Христо Динев" shows 12.11.2026 10:43 (his reminder day is 17.11). The newest send is on top. Click the card again → "Напомняне" and "Действия" are back.
 5f. Click "Просрочени", then "12 месеца" → columns: Клиент, Автомобил, Телефон, Изпратен SMS, Следващ преглед, Статус. A row with no SMS shows "—". Click the card again → all 7 columns are back.
 5g. Click "Очакващи SMS" → each row has only "Изпрати", no pencil, no bin. Send one SMS to your own phone (short English text) → the row leaves the list. Click the card again → pencil and bin are back.
+5h. Click "Изпратени SMS" → click "Всички клиенти" → all customers, the blue card has the ring. In the full table each row has only the pencil and the bin. "Изпрати" shows only after a click on "Очакващи SMS".
 5c. With the test data: the table has 25 rows and the page buttons under it. Click "2" → rows 26–50, the page shows the top of the table. "Редове: 50" → page 1, 50 rows. Type a name in the search → page 1. On page 2, edit a row → still page 2.
 6. Close the server window. Press any button → red toast. Add a holiday → it does not show in the list.

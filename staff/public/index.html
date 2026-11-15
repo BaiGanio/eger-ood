@@ -105,16 +105,18 @@
         </button>
       </div>
 
-      <!-- Stat cards. A card with a list is a button: a click shows its customers
-           and its period row; the card of the shown list is "active" (scripts.js, CARDS). -->
+      <!-- Stat cards. Each card is a button. "Всички клиенти" clears the list filter;
+           a card with a list shows its customers and its period row. The card of
+           the shown list is "active" (scripts.js, CARDS). -->
       <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
         <div class="col">
-          <div class="card border-0 shadow-sm h-100 stat-accent">
+          <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-accent stat-click"
+                  data-action="showAllCustomers" id="card-all" aria-pressed="true" title="Покажи всички клиенти">
             <div class="card-body py-3 px-3">
               <div class="text-muted text-uppercase fw-semibold mb-1 stat-label">Всички клиенти</div>
               <div class="stat-value" id="stat-total">—</div>
             </div>
-          </div>
+          </button>
         </div>
         <div class="col">
           <button type="button" class="card border-0 shadow-sm h-100 w-100 text-start stat-warning stat-click"

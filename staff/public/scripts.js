@@ -105,7 +105,7 @@ async function api(method, path, body) {
 const ACTIONS = {
   showView, openAddModal, openEditModal, closeModal, saveCustomer,
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
-  saveTemplate, addHoliday, removeHoliday, showCardList, setPeriod,
+  saveTemplate, addHoliday, removeHoliday, showCardList, showAllCustomers, setPeriod,
   closeBanner, goToPage,
 };
 
@@ -324,6 +324,12 @@ function showCardList(key) {
   renderFirstPage();
 }
 
+// The "Всички клиенти" card: no list, no status filter. The search stays.
+function showAllCustomers() {
+  document.getElementById('filter-status').value = '';
+  renderFirstPage();
+}
+
 // `arg` = "card:days", from a button of a period row.
 function setPeriod(arg) {
   const [key, value] = String(arg).split(':');
@@ -350,6 +356,9 @@ function renderCardState(filterStatus) {
     button.classList.toggle('active', on);
     button.setAttribute('aria-pressed', String(on));
   }
+  const all = document.getElementById('card-all');
+  all.classList.toggle('active', filterStatus === '');
+  all.setAttribute('aria-pressed', String(filterStatus === ''));
 }
 
 // ─── Dashboard table ─────────────────────────────────────────────────
@@ -430,6 +439,7 @@ function renderTable() {
   // the reminder day: before a holiday the staff send in advance, so the two
   // days differ. A row with no SMS shows "—". "Очаквани за преглед" has no
   // reminder column. "Очакващи SMS": the staff only send, so only "Изпрати".
+  // All other views: only edit and delete (staff, 2026-11-15).
   const sentList = filterStatus === 'sentin' || filterStatus === 'expired';
   const waitList = filterStatus === 'coming';
   const noAction = sentList || waitList;
@@ -478,7 +488,7 @@ function renderTable() {
 
     // One SMS for each year, and none after the expiry date. The engine
     // refuses these sends too (lib/reminders.js, sendBlock).
-    const canSend = eff === 'due' || eff === 'pending';
+    const canSend = sendOnly && (eff === 'due' || eff === 'pending');
 
     return `
     <tr>
