@@ -38,7 +38,7 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 - [x] If port 3000 is busy: if our app is already running there, just open the browser; if not, try 3001–3010. (`lib/port.js`, `/api/status` names the app.)
 - [x] Fix `build:mac` to pack the Node binary the same way as `build:win`. Now one `npm run build` (`tools/build.mjs`) for the system it runs on. It stops on a Node that needs `libnode.dylib` (Homebrew): build with the Node of nodejs.org.
 - [x] Add a `.caxa-ignore` (or the `--exclude` option): `data/`, `.env`, `test/`, `tools/`, `*.xlsx`. (`EXCLUDE` in `tools/build.mjs`; dev packages pruned; output in `staff/dist/`.)
-- [x] Build on the Mac. Run the built file. Check that the data file is in `~/Documents/ЕГЕР-Сервиз/`. (With Node 21 of nodejs.org and a test `HOME`; restart keeps the file.)
+- [x] Build on the Mac. Run the built file. Check that the data file is in `~/Documents/ЕГЕР-Сервиз/`. (With Node 21 of nodejs.org and a test `HOME`; restart keeps the file.) Owner run with the real `HOME`: macOS asks for access to Documents (System Settings → Privacy & Security → Files and Folders → Terminal → Documents). The app now says this in place of "open in Excel".
 - [ ] Build for Windows. Test on a real Windows PC (or a VM):
   - [ ] Double-click starts it. The browser opens.
   - [ ] Bulgarian text in the console window is readable (code page).

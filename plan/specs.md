@@ -125,6 +125,7 @@ Last update: 2026-11-15 (D27 design, chapter 09).
 - Before the first write of each day, copy the file to `backups/`. Keep 30.
 - A copy to a place the staff choose (USB stick) happens only on their click (D27). `GET /api/backup-copy` gives the file; the browser saves it.
 - Check the Excel lock **before** an SMS send, not after.
+- An Excel lock = the lock file `~$клиенти.xlsx`, `EBUSY`, or (Windows only) `EPERM` / `EACCES`. On a Mac, `EPERM` / `EACCES` is no access to the folder (macOS privacy), with its own message (chapter 09).
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash.
 - `Телефон` is a text column.
 - A write changes the workbook in place. Rows that did not load (bad rows) and columns that the staff added stay in the file.

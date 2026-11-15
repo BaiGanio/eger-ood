@@ -8,7 +8,7 @@ import path from 'node:path';
 import ExcelJS from 'exceljs';
 import {
   DEFAULT_PRICE, DEFAULT_TEMPLATE, SHEETS, StoreError,
-  assertWritable, isLockError, isLocked, readData, writeData,
+  assertWritable, isLockError, isLocked, readData, storeErrorOf, writeData,
 } from '../lib/store.js';
 import { backupDir, backupFile, dataDir, dataFile, lockFile } from '../lib/paths.js';
 import { addDays, localDateText } from '../lib/dates.js';
@@ -362,10 +362,24 @@ test('locked file: a new ID is not saved, and the read says so', async t => {
 });
 
 test('isLockError knows the Windows codes', () => {
-  assert.equal(isLockError({ code: 'EBUSY' }), true);
-  assert.equal(isLockError({ code: 'EPERM' }), true);
-  assert.equal(isLockError({ code: 'ENOENT' }), false);
-  assert.equal(isLockError(null), false);
+  assert.equal(isLockError({ code: 'EBUSY' }, 'win32'), true);
+  assert.equal(isLockError({ code: 'EPERM' }, 'win32'), true);
+  assert.equal(isLockError({ code: 'EACCES' }, 'win32'), true);
+  assert.equal(isLockError({ code: 'ENOENT' }, 'win32'), false);
+  assert.equal(isLockError(null, 'win32'), false);
+});
+
+// Bug (ch09, Mac build): macOS privacy blocks the Documents folder with EPERM.
+// Excel on a Mac does not lock a file, so this is no "close Excel" case.
+test('on a Mac, EPERM / EACCES is no access, not "open in Excel"', () => {
+  assert.equal(isLockError({ code: 'EPERM' }, 'darwin'), false);
+  assert.equal(isLockError({ code: 'EACCES' }, 'darwin'), false);
+  const err = storeErrorOf({ code: 'EPERM' }, 'darwin');
+  assert.equal(err.code, 'NO_ACCESS');
+  assert.match(err.message, /няма достъп/);
+  assert.doesNotMatch(err.message, /Excel/);
+  assert.equal(storeErrorOf({ code: 'EPERM' }, 'win32').code, 'LOCKED');
+  assert.equal(storeErrorOf({ code: 'ENOENT' }, 'darwin'), null);
 });
 
 test('a write leaves no temp file', async t => {

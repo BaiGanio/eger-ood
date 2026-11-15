@@ -74,16 +74,37 @@ export class StoreError extends Error {
   constructor(code, message) {
     super(message);
     this.name = 'StoreError';
-    this.code = code; // 'LOCKED' | 'MISSING_SHEET' | 'MISSING_COLUMN' | 'UNREADABLE'
+    this.code = code; // 'LOCKED' | 'NO_ACCESS' | 'MISSING_SHEET' | 'MISSING_COLUMN' | 'UNREADABLE'
   }
 }
 
 const LOCKED_MESSAGE =
   `Файлът „${DATA_FILE_NAME}“ е отворен в Excel. Затворете файла в Excel и опитайте отново.`;
 
-/** Windows gives these codes when another program holds the file. */
-export function isLockError(err) {
-  return Boolean(err) && ['EBUSY', 'EPERM', 'EACCES'].includes(err.code);
+const ACCESS_CODES = ['EPERM', 'EACCES'];
+
+/**
+ * Windows gives these codes when another program holds the file. On a Mac,
+ * Excel does not lock the file, and EPERM / EACCES mean no access (example:
+ * the privacy rules of macOS for the Documents folder).
+ */
+export function isLockError(err, platform = process.platform) {
+  if (!err) return false;
+  if (err.code === 'EBUSY') return true;
+  return platform === 'win32' && ACCESS_CODES.includes(err.code);
+}
+
+function noAccessMessage() {
+  return `Програмата няма достъп до папката „${dataDir()}“. ` +
+    'На Mac: Системни настройки → Поверителност и сигурност → Файлове и папки → ' +
+    'разрешете „Документи“ за Terminal. Стартирайте програмата отново.';
+}
+
+/** The clear StoreError for a file error, or null when it is another error. */
+export function storeErrorOf(err, platform = process.platform) {
+  if (isLockError(err, platform)) return new StoreError('LOCKED', LOCKED_MESSAGE);
+  if (err && ACCESS_CODES.includes(err.code)) return new StoreError('NO_ACCESS', noAccessMessage());
+  return null;
 }
 
 // ─── Small helpers ───────────────────────────────────────────────────────────
@@ -524,7 +545,8 @@ async function loadWorkbook() {
   try {
     await wb.xlsx.readFile(dataFile());
   } catch (err) {
-    if (isLockError(err)) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+    const known = storeErrorOf(err);
+    if (known) throw known;
     console.error('[STORE] Cannot read the data file:', err);
     throw new StoreError('UNREADABLE',
       `Файлът „${DATA_FILE_NAME}“ не може да се прочете. Вземете копие от папка „backups“.`);
@@ -543,7 +565,8 @@ async function saveWorkbook(wb) {
     await fs.rename(temp, file);
   } catch (err) {
     await fs.rm(temp, { force: true });
-    if (isLockError(err)) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+    const known = storeErrorOf(err);
+    if (known) throw known;
     throw err;
   }
 }
@@ -580,7 +603,11 @@ export async function isLocked() {
     await handle.close();
     return false;
   } catch (err) {
-    return isLockError(err);
+    if (isLockError(err)) return true;
+    // No access is no lock: say the real reason (storeErrorOf).
+    const known = storeErrorOf(err);
+    if (known) throw known;
+    return false;
   }
 }
 
@@ -598,7 +625,8 @@ export async function readDataFileBytes() {
   try {
     return await fs.readFile(dataFile());
   } catch (err) {
-    if (isLockError(err)) throw new StoreError('LOCKED', LOCKED_MESSAGE);
+    const known = storeErrorOf(err);
+    if (known) throw known;
     console.error('[STORE] Cannot read the data file for a copy:', err);
     throw new StoreError('UNREADABLE', `Файлът „${DATA_FILE_NAME}“ не може да се прочете.`);
   }
