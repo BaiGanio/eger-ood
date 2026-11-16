@@ -1,0 +1,86 @@
+# Builds the staff app file for Windows, Linux and Mac (chapter 09, D32).
+# caxa packs the Node of the computer that runs the build, so each system
+# builds on its own GitHub computer. setup-node gives the Node of nodejs.org
+# (one file, no libnode), so tools/build.mjs does not stop.
+#
+#   Push a tag "v*" (example: v1.0.1)  →  a GitHub Release with three zip files.
+#   "Run workflow" on the Actions tab  →  the same zip files as a run artifact.
+#
+# The built files never go into git. They have no data and no keys.
+name: Build staff app
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: ubuntu-latest
+            name: linux
+          - os: macos-latest   # Apple chip (arm64)
+            name: mac
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: staff
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: staff/package-lock.json
+      - run: npm ci
+      - run: npm test
+        env:
+          TZ: Europe/Sofia
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.name }}
+          path: staff/dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  # One job packs the three files. A zip keeps the run mark (chmod +x) of the
+  # Mac and Linux files; the artifact upload loses it. The zip names are Latin,
+  # because GitHub changes the non-Latin letters in the name of a Release file.
+  # In each zip the file keeps its name ЕГЕР-Сервиз(.exe) of ИНСТРУКЦИЯ.md.
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # only to make the Release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: in
+      - name: Make the zip files
+        run: |
+          mkdir out
+          chmod +x in/build-linux/* in/build-mac/*
+          for n in windows linux mac; do
+            (cd "in/build-$n" && zip -X "../../out/EGER-Servis-$n.zip" *)
+          done
+          ls -l out
+      - if: startsWith(github.ref, 'refs/tags/v')
+        name: Make the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" out/*.zip --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
+      - if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: actions/upload-artifact@v4
+        with:
+          name: EGER-Servis
+          path: out/
+          retention-days: 30

@@ -54,11 +54,14 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 - [x] "Отвори папката" in "Настройки" with the path of the data file. Built 2026-11-16 (owner OK; specs D29): card "Файл с данни" at the end of "Настройки", full path + button. Check the button on Windows in the Windows test.
 - [x] `start.bat`, `start.sh`, `check-node.bat` deleted (owner, 2026-11-15): `npm start` for developers, `npm run build` for the staff file.
 
+- [x] Build on GitHub (D32): `.github/workflows/build.yml` builds Windows, Linux and Mac. Tag `v*` → Release with three zips. 2026-11-16.
+- [ ] Owner: first run on GitHub (tag or "Run workflow"). Unzip each file. Windows: the name `ЕГЕР-Сервиз.exe` is readable after the unzip. Linux: the file starts with a double-click or `./ЕГЕР-Сервиз`.
+
 ### Windows test (owner, on the real PC)
 
-1. Install Node LTS from <https://nodejs.org> (only on the build PC, not on the staff PC).
-2. `git clone` (or pull) the repo. `cd staff`, `npm install`, `npm run build`.
-3. Copy `staff\dist\ЕГЕР-Сервиз.exe` to the test PC (a PC with no Node is best).
+1. Download `EGER-Servis-windows.zip` from the GitHub Release (or the Actions run, D32). No Node and no build PC are necessary.
+2. Unzip it. Inside is `ЕГЕР-Сервиз.exe`.
+3. Copy `ЕГЕР-Сервиз.exe` to the test PC (a PC with no Node is best).
 4. Follow `staff/ИНСТРУКЦИЯ.md`, part 1. Write down the exact SmartScreen text and buttons.
 5. Check the list above (browser opens, Bulgarian text in the black window, save, Excel open → clear message, stop and start → data stays).
 6. Double-click the icon a second time: no second server, the browser opens.

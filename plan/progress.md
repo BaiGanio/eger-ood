@@ -23,7 +23,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 06 | Reminder logic | ✅ | 2026-11-16. Closed by the owner. No cron. No "Прегледът мина" button (D26). |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
 | 08 | Dashboard cleanup | ✅ | 2026-11-15. Closed: owner checked the page. 162 tests. No "Прегледът мина" button (D26). History: code and tests (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). New dashboard requests go to a new chapter or to chapter 09. |
-| 09 | Packaging | 🟨 | 2026-11-16: "Отвори папката" built (D29). 2026-11-15. Key file `настройки.env` in the data folder, port 3000–3010 with "already running", one `npm run build` with excludes, Mac build checked, "Копие на USB" button (D27; removed in ch10), README, `staff/ИНСТРУКЦИЯ.md`. 177 tests. `start.bat`, `start.sh`, `check-node.bat` deleted. Owner: Windows test (no Windows PC for some days). |
+| 09 | Packaging | 🟨 | 2026-11-16: build on GitHub for Windows, Linux, Mac (D32); owner checks the first run. 2026-11-16: "Отвори папката" built (D29). 2026-11-15. Key file `настройки.env` in the data folder, port 3000–3010 with "already running", one `npm run build` with excludes, Mac build checked, "Копие на USB" button (D27; removed in ch10), README, `staff/ИНСТРУКЦИЯ.md`. 177 tests. `start.bat`, `start.sh`, `check-node.bat` deleted. Owner: Windows test (no Windows PC for some days). |
 | 10 | Staff guide | ✅ | 2026-11-16. Closed by the owner. One page per task in `staff/public/help/` (D11). Later text changes are in `plan/to-do.md`. |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
@@ -53,6 +53,9 @@ See `specs.md` section 3. Nothing blocks the next chapter.
 ## Found on the way
 
 Write here what you see but must not fix in the present chapter.
+
+- 2026-11-16 (ch09, D32): the Release files have no signature. Windows shows SmartScreen. A Mac blocks the downloaded file the first time (right-click → "Open"). Linux: the staff Linux must have glibc 2.28 or newer (the Node of nodejs.org needs it).
+- 2026-11-16 (ch09, D32): `staff/ИНСТРУКЦИЯ.md` and the help pages talk only about Windows and a copy of the `.exe`. A Linux staff PC and the download from GitHub are not in them yet. Add them in the docs session (`plan/to-do.md`).
 
 - 2026-11-13: the built file `ЕГЕР-Сервиз` (17 MB) was in git. Chapter 03 removed it from the index. It stays in the git history (the repo is still big). The file is still on the disk, ignored.
 - 2026-11-13: `staff/server.js` still has `toISOString()` for dates, the `cors` package, and the cron job. Chapters 06 and 07 fix them.
@@ -131,6 +134,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-16 | Chapter 17: computed columns in the Excel file (D31). `lib/store.js` writes "Следващ преглед", "Напомняне на", "Статус" on each save; a read makes them right when they are old (`refreshComputed`); an old file gets the columns. The store writes run one at a time (`oneAtATime`). 8 new tests, 200 in all, both time zones. Speed check with 5000 customers. |
 | 2026-11-16 | Help folder put in order (owner request). All guide files are now in `staff/public/help/`: `index.html` (was `public/help.html`), `help.css` (was `public/help.css`), task pages, `img/` (25 screenshots), `js/` (`tasks.js`, `help-nav.js`, `practice.js`). Task page URLs did not change. Contents page is now `/help/`. Links, tests, `tools/guide-shots.mjs` and docs updated. 200 tests pass in both time zones. All files checked with a temporary server (200). A person did not look at the pages. |
 | 2026-11-16 | New `.github/workflows/test.yml` (owner request): on a push to `master` that changes `staff/`, GitHub runs `npm test` with `TZ=Europe/Sofia` and `TZ=UTC` (Node LTS). It reports only; it does not block a push. Not run on GitHub yet. |
+| 2026-11-16 | Chapter 09: GitHub workflow `build.yml` builds the staff file for Windows, Linux and Mac (D32). Tag `v*` → Release with three zips. Not run on GitHub yet. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.

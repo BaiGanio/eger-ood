@@ -87,7 +87,8 @@ npm install
 npm run build        # dist/ЕГЕР-Сервиз.exe on Windows, dist/ЕГЕР-Сервиз on a Mac
 ```
 
-- caxa packs the Node that runs the build. So build the Windows file **on Windows**, and the Mac file on a Mac.
+- Easiest: let GitHub build it (`.github/workflows/build.yml`). Push a tag, for example `git tag v1.0.1 && git push origin v1.0.1`. The Release page then has `EGER-Servis-windows.zip`, `EGER-Servis-linux.zip`, `EGER-Servis-mac.zip`. Or click "Run workflow" on the Actions tab and download the zips from the run.
+- caxa packs the Node that runs the build. So a build on a PC makes the file only for that system.
 - Use the Node from <https://nodejs.org> (LTS). Homebrew's Node needs an extra library file; the build stops with a message then. Run `/path/to/nodejs.org/node tools/build.mjs` in place of `npm run build`.
 - The built file has no data, no keys, no tests (`tools/build.mjs`, `EXCLUDE`). At start it unpacks into a temp folder. The data stays in `Documents/ЕГЕР-Сервиз/`, so a new build never touches it.
 - If port 3000 is busy: the app opens the browser on a running copy of itself, or takes 3001–3010.
