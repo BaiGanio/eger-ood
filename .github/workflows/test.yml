@@ -1,15 +1,11 @@
-# Runs the staff app tests on each push to master that changes staff/.
-# build.yml calls it too (workflow_call): no build before both zones pass.
+# The staff app tests. build.yml calls this file on each push to master that
+# changes staff/: the tests run first, one time; the build only after them.
+# "Run workflow" on the Actions tab runs only the tests.
 # Two time zones: a date bug made with UTC (toISOString) shows only when the
 # clock is not UTC. Sofia is the real zone; UTC is what most servers use.
 name: Staff tests
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'staff/**'
-      - '.github/workflows/test.yml'
   workflow_dispatch:
   workflow_call:
 
