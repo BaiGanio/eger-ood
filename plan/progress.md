@@ -6,7 +6,7 @@ Last update: 2026-11-16.
 
 ## Where we are
 
-**Now:** chapter 16 (one plate = one row, D28) is done in code; it waits for the owner's checks. Chapters 04, 06, 10 and 14 are closed (owner, 2026-11-16). Three small dashboard fixes are done (SMS counter warning, bad-rows banner, status option name). The help pages do not show these changes yet: the list is in `plan/to-do.md`. The Windows test (chapters 09, 05, 15 B6) waits: no Windows PC for some days; only a Mac and a Linux machine. Chapter 07 waits for the owner's checks in the browser. **Next:** decide "Отвори папката" (O6) and the logic for "SMS sent but not saved". Then the docs session of `plan/to-do.md`.
+**Now:** chapter 16 (one plate = one row, D28) is done in code; it waits for the owner's checks. Chapters 04, 06, 10 and 14 are closed (owner, 2026-11-16). Three small dashboard fixes are done (SMS counter warning, bad-rows banner, status option name). The help pages do not show these changes yet: the list is in `plan/to-do.md`. The Windows test (chapters 09, 05, 15 B6) waits: no Windows PC for some days; only a Mac and a Linux machine. Chapter 07 waits for the owner's checks in the browser. "Отвори папката" (D29) and "SMS sent, save later" (D30) are built too. **Next:** the owner's checks in the browser (below). Then the docs session of `plan/to-do.md`. Then the Windows test.
 
 ## Chapters
 
@@ -23,7 +23,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 06 | Reminder logic | ✅ | 2026-11-16. Closed by the owner. No cron. No "Прегледът мина" button (D26). |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
 | 08 | Dashboard cleanup | ✅ | 2026-11-15. Closed: owner checked the page. 162 tests. No "Прегледът мина" button (D26). History: code and tests (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). New dashboard requests go to a new chapter or to chapter 09. |
-| 09 | Packaging | 🟨 | 2026-11-15. Key file `настройки.env` in the data folder, port 3000–3010 with "already running", one `npm run build` with excludes, Mac build checked, "Копие на USB" button (D27; removed in ch10), README, `staff/ИНСТРУКЦИЯ.md`. 177 tests. `start.bat`, `start.sh`, `check-node.bat` deleted. Owner: Windows test. "Отвори папката" not decided (O6). |
+| 09 | Packaging | 🟨 | 2026-11-16: "Отвори папката" built (D29). 2026-11-15. Key file `настройки.env` in the data folder, port 3000–3010 with "already running", one `npm run build` with excludes, Mac build checked, "Копие на USB" button (D27; removed in ch10), README, `staff/ИНСТРУКЦИЯ.md`. 177 tests. `start.bat`, `start.sh`, `check-node.bat` deleted. Owner: Windows test (no Windows PC for some days). |
 | 10 | Staff guide | ✅ | 2026-11-16. Closed by the owner. One page per task in `staff/public/help/` (D11). Later text changes are in `plan/to-do.md`. |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
@@ -45,7 +45,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 
 See `specs.md` section 3. Nothing blocks the next chapter.
 
-- 2026-11-15 (ch09): "Отвори папката" in "Настройки": not decided (`specs.md` O6).
+- ~~2026-11-15 (ch09): "Отвори папката" in "Настройки": not decided (`specs.md` O6).~~ Decided and built 2026-11-16 (D29).
 - ~~2026-11-15 (staff request): a backup button.~~ Decided 2026-11-15 (D27): the daily copy stays; a sidebar button saves a copy to a place the staff choose (USB). Built in chapter 09.
 
 ## Found on the way
@@ -125,6 +125,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 15 started: manual tests. Owner decided: two lists, staff practice on the real file with one fake customer, real SMS to the own phone, list A as a page under "Помощ", known holes marked and not fixed first. `plan/15-manual-tests.md` written. No code change. |
 | 2026-11-15 | Chapter 15, part 2: page "Упражнения" (`help/practice.html`, task 11, 21 steps, text only). The page shows the dates for today (`help/practice.js`). Tick box and green "Трябва да видите" line in `help.css`. New `test/practice.test.js`: the dates, and the promised status of each date for each day of two years, checked with the engine. Checked in a headless Chrome: task number 11, dates filled, back link to task 10, sidebar list from `tasks.js`. 178 tests pass in both time zones. A person did not look at the page. |
 | 2026-11-16 | Chapter 16: one plate = one row (D28). `plateKey` and `samePlateCustomer` in `lib/validate.js`; POST and PUT refuse a plate that a customer has (400, with the name); a second Excel row with the same plate is a bad row. Small dashboard fixes: the SMS counter warning shows the true count (`over` in `measureSms`: 70 / 134 / 160…); the bad-rows banner has its own line for a bad setting (`usesDefault`); the status option is "Просрочени (всички)". New `plan/to-do.md` for the help texts. Chapters 04, 06, 10, 14 closed by the owner. 186 tests pass in both time zones. Not checked in a browser. |
+| 2026-11-16 | "Отвори папката" (D29): card "Файл с данни" at the end of "Настройки", `GET /api/data-file`, `POST /api/data-file/open-folder`, `lib/folder.js`. SMS sent but not saved (D30): 4 save tries, then `незаписани-sms.json`; each read puts the mark on the customer and writes it into Excel when the file is free (`lib/store.js`, `lib/sms.js`); yellow toast on the page. 192 tests pass in both time zones. Routes checked on a temporary server. A person did not look at the page; the real "open folder" click was not made. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.
@@ -217,3 +218,8 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-16: closed: the wrong "Над 70 знака" warning, the "Те не са заредени" text for a bad setting, the two "Просрочени" options. The owner said "140 characters = 2 SMS" for Bulgarian text; the true numbers are 70 (1 SMS), 134 (2 SMS), 201 (3 SMS), because a long SMS loses 3 characters in each part. The page shows the true numbers.
 - 2026-11-16: the help pages and the practice lists do not show the changes of this session. List: `plan/to-do.md`.
 - 2026-11-16: old text in the plan, not changed: `07-security.md` owner check says "pause" (function gone, D19); `02-baseline-commit.md` has 5 empty boxes (chapter done); `10-staff-guide.md` and `specs.md` D11 say "10 tasks" (there are 11).
+- 2026-11-16 (D30): closed: the second paid SMS after "SMS е изпратен, но не е записан" (ch10 entry). A send can now take up to 3 seconds more when Excel has the file.
+- 2026-11-16 (D30): the mark in `незаписани-sms.json` is for one computer. If the staff restore a backup copy of the Excel file, the small file still puts the mark back. This is right: the SMS did go out.
+- 2026-11-16 (D30): if the staff delete `незаписани-sms.json` while Excel has the file, the mark is lost. The help must say "do not delete it" (`to-do.md`).
+- 2026-11-16 (D29): the button was not clicked on Windows or Linux. Explorer ends with code 1 also on success; the code allows for it. Linux needs `xdg-open` (a desktop has it). Check both in the machine tests.
+- 2026-11-16: owner checks in the browser (Mac or Linux): "Настройки" → card "Файл с данни" shows the path, the button opens the folder; add a customer with a plate that is there → red message; type a long template → the warning shows 70, then 134.

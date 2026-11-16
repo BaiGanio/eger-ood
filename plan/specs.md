@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-16 (D28: one plate = one row; chapter 16).
+Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папката"; D30: SMS sent, save later).
 
 ## 1. The product
 
@@ -47,6 +47,8 @@ Last update: 2026-11-16 (D28: one plate = one row; chapter 16).
 | D26 | No "Прегледът мина" button. A customer who passed the inspection gets the new date in "Последен преглед" (pencil or Excel). The app then sets "Следващ преглед" one year later, clears the SMS mark, and the status is "Очаква". A customer who did not come stays "Просрочен" (owner, 2026-11-15). | 2026-11-15 |
 | D27 | Backup: the daily copy stays (one a day, 30 kept, in `backups/`). No "Копие на USB" button: it was built in chapter 09 and removed in chapter 10 (owner, 2026-11-15). | 2026-11-15 |
 | D28 | One plate = one row. The app refuses a second customer with the same plate: "Добави" and edit give a message with the name of the customer who has it; in the Excel file the first row loads and a later row with the same plate is a bad row (banner, section 7). The same phone on two rows is allowed: one person can have two cars. For the compare only: no spaces, capital letters, and a Cyrillic letter counts as its Latin twin (`plateKey` in `lib/validate.js`). The saved plate stays as typed (owner, 2026-11-15). | 2026-11-16 |
+| D29 | "Настройки" has a card "Файл с данни" at the end: the full path of `клиенти.xlsx` and a button "Отвори папката" that opens the data folder in the file manager (Explorer, Finder). The request gives no path: the server opens only the data folder (`lib/folder.js`). Was O6 (owner, 2026-11-16). | 2026-11-16 |
+| D30 | An SMS that went out is never lost. After the send, the save is tried 4 times (1 second between). If the Excel file is still busy, the send is kept in `незаписани-sms.json` in the data folder. Each read puts it on the customer (the row shows "Изпратен", a second SMS is refused) and the first read with a free file writes it into Excel and removes the small file. The staff do nothing; the page says "затворете Excel". Only if the small file cannot be written does the old message "SMS е изпратен, но не е записан" show (owner, 2026-11-16). | 2026-11-16 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions
@@ -56,7 +58,6 @@ Last update: 2026-11-16 (D28: one plate = one row; chapter 16).
 | O2 | "Send to all due today" button? | No. One SMS at a time. |
 | O3 | Where is the Excel file on the staff PC? | `Documents\ЕГЕР-Сервиз\клиенти.xlsx`. `EGER_DATA_DIR` overrides it. |
 | O5 | Extra pages that the staff want. | Wait for the talks with the staff. |
-| O6 | "Отвори папката" in "Настройки": a card "Файл с данни" with the path of `клиенти.xlsx` and a button that opens the folder (chapter 09 proposal). | Not built. `staff/ИНСТРУКЦИЯ.md` gives the path. |
 
 ## 4. Architecture rules
 
@@ -85,6 +86,7 @@ Last update: 2026-11-16 (D28: one plate = one row; chapter 16).
 | `staff/lib/reminders.js` | Status and due rules. Pure functions. |
 | `staff/lib/sms.js` | Build text, send through Twilio. |
 | `staff/lib/paths.js` | Data folder, backup folder, key files (`настройки.env` in the data folder first, `staff/.env` second). |
+| `staff/lib/folder.js` | Opens the data folder in the file manager (D29). |
 | `staff/lib/port.js` | The port at start: 3000–3010; a running copy of the app gets the browser, not a second server. |
 | `staff/public/sms-text.js` | SMS length, cost, template fill. Shared by engine and browser. |
 
@@ -125,7 +127,7 @@ Last update: 2026-11-16 (D28: one plate = one row; chapter 16).
 
 - Write to a temp file in the same folder, then rename it over the real file.
 - Before the first write of each day, copy the file to `backups/`. Keep 30.
-- Check the Excel lock **before** an SMS send, not after.
+- Check the Excel lock **before** an SMS send, not after. If the file gets busy after the send, the mark waits in `незаписани-sms.json` (D30). The store is the only code that reads and writes that file.
 - An Excel lock = the lock file `~$клиенти.xlsx`, `EBUSY`, or (Windows only) `EPERM` / `EACCES`. On a Mac, `EPERM` / `EACCES` is no access to the folder (macOS privacy), with its own message (chapter 09).
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash. A bad value in the sheet "Настройки" is not a skipped row: the app uses the default value, and the banner says so (`usesDefault`).
 - `Телефон` is a text column.

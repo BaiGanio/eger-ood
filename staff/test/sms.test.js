@@ -8,7 +8,7 @@ import path from 'node:path';
 import { SendError, buildSmsText, sendReminder, smsMode } from '../lib/sms.js';
 import { startNewCycle, withComputed } from '../lib/reminders.js';
 import { StoreError, readData, writeData } from '../lib/store.js';
-import { lockFile } from '../lib/paths.js';
+import { lockFile, pendingSendsFile } from '../lib/paths.js';
 
 const TWILIO_KEYS = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER'];
 
@@ -144,13 +144,73 @@ test('Twilio fails: a clear message, and the customer is not marked', async t =>
   assert.equal((await readData()).customers[0].smsSentAt, null);
 });
 
-test('the file locks during the send: the message says sent but not saved', async t => {
+// Sent but not saved (specs D30).
+test('the file locks during the send: the mark is kept, no second SMS, and it goes into the file later', async t => {
+  await freshFolder(t);
+  t.mock.method(console, 'warn', () => {});
+  await seed(customer());
+  const calls = [];
+  // Excel opens the file in the moment between the check and the save.
+  const send = async () => { calls.push(1); await fs.writeFile(lockFile(), ''); return { sid: 'SM_TEST' }; };
+  const now = at(2026, 11, 17);
+
+  const result = await sendReminder('c001', { now, send, retryDelayMs: 0 });
+  assert.equal(result.savedLater, true);
+  assert.equal(result.customer.status, 'sent');
+
+  // Excel still has the file. The row shows as sent, and a second click sends nothing.
+  const locked = await readData();
+  assert.ok(locked.customers[0].smsSentAt);
+  await assert.rejects(sendReminder('c001', { now, send, retryDelayMs: 0 }),
+    err => err instanceof SendError && err.code === 'ALREADY_SENT');
+  assert.equal(calls.length, 1);
+  await fs.access(pendingSendsFile());
+
+  // The staff close Excel. The next read writes the mark and removes the small file.
+  await fs.rm(lockFile());
+  const free = await readData();
+  assert.equal(free.customers[0].smsSentAt, locked.customers[0].smsSentAt);
+  await assert.rejects(fs.access(pendingSendsFile()));
+  // The mark is in the Excel file itself now, not only in memory.
+  assert.equal((await readData()).customers[0].smsSentAt, locked.customers[0].smsSentAt);
+});
+
+test('the save works on a later try: a normal send, nothing waits', async t => {
   await freshFolder(t);
   await seed(customer());
-  // Excel opens the file in the moment between the check and the save.
-  const send = async () => { await fs.writeFile(lockFile(), ''); return { sid: 'SM_TEST' }; };
+  // Excel has the file only for a moment: the lock is gone before the last try.
+  const send = async () => {
+    await fs.writeFile(lockFile(), '');
+    setTimeout(() => fs.rm(lockFile(), { force: true }), 30);
+    return { sid: 'SM_TEST' };
+  };
 
-  await assert.rejects(sendReminder('c001', { now: at(2026, 11, 17), send }),
+  const result = await sendReminder('c001', { now: at(2026, 11, 17), send, retryDelayMs: 40 });
+  assert.equal(result.savedLater, false);
+  assert.ok((await readData()).customers[0].smsSentAt);
+  await assert.rejects(fs.access(pendingSendsFile()));
+});
+
+test('the mark of a deleted customer is dropped', async t => {
+  await freshFolder(t);
+  await seed(customer());
+  await fs.writeFile(pendingSendsFile(), JSON.stringify([{ id: 'gone', sentAt: '2026-11-17T10:00:00' }]));
+  const data = await readData();
+  assert.equal(data.customers[0].smsSentAt, null);
+  await assert.rejects(fs.access(pendingSendsFile()));
+});
+
+test('the mark cannot be kept at all: the message says sent but not saved', async t => {
+  await freshFolder(t);
+  await seed(customer());
+  const send = async () => {
+    await fs.writeFile(lockFile(), '');
+    // A folder with the name of the small file: the write of it fails.
+    await fs.mkdir(pendingSendsFile());
+    return { sid: 'SM_TEST' };
+  };
+
+  await assert.rejects(sendReminder('c001', { now: at(2026, 11, 17), send, retryDelayMs: 0 }),
     err => err instanceof SendError && err.code === 'NOT_SAVED' && err.message.includes('SMS е изпратен, но не е записан'));
 });
 

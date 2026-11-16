@@ -376,6 +376,26 @@
           </div>
         </div>
 
+        <!-- The data file: where it is, and a button that opens its folder (specs D29). -->
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex align-items-center gap-2 py-3">
+              <i class="bi bi-folder2-open text-primary"></i>
+              <span class="fw-semibold">Файл с данни</span>
+            </div>
+            <div class="card-body">
+              <div class="small text-muted mb-1">Клиентите са в този файл:</div>
+              <div id="data-file-path" class="small text-break user-select-all">—</div>
+              <div class="small text-muted mt-2">Копията от всеки ден са в папка „backups“ на същото място.</div>
+            </div>
+            <div class="card-footer bg-white border-top d-flex justify-content-end py-3">
+              <button class="btn btn-outline-primary d-flex align-items-center gap-2" data-action="openDataFolder">
+                <i class="bi bi-folder2-open"></i> Отвори папката
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

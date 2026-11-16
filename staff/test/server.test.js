@@ -403,3 +403,24 @@ test('PUT cannot take the plate of a different customer, but keeps its own', asy
   assert.deepEqual(data.customers.map(c => c.carPlate), ['PB0001TT', 'PB0002TT']);
   assert.equal(data.customers[1].name, 'New Name');
 });
+
+// "Отвори папката" (specs D29).
+test('the data file route gives the path, and "open folder" takes no path from the request', async t => {
+  let opened = 0;
+  const { call } = await start(t, { openFolder: async () => { opened += 1; } });
+  const file = await call('GET', '/api/data-file');
+  assert.equal(file.status, 200);
+  assert.equal(file.json.file, path.join(process.env.EGER_DATA_DIR, 'клиенти.xlsx'));
+
+  const open = await call('POST', '/api/data-file/open-folder', { body: { dir: '/etc' } });
+  assert.equal(open.status, 200);
+  assert.equal(opened, 1);
+});
+
+test('"open folder" that fails gets a Bulgarian message', async t => {
+  const { call } = await start(t, { openFolder: async () => { throw new Error('no file manager'); } });
+  t.mock.method(console, 'error', () => {});
+  const open = await call('POST', '/api/data-file/open-folder', { body: {} });
+  assert.equal(open.status, 500);
+  assert.match(open.json.error, /Папката не може да се отвори/);
+});

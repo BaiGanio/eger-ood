@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function init() {
-  await Promise.all([loadCustomers(), loadTemplate(), loadHolidays(), checkServer()]);
+  await Promise.all([loadCustomers(), loadTemplate(), loadHolidays(), loadDataFile(), checkServer()]);
 }
 
 // ─── Server state ─────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ const ACTIONS = {
   previewSms, closeSmsPreviewModal, confirmSend, deleteCustomer,
   saveTemplate, showCardList, showAllCustomers, setPeriod,
   closeBanner, goToPage, changeCalMonth, toggleDay, checkHolidaysNow,
-  toggleHelpMenu,
+  toggleHelpMenu, openDataFolder,
 };
 
 async function tick() {
@@ -265,6 +265,24 @@ function renderDataProblems(problems) {
   document.getElementById('data-problems-list').innerHTML = problems.map(p => `
     <li>Лист „${escHtml(p.sheet)}“${p.row ? `, ред ${escHtml(p.row)}` : ''}: ${escHtml(p.reason)}</li>
   `).join('');
+}
+
+// "Настройки", card "Файл с данни": the path of the Excel file on this computer.
+async function loadDataFile() {
+  try {
+    const data = await api('GET', '/api/data-file');
+    document.getElementById('data-file-path').textContent = data.file || '—';
+  } catch (e) {
+    toast('Грешка при зареждане на пътя до файла: ' + e.message, 'danger');
+  }
+}
+
+async function openDataFolder() {
+  try {
+    await api('POST', '/api/data-file/open-folder', {});
+  } catch (e) {
+    toast(e.message, 'danger');
+  }
 }
 
 async function loadTemplate() {
@@ -602,7 +620,13 @@ async function confirmSend() {
 
     closeSmsPreviewModal();
     refresh();
-    toast(`SMS изпратен до ${data.customer.name}!`, 'success');
+    if (data.savedLater) {
+      // The SMS went out, but Excel has the file. The app keeps the mark and
+      // writes it into the file by itself (specs D30).
+      toast(`SMS изпратен до ${data.customer.name}. Файлът е отворен в Excel: затворете го. Програмата ще запише изпращането сама.`, 'warning');
+    } else {
+      toast(`SMS изпратен до ${data.customer.name}!`, 'success');
+    }
   } catch (e) {
     toast('Грешка при изпращане: ' + e.message, 'danger');
     // The file can hold more than this page shows (example: sent, not saved).

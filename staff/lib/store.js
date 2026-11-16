@@ -16,7 +16,7 @@ import {
   momentToExcelDateTime, textToExcelDate, toDateText,
 } from './dates.js';
 import {
-  backupDir, backupFile, dataDir, dataFile, lockFile, DATA_FILE_NAME,
+  backupDir, backupFile, dataDir, dataFile, lockFile, pendingSendsFile, DATA_FILE_NAME,
 } from './paths.js';
 import { normalizePlate } from '../public/sms-text.js';
 // One phone rule for a row of the Excel file and for a request.
@@ -657,6 +657,57 @@ async function persistNewIds(wb, layout, problems) {
   }
 }
 
+// ─── SMS that are sent but not in the Excel file yet (specs D30) ─────────────
+// An SMS is paid when Twilio takes it. If the save then fails (Excel opened the
+// file in that second), the send is kept in a small file next to the data
+// file. Each read puts it on the customer, so the row shows "Изпратен" and a
+// second SMS is refused. The first read with a free file writes it into Excel.
+
+async function readPendingSends() {
+  try {
+    const list = JSON.parse(await fs.readFile(pendingSendsFile(), 'utf8'));
+    return Array.isArray(list)
+      ? list.filter(p => p && typeof p.id === 'string' && typeof p.sentAt === 'string')
+      : [];
+  } catch {
+    // No file (the usual case) or a file that is not ours: nothing waits.
+    return [];
+  }
+}
+
+/** Keep one sent SMS until the Excel file can take it. */
+export async function addPendingSend(id, sentAt) {
+  const list = (await readPendingSends()).filter(p => p.id !== id);
+  list.push({ id, sentAt });
+  await fs.mkdir(dataDir(), { recursive: true });
+  await fs.writeFile(pendingSendsFile(), JSON.stringify(list, null, 2), 'utf8');
+}
+
+async function applyPendingSends(data) {
+  const pending = await readPendingSends();
+  if (!pending.length) return;
+
+  let toSave = 0;
+  for (const { id, sentAt } of pending) {
+    const customer = data.customers.find(c => c.id === id);
+    // A deleted customer, or a mark that is already in the file: nothing to do.
+    if (!customer || (customer.smsSentAt && customer.smsSentAt >= sentAt)) continue;
+    customer.smsSentAt = sentAt;
+    toSave += 1;
+  }
+
+  if (toSave) {
+    try {
+      await writeData(data);
+    } catch (err) {
+      // Still open in Excel: the marks stay in memory and in the small file.
+      if (err instanceof StoreError) return;
+      throw err;
+    }
+  }
+  await fs.rm(pendingSendsFile(), { force: true });
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -672,6 +723,7 @@ export async function readData() {
   // A new ID must be in the file. Otherwise the row gets another ID on each
   // read, and a click in the dashboard does not find the customer.
   if (layout.customers.newIds.size) await persistNewIds(wb, layout, data.problems);
+  await applyPendingSends(data);
   return data;
 }
 

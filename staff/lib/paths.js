@@ -50,3 +50,11 @@ export function backupFile(dateText) {
 export function lockFile() {
   return path.join(dataDir(), '~$' + DATA_FILE_NAME);
 }
+
+/**
+ * SMS that went out but are not in the Excel file yet (specs D30). The store
+ * writes them into the Excel file at the next read, then removes this file.
+ */
+export function pendingSendsFile() {
+  return path.join(dataDir(), 'незаписани-sms.json');
+}

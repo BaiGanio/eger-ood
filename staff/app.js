@@ -6,12 +6,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { measureSms } from './public/sms-text.js';
 import { localDateText } from './lib/dates.js';
+import { openDataFolder } from './lib/folder.js';
 import { apiGuard, securityHeaders } from './lib/guard.js';
 import { checkHolidaysInBackground, lastCheckError, runHolidayCheck } from './lib/holiday-check.js';
 import { FIRST_YEAR, LAST_YEAR, officialHolidays } from './lib/holidays.js';
 import { startNewCycle, startNewSend, withComputed } from './lib/reminders.js';
 import { SendError, buildSmsText, sendReminder, smsMode } from './lib/sms.js';
 import { StoreError, generateId, readData, writeData } from './lib/store.js';
+import { dataFile } from './lib/paths.js';
 import { APP_ID } from './lib/port.js';
 
 import { checkCustomer, checkHolidays, checkTemplate } from './lib/validate.js';
@@ -38,8 +40,9 @@ const route = handler => (req, res, next) => handler(req, res, next).catch(next)
  * `autoHolidayCheck`: check the official days off on the internet when it is
  * due (server.js turns it on; a test does not go to the internet).
  * `fetchHolidays`: the fetch of the check, for the tests.
+ * `openFolder`: opens the data folder; a test gives its own, so no window opens.
  */
-export function createApp({ autoHolidayCheck = false, fetchHolidays } = {}) {
+export function createApp({ autoHolidayCheck = false, fetchHolidays, openFolder = openDataFolder } = {}) {
   const app = express();
   const holidayOptions = fetchHolidays ? { fetchImpl: fetchHolidays } : {};
   const checkWhenDue = () => {
@@ -152,6 +155,23 @@ export function createApp({ autoHolidayCheck = false, fetchHolidays } = {}) {
   app.get('/api/data-problems', route(async (req, res) => {
     const data = await readData();
     res.json({ problems: data.problems });
+  }));
+
+  // Where the data file is. "Настройки" shows the path (specs D29).
+  app.get('/api/data-file', (req, res) => {
+    res.json({ file: dataFile() });
+  });
+
+  // "Отвори папката": the file manager shows the data folder. The request
+  // gives no path, so it cannot open a different folder.
+  app.post('/api/data-file/open-folder', route(async (req, res) => {
+    try {
+      await openFolder();
+    } catch (err) {
+      console.error('[ПАПКА] Cannot open the data folder:', err.message);
+      return res.status(500).json({ error: 'Папката не може да се отвори. Намерете я по пътя, написан в „Настройки“.' });
+    }
+    res.json({ success: true });
   }));
 
   // ─── Settings ──────────────────────────────────────────────────────────────
