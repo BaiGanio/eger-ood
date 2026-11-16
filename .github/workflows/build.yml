@@ -1,5 +1,7 @@
 # Tests, then builds the staff app file for Windows, Linux and Mac (chapter 09, D32).
-# Each push to master that changes staff/ runs the tests (test.yml) one time.
+# Each push to master that changes staff/ runs the tests one time, in two time
+# zones: a date bug made with UTC (toISOString) shows only when the clock is
+# not UTC. Sofia is the real zone; UTC is what most servers use.
 # The build runs only after they pass, and only when a version is due.
 # caxa packs the Node of the computer that runs the build, so each system
 # builds on its own GitHub computer. setup-node gives the Node of nodejs.org
@@ -8,8 +10,8 @@
 #   Push to master with a "feat:" / "fix:" / "perf:" / "...!:" commit that
 #   changes staff/  →  a new version tag and a GitHub Release with three zips.
 #   (Rules: staff/tools/next-version.mjs.) Other commits: no build.
-#   "Run workflow" on the Actions tab  →  a test build: the same zips as a run
-#   artifact, no tag, no Release.
+#   "Run workflow" on the Actions tab  →  the tests and a test build: the same
+#   zips as a run artifact, no tag, no Release.
 #
 # The built files never go into git. They have no data and no keys.
 name: Staff tests and build
@@ -20,7 +22,6 @@ on:
     paths:
       - 'staff/**'
       - '.github/workflows/build.yml'
-      - '.github/workflows/test.yml'
   workflow_dispatch:
 
 permissions:
@@ -32,9 +33,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # test.yml, both time zones. Nothing below starts if one fails.
+  # Both time zones. Nothing below starts if one fails.
   tests:
-    uses: ./.github/workflows/test.yml
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tz: [Europe/Sofia, UTC]
+    defaults:
+      run:
+        working-directory: staff
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: staff/package-lock.json
+      - run: npm ci
+      - run: npm test
+        env:
+          TZ: ${{ matrix.tz }}
 
   version:
     needs: tests
