@@ -1,11 +1,11 @@
 // The parts of the guide pages that come from the task list (tasks.js):
-// the contents list (help.html), and on a task page its number and the
+// the contents list (index.html), and on a task page its number and the
 // "back / next" links. A module: the server refuses inline scripts.
 import { HELP_TASKS } from './tasks.js';
 
-// A link to a task page. From this file, so it works on help.html and on
-// a page in help/.
-const taskUrl = task => new URL(task.page, import.meta.url).href;
+// A link to a task page. The pages are one folder up (help/), so it works on
+// the contents page and on each task page.
+const taskUrl = task => new URL(`../${task.page}`, import.meta.url).href;
 
 function escHtml(str) {
   return String(str)
@@ -13,7 +13,7 @@ function escHtml(str) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-// help.html: one line for each task. A task that is not written is grey.
+// index.html: one line for each task. A task that is not written is grey.
 function renderContents(list) {
   list.innerHTML = HELP_TASKS.map((task, i) => task.ready
     ? `<li><a href="${taskUrl(task)}">${escHtml(task.title)}</a></li>`

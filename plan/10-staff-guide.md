@@ -29,12 +29,13 @@ Needs: chapter 08 done (the screenshots must show the final dashboard). Decision
 
 | File | What |
 |---|---|
-| `staff/public/help.html` | Contents list of the guide. |
-| `staff/public/help/tasks.js` | The list of the tasks (order, file, short name, title, written or not). The one home: sidebar, contents and "back / next" read it. A new task: add its page, set `ready: true`. |
-| `staff/public/help/help-nav.js` | Draws the contents list, the task number and the "back / next" links. |
+| `staff/public/help/index.html` | Contents list of the guide. |
+| `staff/public/help/js/tasks.js` | The list of the tasks (order, file, short name, title, written or not). The one home: sidebar, contents and "back / next" read it. A new task: add its page, set `ready: true`. |
+| `staff/public/help/js/help-nav.js` | Draws the contents list, the task number and the "back / next" links. |
 | `staff/public/help/*.html` | One page per task. Bulgarian. |
-| `staff/public/help.css` | Look of the guide, and the print rules. |
-| `staff/public/help/*.png` | Screenshots, next to their page. |
+| `staff/public/help/help.css` | Look of the guide, and the print rules. |
+| `staff/public/help/img/*.png` | Screenshots. The name starts with the name of its page. |
+| `staff/public/help/js/practice.js` | The dates of the practice page. |
 | `staff/tools/guide-shots.mjs` | Makes the screenshots again. Uses Playwright, installed with `--no-save` (not in `package.json`). Never clicks "Изпрати SMS". |
 
 ## Style of a task

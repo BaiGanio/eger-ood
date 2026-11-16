@@ -144,7 +144,7 @@ plan/                    the work plan, specs, progress
 | [`CLAUDE.md`](CLAUDE.md) | Short brief for the AI agent |
 | [`staff/ИНСТРУКЦИЯ.md`](staff/ИНСТРУКЦИЯ.md) | Install and daily start on the staff PC (Bulgarian) |
 
-The staff guide with pictures is in the app: menu "Помощ" (`staff/public/help.html`).
+The staff guide with pictures is in the app: menu "Помощ" (`staff/public/help/index.html`).
 
 ## Security and privacy
 

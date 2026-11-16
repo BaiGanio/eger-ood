@@ -19,7 +19,7 @@ body.sidebar-closed #sidebar-toggle i { transform: rotate(180deg); }
 /* The help list makes the sidebar long. A small screen scrolls the sidebar. */
 .sidebar { max-height: 100vh; overflow-y: auto; }
 
-/* ── Help list in the sidebar (specs D11, help/tasks.js) ─────────── */
+/* ── Help list in the sidebar (specs D11, help/js/tasks.js) ─────────── */
 .help-caret { font-size: 11px; transition: transform .15s; }
 #nav-help[aria-expanded="true"] .help-caret { transform: rotate(90deg); }
 body.sidebar-closed .help-menu { display: none !important; }

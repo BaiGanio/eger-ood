@@ -9,7 +9,7 @@ import { PAGE_SIZES, clampPage, pageButtons, pageCount } from './pages.js';
 import {
   DAY_NAMES, MONTH_NAMES, WEEKDAY_SHORT, dayKind, monthWeeks, movedReminders, weekdayOf,
 } from './calendar.js';
-import { HELP_TASKS } from './help/tasks.js';
+import { HELP_TASKS } from './help/js/tasks.js';
 
 // ─── State ──────────────────────────────────────────────────────────
 let customers = [];
@@ -204,7 +204,7 @@ function renderHelpMenu() {
 // With the sidebar closed there is no room for the list: open the contents page.
 function toggleHelpMenu() {
   if (document.body.classList.contains('sidebar-closed')) {
-    location.href = 'help.html';
+    location.href = 'help/';
     return;
   }
   const button = document.getElementById('nav-help');

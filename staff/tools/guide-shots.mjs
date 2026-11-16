@@ -1,4 +1,4 @@
-// Makes the screenshots of the staff guide (public/help/*.html) in public/help/.
+// Makes the screenshots of the staff guide (public/help/*.html) in public/help/img/.
 // Fake data only. Run it from staff/:
 //
 //   EGER_DATA_DIR=./data npm run test-data -- --force
@@ -13,7 +13,7 @@ import { ensureDataFile } from '../lib/store.js';
 import { chromium } from 'playwright';
 import { fileURLToPath } from 'url';
 
-const OUT = fileURLToPath(new URL('../public/help/', import.meta.url));
+const OUT = fileURLToPath(new URL('../public/help/img/', import.meta.url));
 await ensureDataFile();
 const server = createApp({ autoHolidayCheck: false }).listen(3999, '127.0.0.1');
 

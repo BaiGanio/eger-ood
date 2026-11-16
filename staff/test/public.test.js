@@ -47,10 +47,10 @@ test('the page links an icon that is in public/', async () => {
   await fs.access(path.join(PUBLIC_DIR, href));
 });
 
-// The guide (specs D11): the task list in help/tasks.js is the one home.
+// The guide (specs D11): the task list in help/js/tasks.js is the one home.
 test('each written task of the guide has its page, and each page is in the list', async () => {
-  const { HELP_TASKS } = await import('../public/help/tasks.js');
-  const pages = (await fs.readdir(path.join(PUBLIC_DIR, 'help'))).filter(n => n.endsWith('.html'));
+  const { HELP_TASKS } = await import('../public/help/js/tasks.js');
+  const pages = (await fs.readdir(path.join(PUBLIC_DIR, 'help'))).filter(n => n.endsWith('.html') && n !== 'index.html');
   for (const task of HELP_TASKS.filter(t => t.ready)) {
     assert.ok(pages.includes(task.page), `no page for ${task.page}`);
   }

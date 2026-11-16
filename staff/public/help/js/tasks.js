@@ -1,9 +1,9 @@
 // The tasks of the staff guide, in order (specs D11). The one home of the
 // list: the sidebar of the dashboard (scripts.js), the contents page
-// (help.html) and the "back / next" links of each task page read it.
+// (help/index.html) and the "back / next" links of each task page read it.
 // The number of a task is its place in this list.
 //
-// `page`  — the file in public/help/.
+// `page`  — the file in public/help/ (this file is in help/js/).
 // `short` — the name in the sidebar (short: the sidebar is 220 px).
 // `title` — the title of the task page and of the contents line.
 // `ready` — false: the page is not written yet. It shows grey, with no link.

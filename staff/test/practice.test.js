@@ -1,7 +1,7 @@
-// The dates of the practice page (public/help/practice.js).
+// The dates of the practice page (public/help/js/practice.js).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { practiceDate } from '../public/help/practice.js';
+import { practiceDate } from '../public/help/js/practice.js';
 import { addYears } from '../lib/dates.js';
 import { nextReminderDate, statusOf } from '../lib/reminders.js';
 
