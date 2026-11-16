@@ -30,7 +30,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 13 | Public site: fuel page (`goriva.html`) | 🟨 | 2026-11-14. Demo page done: partly invented text, `noindex`. Waits for the real text and photo rights. |
 | 14 | Public site: redesign | ✅ | 2026-11-16. Closed by the owner. New layout and look for the three pages (`specs.md` D18). |
 | 15 | Manual tests and staff practice | 🟨 | 2026-11-15. Two lists in `15-manual-tests.md`: A (staff practice, real file, fake customer "ТЕСТ", 2 real SMS at most) and B (owner tests). List A is the page "Упражнения", task 11 under "Помощ" (`help/practice.html`). 178 tests. Waits for: the owner's read of the page and of list B, the runs of both lists. |
-| 16 | One plate, one row | 🟨 | 2026-11-16. Code and tests are done (D28). 186 tests. Waits for the owner's checks (`16-same-plate.md`) and the help texts (`to-do.md`). |
+| 16 | One plate, one row | 🟨 | 2026-11-16. Code and tests are done (D28). The rule is under question (O7): the owner asks the staff. The code stays as built until the answer. |
 
 ## Later (not planned yet)
 
@@ -45,6 +45,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 
 See `specs.md` section 3. Nothing blocks the next chapter.
 
+- 2026-11-16 (ch16): same plate (`specs.md` O7). The owner asks the staff if two rows can have the same plate in real work. The code refuses a double plate until the answer. This version must not go to the staff before the answer.
 - ~~2026-11-15 (ch09): "Отвори папката" in "Настройки": not decided (`specs.md` O6).~~ Decided and built 2026-11-16 (D29).
 - ~~2026-11-15 (staff request): a backup button.~~ Decided 2026-11-15 (D27): the daily copy stays; a sidebar button saves a copy to a place the staff choose (USB). Built in chapter 09.
 

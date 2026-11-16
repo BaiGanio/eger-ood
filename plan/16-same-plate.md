@@ -2,6 +2,8 @@
 
 Rule: `specs.md` D28. Found in chapter 10 (2026-11-15): the app accepted two customers with the same plate. Owner: refuse it.
 
+**Open (2026-11-16, `specs.md` O7):** the owner is not sure that the rule is right. Two different cars can maybe have the same plate in the file. The owner asks the staff. The code stays as built until the answer. Possible results: keep the rule, change it to a warning with "save anyway", or remove it.
+
 ## The rule
 
 - One plate = one row. The same phone on two rows is allowed (one person, two cars).
