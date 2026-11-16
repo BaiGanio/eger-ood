@@ -57,7 +57,7 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-16 (ch09, D32): `staff/package.json` stays at version 1.0.0. The true version is only in the tag. The app does not show its version. If the staff must see it, the workflow can write it into the build.
 - 2026-11-16 (ch09, D32, O7): a `feat:`/`fix:` commit in `staff/` is public at once. While O7 is open, the same-plate code is in `staff/`; the first such commit gives it to anyone who downloads.
 
-- 2026-11-16 (ch09, D32): the Release files have no signature. Windows shows SmartScreen. A Mac blocks the downloaded file the first time (right-click → "Open"). Linux: the staff Linux must have glibc 2.28 or newer (the Node of nodejs.org needs it).
+- 2026-11-16 (ch09, D32): the Release files have no signature. Windows shows SmartScreen. A Mac blocks the downloaded file the first time; right-click → "Open" does not work on new macOS (use "Open Anyway" or `xattr`, D32). Owner: no signature, keep the one-time click on Windows. Linux: the staff Linux must have glibc 2.28 or newer (the Node of nodejs.org needs it).
 - 2026-11-16 (ch09, D32): `staff/ИНСТРУКЦИЯ.md` and the help pages talk only about Windows and a copy of the `.exe`. A Linux staff PC and the download from GitHub are not in them yet. Add them in the docs session (`plan/to-do.md`).
 
 - 2026-11-13: the built file `ЕГЕР-Сервиз` (17 MB) was in git. Chapter 03 removed it from the index. It stays in the git history (the repo is still big). The file is still on the disk, ignored.
