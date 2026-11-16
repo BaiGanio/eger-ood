@@ -213,7 +213,7 @@ test('a bad phone gets 400 with a Bulgarian message, and nothing is saved', asyn
 test('POST makes a customer with its own ID and no SMS mark', async t => {
   const { call } = await start(t);
   const res = await call('POST', '/api/customers',
-    { body: { ...customer({ name: 'Second Client' }), id: 'c001', smsSentAt: '2026-01-01T10:00:00', disabled: true } });
+    { body: { ...customer({ name: 'Second Client', carPlate: 'PB0002TT' }), id: 'c001', smsSentAt: '2026-01-01T10:00:00', disabled: true } });
   assert.equal(res.status, 201);
   assert.notEqual(res.json.id, 'c001');
   assert.equal(res.json.smsSentAt, null);
@@ -369,4 +369,37 @@ test('/api/status names our app, so a second start can find it (lib/port.js)', a
   const res = await call('GET', '/api/status');
   assert.equal(res.status, 200);
   assert.equal(res.json.app, 'eger-staff');
+});
+
+// One plate = one row (specs D28).
+test('POST with a plate that a customer already has gets 400, and nothing is saved', async t => {
+  const { call } = await start(t);
+  // Spaces, small letters and Cyrillic twins (Р, В, Т) are the same plate.
+  for (const carPlate of ['PB0001TT', 'pb 0001 tt', 'РВ0001ТТ']) {
+    const res = await call('POST', '/api/customers', { body: customer({ name: 'Second Client', carPlate }) });
+    assert.equal(res.status, 400, carPlate);
+    assert.match(res.json.error, /Вече има клиент с рег\. номер PB0001TT: Test Client/);
+  }
+  assert.equal((await readData()).customers.length, 1);
+});
+
+test('the same phone with a different plate is saved: one person, two cars', async t => {
+  const { call } = await start(t);
+  const res = await call('POST', '/api/customers', { body: customer({ carPlate: 'PB0002TT' }) });
+  assert.equal(res.status, 201);
+  assert.equal((await readData()).customers.length, 2);
+});
+
+test('PUT cannot take the plate of a different customer, but keeps its own', async t => {
+  const { call } = await start(t);
+  const second = await call('POST', '/api/customers', { body: customer({ name: 'Second Client', carPlate: 'PB0002TT' }) });
+  const taken = await call('PUT', `/api/customers/${second.json.id}`, { body: { carPlate: 'pb0001tt' } });
+  assert.equal(taken.status, 400);
+  assert.match(taken.json.error, /Вече има клиент/);
+  // An edit of a different field sends the own plate again.
+  const own = await call('PUT', `/api/customers/${second.json.id}`, { body: { carPlate: 'PB0002TT', name: 'New Name' } });
+  assert.equal(own.status, 200);
+  const data = await readData();
+  assert.deepEqual(data.customers.map(c => c.carPlate), ['PB0001TT', 'PB0002TT']);
+  assert.equal(data.customers[1].name, 'New Name');
 });

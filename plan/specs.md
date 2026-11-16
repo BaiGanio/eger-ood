@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-15 (D11: one page per task; D27: no USB button; chapter 10).
+Last update: 2026-11-16 (D28: one plate = one row; chapter 16).
 
 ## 1. The product
 
@@ -46,6 +46,7 @@ Last update: 2026-11-15 (D11: one page per task; D27: no USB button; chapter 10)
 | D25 | The staff app knows the official days off by itself, for any year (2000–2099): `lib/holidays.js` computes them from the law (fixed dates, Orthodox Easter, Labour Code art. 154 weekend rule). The Nager.Date API adds the one-time days off: the app checks it at most once in 30 days (this year and the next), when the app starts or the page loads, and on "Провери сега". This is not a timer job (D4). Only the year and the country go out. No internet = the law and the last good check stay. The check result is in the Excel sheet "Официални празници" and the setting "Последна проверка на празниците" (the app writes them). The staff add their own days off (force majeure) in a calendar in "Настройки": one month at a time (◀ ▶), grey = weekly day off, red = official holiday (always red, also if the staff added it), orange = added by the staff; a click adds or removes a staff day; no extra list and no long text (staff, 2026-11-15). After each change the customers load again and a toast says how many reminders moved (staff, 2026-11-15). | 2026-11-15 |
 | D26 | No "Прегледът мина" button. A customer who passed the inspection gets the new date in "Последен преглед" (pencil or Excel). The app then sets "Следващ преглед" one year later, clears the SMS mark, and the status is "Очаква". A customer who did not come stays "Просрочен" (owner, 2026-11-15). | 2026-11-15 |
 | D27 | Backup: the daily copy stays (one a day, 30 kept, in `backups/`). No "Копие на USB" button: it was built in chapter 09 and removed in chapter 10 (owner, 2026-11-15). | 2026-11-15 |
+| D28 | One plate = one row. The app refuses a second customer with the same plate: "Добави" and edit give a message with the name of the customer who has it; in the Excel file the first row loads and a later row with the same plate is a bad row (banner, section 7). The same phone on two rows is allowed: one person can have two cars. For the compare only: no spaces, capital letters, and a Cyrillic letter counts as its Latin twin (`plateKey` in `lib/validate.js`). The saved plate stays as typed (owner, 2026-11-15). | 2026-11-16 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions
@@ -126,7 +127,7 @@ Last update: 2026-11-15 (D11: one page per task; D27: no USB button; chapter 10)
 - Before the first write of each day, copy the file to `backups/`. Keep 30.
 - Check the Excel lock **before** an SMS send, not after.
 - An Excel lock = the lock file `~$клиенти.xlsx`, `EBUSY`, or (Windows only) `EPERM` / `EACCES`. On a Mac, `EPERM` / `EACCES` is no access to the folder (macOS privacy), with its own message (chapter 09).
-- A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash.
+- A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash. A bad value in the sheet "Настройки" is not a skipped row: the app uses the default value, and the banner says so (`usesDefault`).
 - `Телефон` is a text column.
 - A write changes the workbook in place. Rows that did not load (bad rows) and columns that the staff added stay in the file.
 - The file holds no computed column. "Следващ преглед" and "Напомняне на" show in the dashboard only (owner, 2026-11-13).

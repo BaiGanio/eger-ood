@@ -20,6 +20,25 @@ const CUSTOMER_FIELDS = {
   name: 100, phone: 20, address: 200, carModel: 100, carPlate: 20, lastServiceDate: 10,
 };
 
+// A Bulgarian plate has only the 12 letters that look the same in both
+// alphabets. The staff can type them on the Cyrillic keyboard. For the
+// compare, a Cyrillic letter counts as its Latin twin.
+const CYRILLIC_TWINS = {
+  'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'H',
+  'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'У': 'Y', 'Х': 'X',
+};
+
+/** The form of a plate for a compare only. The saved plate stays as typed. */
+export function plateKey(plate) {
+  return normalizePlate(plate).replace(/[АВЕКМНОРСТУХ]/g, letter => CYRILLIC_TWINS[letter]);
+}
+
+/** The customer who has this plate, or null. `exceptId`: the row in edit. */
+export function samePlateCustomer(customers, plate, exceptId = null) {
+  const key = plateKey(plate);
+  return customers.find(c => c.id !== exceptId && plateKey(c.carPlate) === key) ?? null;
+}
+
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 /**
@@ -27,9 +46,10 @@ const isObject = value => value !== null && typeof value === 'object' && !Array.
  *
  * `existing` is the saved customer for an edit, null for a new customer. A
  * field that the body does not have keeps its saved value. `today` is
- * "YYYY-MM-DD".
+ * "YYYY-MM-DD". `customers` are the saved customers: one plate = one row
+ * (specs D28).
  */
-export function checkCustomer(body, { existing = null, today }) {
+export function checkCustomer(body, { existing = null, today, customers = [] }) {
   if (!isObject(body)) return { error: 'Невалидна заявка.' };
 
   const value = {};
@@ -58,6 +78,13 @@ export function checkCustomer(body, { existing = null, today }) {
   const dateChanged = value.lastServiceDate !== existing?.lastServiceDate;
   if (dateChanged && value.lastServiceDate > today) {
     return { error: 'Датата на последния преглед не може да е в бъдещето.' };
+  }
+  const twin = samePlateCustomer(customers, value.carPlate, existing?.id ?? null);
+  if (twin) {
+    return {
+      error: `Вече има клиент с рег. номер ${twin.carPlate}: ${twin.name}. ` +
+        'Един автомобил се записва само един път.',
+    };
   }
   return { value };
 }

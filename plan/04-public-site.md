@@ -22,8 +22,8 @@ Needs: chapter 03. Open questions: Q1, Q2, Q6 in `README.md`.
 - [x] Add a page title, a description meta tag, and a favicon.
 - [x] Remove the old placeholder comments.
 - [x] Add a GitHub Actions workflow `.github/workflows/pages.yml` that publishes the `site/` folder. (The simple Pages setting can only publish the repo root or `/docs`, not `/site`.)
-- [ ] In the GitHub repo settings: Pages → Source → "GitHub Actions". **Owner does this by hand.**
-- [ ] Open the live URL. Check images, calendar, phone links on a phone. **Owner checks after the push.**
+- [x] In the GitHub repo settings: Pages → Source → "GitHub Actions". **Owner does this by hand.**
+- [x] Open the live URL. Check images, calendar, phone links on a phone. **Owner checks after the push.**
 - [x] Extra: the calendar and the hours show Monday as a day off (`specs.md` D7).
 - [x] Extra: fix a 12 px side scroll at 360 px width (`row g-5` → `row g-4 g-lg-5`).
 

@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fillTemplate, normalizePlate } from '../public/sms-text.js';
+import { fillTemplate, measureSms, normalizePlate } from '../public/sms-text.js';
 import { DEFAULT_TEMPLATE } from '../lib/store.js';
 
 const customer = {
@@ -47,4 +47,21 @@ test('normalizePlate removes all spaces and makes capitals', () => {
 
 test('an old row with spaces in the plate gives the plate with no spaces in the SMS', () => {
   assert.equal(fillTemplate('ГТП на {{номер}}', { ...customer, carPlate: 'pb 1234 ab' }), 'ГТП на PB1234AB');
+});
+
+// The warning under the counter names the count that the text went over.
+test('measureSms: `over` is the count that the text passed', () => {
+  const bg = n => 'я'.repeat(n);
+  const en = n => 'a'.repeat(n);
+  assert.equal(measureSms(bg(70)).over, null);
+  assert.equal(measureSms(bg(71)).over, 70);
+  assert.equal(measureSms(bg(134)).over, 70);
+  assert.equal(measureSms(bg(135)).over, 134);
+  assert.equal(measureSms(bg(135)).segments, 3);
+  assert.equal(measureSms(bg(202)).over, 201);
+  // Latin letters only: one SMS holds 160.
+  assert.equal(measureSms(en(71)).over, null);
+  assert.equal(measureSms(en(160)).over, null);
+  assert.equal(measureSms(en(161)).over, 160);
+  assert.equal(measureSms(en(307)).over, 306);
 });

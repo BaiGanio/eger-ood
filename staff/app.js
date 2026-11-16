@@ -71,7 +71,7 @@ export function createApp({ autoHolidayCheck = false, fetchHolidays } = {}) {
   app.post('/api/customers', route(async (req, res) => {
     const data = await loadData();
     const today = localDateText();
-    const { value, error } = checkCustomer(req.body, { today });
+    const { value, error } = checkCustomer(req.body, { today, customers: data.customers });
     if (error) return res.status(400).json({ error });
 
     const customer = withComputed({
@@ -92,7 +92,7 @@ export function createApp({ autoHolidayCheck = false, fetchHolidays } = {}) {
 
     const existing = data.customers[idx];
     const today = localDateText();
-    const { value, error } = checkCustomer(req.body, { existing, today });
+    const { value, error } = checkCustomer(req.body, { existing, today, customers: data.customers });
     if (error) return res.status(400).json({ error });
 
     // `value` has only the fields that the staff can edit. The ID and the SMS

@@ -201,6 +201,8 @@ test('a bad setting and a bad holiday are reported and not overwritten', async t
   assert.equal(data.smsPricePerSegment, DEFAULT_PRICE);
   assert.deepEqual(data.weeklyDaysOff, [0, 1]);
   assert.deepEqual(data.problems.map(p => p.sheet), [SHEETS.settings, SHEETS.settings, SHEETS.holidays]);
+  // A bad setting is not skipped: the default value is in use. A bad holiday is skipped.
+  assert.deepEqual(data.problems.map(p => p.usesDefault === true), [true, true, false]);
 
   await writeData(data);
   const wb = new ExcelJS.Workbook();
@@ -441,4 +443,29 @@ test('an old file with the column "Активен" loads: "Не" has no effect a
   await wb.xlsx.readFile(dataFile());
   const ws = wb.getWorksheet(SHEETS.customers);
   assert.equal(ws.getRow(2).getCell(columnOf(ws, 'Активен')).value, 'Не');
+});
+
+// One plate = one row (specs D28).
+test('a second row with the same plate is a bad row; the first row loads and both stay in the file', async t => {
+  await freshFolder(t);
+  await writeData(sample());
+  let firstPlate;
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    const col = columnOf(ws, 'Рег. номер');
+    firstPlate = String(ws.getRow(2).getCell(col).value);
+    // Typed by hand: small letters and a space.
+    ws.getRow(4).getCell(col).value = `${firstPlate.slice(0, 2).toLowerCase()} ${firstPlate.slice(2)}`;
+  });
+
+  const data = await readData();
+  assert.deepEqual(data.customers.map(c => c.id), ['c001', 'c002']);
+  assert.deepEqual(data.problems.map(p => [p.sheet, p.row]), [[SHEETS.customers, 4]]);
+  assert.match(data.problems[0].reason, new RegExp(`рег\\. номер ${firstPlate} вече е на ред 2`));
+
+  await writeData(data);
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(dataFile());
+  const ws = wb.getWorksheet(SHEETS.customers);
+  assert.equal(ws.getRow(4).getCell(columnOf(ws, 'Име')).value, 'Тест Клиент 3');
 });

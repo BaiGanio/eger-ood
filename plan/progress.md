@@ -2,11 +2,11 @@
 
 Update this file at the end of each work session. Rules are in `specs.md`.
 
-Last update: 2026-11-15.
+Last update: 2026-11-16.
 
 ## Where we are
 
-**Now:** chapter 09 (packaging) is in work: code, Mac build, USB copy button, README and `staff/ИНСТРУКЦИЯ.md` are done; the Windows test on the real PC and the "Отвори папката" proposal are open. Chapter 08 (dashboard cleanup) is closed (owner checked the page, 2026-11-15). No "Прегледът мина" button (D26). Chapters 06 and 07 wait for the owner's checks in the browser ("Owner checks" in each chapter file). Chapter 05 waits for the checks with real Excel on Windows. Chapter 04 waits for the checks on the live URL. **Next:** the Windows test (`09-packaging.md`, "Windows test"). Then the rest of chapter 10 (staff guide).
+**Now:** chapter 16 (one plate = one row, D28) is done in code; it waits for the owner's checks. Chapters 04, 06, 10 and 14 are closed (owner, 2026-11-16). Three small dashboard fixes are done (SMS counter warning, bad-rows banner, status option name). The help pages do not show these changes yet: the list is in `plan/to-do.md`. The Windows test (chapters 09, 05, 15 B6) waits: no Windows PC for some days; only a Mac and a Linux machine. Chapter 07 waits for the owner's checks in the browser. **Next:** decide "Отвори папката" (O6) and the logic for "SMS sent but not saved". Then the docs session of `plan/to-do.md`.
 
 ## Chapters
 
@@ -18,18 +18,19 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 01 | Goals and design | ✅ | Reference only. No code. |
 | 02 | Baseline commit | ✅ | Work is in `59593fe`. |
 | 03 | Split repo into `site/` and `staff/` | ✅ | 2026-11-13. Committed in `d0cdb8d` on `master`. |
-| 04 | Public site: static + GitHub Pages | 🟨 | 2026-11-13. Code is done. Owner must set Pages → "GitHub Actions", push, and check the live URL. |
+| 04 | Public site: static + GitHub Pages | ✅ | 2026-11-16. Closed by the owner. |
 | 05 | Excel storage | 🟨 | 2026-11-13. Code and 31 tests are done. Owner must do the Excel checks on Windows (`05-excel-storage.md`, "Owner checks"). |
-| 06 | Reminder logic | 🟨 | 2026-11-14. Code and tests are done (66 tests). No cron. Owner must check the dashboard in a browser (`06-reminder-logic.md`, "Owner checks"). No "Прегледът мина" button (D26). |
+| 06 | Reminder logic | ✅ | 2026-11-16. Closed by the owner. No cron. No "Прегледът мина" button (D26). |
 | 07 | Security | 🟨 | 2026-11-15. Code and tests are done (104 tests). Request guard, input checks, CSP, no inline script, `.env.example`. Owner must check the dashboard in a browser (`07-security.md`, "Owner checks"). |
 | 08 | Dashboard cleanup | ✅ | 2026-11-15. Closed: owner checked the page. 162 tests. No "Прегледът мина" button (D26). History: code and tests (161 tests). Cleanup steps, staff requests of 14 and 15 Nov: one customer table (D20), no "Деактивиран" function (D19), new status and send rules (D21), page split of the table (D24), "Очаквани за преглед" only with the SMS (D22 fix), send day in "Изпратени SMS" and "Просрочени", only "Изпрати" in "Очакващи SMS", clickable "Всички клиенти" card and only edit/delete in the full table. Days off calendar and official holidays (D25). New dashboard requests go to a new chapter or to chapter 09. |
 | 09 | Packaging | 🟨 | 2026-11-15. Key file `настройки.env` in the data folder, port 3000–3010 with "already running", one `npm run build` with excludes, Mac build checked, "Копие на USB" button (D27; removed in ch10), README, `staff/ИНСТРУКЦИЯ.md`. 177 tests. `start.bat`, `start.sh`, `check-node.bat` deleted. Owner: Windows test. "Отвори папката" not decided (O6). |
-| 10 | Staff guide | 🟨 | 2026-11-15. One page per task in `staff/public/help/` (D11), list in the sidebar under "Помощ". All 10 tasks written; tasks 2–10 wait for the owner's check. "Още се пише" note removed. "Копие на USB" removed (D27). |
+| 10 | Staff guide | ✅ | 2026-11-16. Closed by the owner. One page per task in `staff/public/help/` (D11). Later text changes are in `plan/to-do.md`. |
 | 11 | Public site: land page (`zemya.html`) | 🟨 | 2026-11-14. Demo page done: invented text, stock photos, `noindex`. Waits for the real text and photos from the owners. |
 | 12 | SEO | ⬜ | Last on the public site. The owners can start part A1 (Google Business Profile) now. Bulgarian guide for them is in the chapter. |
 | 13 | Public site: fuel page (`goriva.html`) | 🟨 | 2026-11-14. Demo page done: partly invented text, `noindex`. Waits for the real text and photo rights. |
-| 14 | Public site: redesign | 🟨 | 2026-11-14. New layout and look for the three pages (`specs.md` D18). Waits for the owner's review and a check on a real phone. |
+| 14 | Public site: redesign | ✅ | 2026-11-16. Closed by the owner. New layout and look for the three pages (`specs.md` D18). |
 | 15 | Manual tests and staff practice | 🟨 | 2026-11-15. Two lists in `15-manual-tests.md`: A (staff practice, real file, fake customer "ТЕСТ", 2 real SMS at most) and B (owner tests). List A is the page "Упражнения", task 11 under "Помощ" (`help/practice.html`). 178 tests. Waits for: the owner's read of the page and of list B, the runs of both lists. |
+| 16 | One plate, one row | 🟨 | 2026-11-16. Code and tests are done (D28). 186 tests. Waits for the owner's checks (`16-same-plate.md`) and the help texts (`to-do.md`). |
 
 ## Later (not planned yet)
 
@@ -123,6 +124,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-15 | Chapter 08 closed: owner checked the page. No "Прегледът мина" button (D26): the rule "a new last inspection date → Очаква, expiry +1 year" was in the code and in unit tests; one server test added for the real edit route. Backup decided (D27): daily copy stays, a sidebar "copy to USB" button comes in chapter 09. 162 tests pass in both time zones. |
 | 2026-11-15 | Chapter 15 started: manual tests. Owner decided: two lists, staff practice on the real file with one fake customer, real SMS to the own phone, list A as a page under "Помощ", known holes marked and not fixed first. `plan/15-manual-tests.md` written. No code change. |
 | 2026-11-15 | Chapter 15, part 2: page "Упражнения" (`help/practice.html`, task 11, 21 steps, text only). The page shows the dates for today (`help/practice.js`). Tick box and green "Трябва да видите" line in `help.css`. New `test/practice.test.js`: the dates, and the promised status of each date for each day of two years, checked with the engine. Checked in a headless Chrome: task number 11, dates filled, back link to task 10, sidebar list from `tasks.js`. 178 tests pass in both time zones. A person did not look at the page. |
+| 2026-11-16 | Chapter 16: one plate = one row (D28). `plateKey` and `samePlateCustomer` in `lib/validate.js`; POST and PUT refuse a plate that a customer has (400, with the name); a second Excel row with the same plate is a bad row. Small dashboard fixes: the SMS counter warning shows the true count (`over` in `measureSms`: 70 / 134 / 160…); the bad-rows banner has its own line for a bad setting (`usesDefault`); the status option is "Просрочени (всички)". New `plan/to-do.md` for the help texts. Chapters 04, 06, 10, 14 closed by the owner. 186 tests pass in both time zones. Not checked in a browser. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.
@@ -209,3 +211,9 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-15 (ch15): step B3.5 (send to an expired row from an old tab) and B2.8 (midnight) are hard to make by hand. If they take too long, the automatic tests stay the proof.
 - 2026-11-15 (ch15): the guide now has 11 tasks. `10-staff-guide.md` and `specs.md` D11 still say "10 tasks" in places; task 11 is the practice page, not a how-to. Texts of the practice page are in two places: `plan/15-manual-tests.md` (list A) and `help/practice.html`.
 - 2026-11-15 (ch15): the practice page was checked through the app that already ran on port 3000 (the agent's own start saw it and opened the browser). The console was not read for errors.
+- 2026-11-16 (ch16): closed by it: the double row (ch10 entry), and the Cyrillic part of the plate question for the compare. Still open: the saved plate keeps Cyrillic letters as typed, so the SMS and the search can have them; a plate still accepts any character.
+- 2026-11-16 (ch16): a real file can have two rows with one plate today. With this version the second row does not load (banner). The owner must look at the real file before the staff get the version.
+- 2026-11-16 (ch16): a bad row (not loaded) is not in the compare. The dashboard can add a customer with the plate of a bad row. After the staff repair that row in Excel, it becomes the double and goes to the banner.
+- 2026-11-16: closed: the wrong "Над 70 знака" warning, the "Те не са заредени" text for a bad setting, the two "Просрочени" options. The owner said "140 characters = 2 SMS" for Bulgarian text; the true numbers are 70 (1 SMS), 134 (2 SMS), 201 (3 SMS), because a long SMS loses 3 characters in each part. The page shows the true numbers.
+- 2026-11-16: the help pages and the practice lists do not show the changes of this session. List: `plan/to-do.md`.
+- 2026-11-16: old text in the plan, not changed: `07-security.md` owner check says "pause" (function gone, D19); `02-baseline-commit.md` has 5 empty boxes (chapter done); `10-staff-guide.md` and `specs.md` D11 say "10 tasks" (there are 11).

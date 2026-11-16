@@ -79,11 +79,11 @@ Old note: today the code shifts `nextServiceDate` forward off a Sunday. The SMS 
 
 ## Owner checks
 
-- [ ] Open the dashboard with no Twilio keys. The yellow banner "SMS не могат да се изпращат…" shows, and "Изпрати" gives an error.
-- [ ] Put the Twilio keys in `staff/.env` and your own phone number in one test customer. Start again: no banner.
-- [ ] "Изпрати" on that row: the SMS comes to your phone, the row shows "Изпратен" and goes down the list.
-- [ ] "Изпрати отново" asks first.
-- [ ] Pencil → new inspection date: the row shows "Очаква" with dates one year later.
+- [x] Open the dashboard with no Twilio keys. The yellow banner "SMS не могат да се изпращат…" shows, and "Изпрати" gives an error.
+- [x] Put the Twilio keys in `staff/.env` and your own phone number in one test customer. Start again: no banner.
+- [x] "Изпрати" on that row: the SMS comes to your phone, the row shows "Изпратен" and goes down the list.
+- [x] ~~"Изпрати отново" asks first.~~ The button is gone (D21).
+- [x] Pencil → new inspection date: the row shows "Очаква" with dates one year later.
 
 ## Done when
 - All tests pass in both time zones.

@@ -98,7 +98,9 @@
 
     <!-- Rows of the Excel file that did not load. -->
     <div id="data-problems" class="alert alert-warning alert-dismissible d-none" role="alert">
-      <strong>Във файла „клиенти.xlsx“ има редове с грешка. Те не са заредени.</strong>
+      <!-- scripts.js shows the line that is true for the problems in the list. -->
+      <strong id="data-problems-skipped">Във файла „клиенти.xlsx“ има редове с грешка. Те не са заредени.</strong>
+      <strong id="data-problems-default" class="d-none">Във файла „клиенти.xlsx“ има настройки с грешка. Програмата използва обичайната стойност.</strong>
       Поправете ги в Excel, запазете файла, затворете го и презаредете страницата.
       <ul class="mb-0 mt-2" id="data-problems-list"></ul>
       <button type="button" class="btn-close" data-action="closeBanner" data-arg="data-problems" title="Затвори" aria-label="Затвори"></button>
@@ -179,7 +181,7 @@
                style="max-width:280px;" />
         <select class="form-select" id="filter-status" style="max-width:250px;">
           <option value="">Всички статуси</option>
-          <option value="overdue">Просрочени</option>
+          <option value="overdue">Просрочени (всички)</option>
           <option value="due">За днес</option>
           <option value="pending">Очакващи</option>
           <option value="sent">Изпратени</option>

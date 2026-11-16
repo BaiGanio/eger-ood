@@ -20,7 +20,7 @@ import {
 } from './paths.js';
 import { normalizePlate } from '../public/sms-text.js';
 // One phone rule for a row of the Excel file and for a request.
-import { PHONE } from './validate.js';
+import { PHONE, plateKey } from './validate.js';
 
 // ─── Defaults (their one home) ───────────────────────────────────────────────
 
@@ -295,6 +295,7 @@ function readCustomers(wb, problems) {
   const rowById = new Map();   // id → row number, for the rows that loaded
   const fileIds = new Set();   // ids that are really in the file
   const newIds = new Map();    // id made in this read → row number
+  const rowByPlate = new Map(); // plate (compare form) → row number
   let lastRow = 1;
 
   ws.eachRow((row, rowNumber) => {
@@ -307,6 +308,18 @@ function readCustomers(wb, problems) {
       problems.push({ sheet: SHEETS.customers, row: rowNumber, reason: reasons.join('; ') });
       return;
     }
+    // One plate = one row (specs D28). The first row loads. A later row with
+    // the same plate is a bad row: the staff must choose which one is right.
+    const plate = plateKey(customer.carPlate);
+    if (rowByPlate.has(plate)) {
+      problems.push({
+        sheet: SHEETS.customers, row: rowNumber,
+        reason: `рег. номер ${customer.carPlate} вече е на ред ${rowByPlate.get(plate)}; ` +
+          'един автомобил се записва само един път',
+      });
+      return;
+    }
+    rowByPlate.set(plate, rowNumber);
     // No ID (a row made by hand) or a copy of an ID above (copy-paste):
     // the row gets a new ID.
     if (!customer.id || rowById.has(customer.id)) {
@@ -356,7 +369,9 @@ function readSettings(wb, problems) {
   let lastRow = 1;
   if (!ws) return { settings, layout: null };
 
-  const bad = (row, reason) => problems.push({ sheet: SHEETS.settings, row, reason });
+  // `usesDefault`: the row is not skipped. The app works with the default
+  // value, and the banner says so.
+  const bad = (row, reason) => problems.push({ sheet: SHEETS.settings, row, reason, usesDefault: true });
 
   ws.eachRow((row, rowNumber) => {
     lastRow = rowNumber;

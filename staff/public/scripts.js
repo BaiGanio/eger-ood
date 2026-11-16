@@ -257,6 +257,11 @@ async function loadDataProblems() {
 
 function renderDataProblems(problems) {
   showBanner('data-problems', problems.length > 0);
+  // A bad setting is not a skipped row: the app uses the default value.
+  const skipped = problems.some(p => !p.usesDefault);
+  const usesDefault = problems.some(p => p.usesDefault);
+  document.getElementById('data-problems-skipped').classList.toggle('d-none', !skipped && usesDefault);
+  document.getElementById('data-problems-default').classList.toggle('d-none', !usesDefault);
   document.getElementById('data-problems-list').innerHTML = problems.map(p => `
     <li>Лист „${escHtml(p.sheet)}“${p.row ? `, ред ${escHtml(p.row)}` : ''}: ${escHtml(p.reason)}</li>
   `).join('');
@@ -758,7 +763,7 @@ function renderCounter(el, text, price) {
       <div class="progress-bar bg-${tone}" style="width:${pct}%"></div>
     </div>
     ${over ? `<div class="text-${tone} mt-1" style="font-size:11px;">
-      <i class="bi bi-exclamation-triangle me-1"></i>Над 70 знака — съобщението се
+      <i class="bi bi-exclamation-triangle me-1"></i>Над ${m.over} знака — съобщението се
       таксува като ${m.segments} SMS. Съкратете текста, за да плащате един.
     </div>` : ''}`;
 }

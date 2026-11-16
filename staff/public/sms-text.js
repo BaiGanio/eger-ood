@@ -20,10 +20,13 @@ const UCS_SINGLE =  70, UCS_MULTI =  67;
 
 /**
  * Work out how a message will actually be billed.
- * Returns { encoding, chars, billedUnits, segments, limit }
+ * Returns { encoding, chars, billedUnits, segments, limit, over }
  *   chars       — characters a human sees
  *   billedUnits — what the carrier counts (GSM extended chars count twice)
  *   segments    — how many SMS this becomes, i.e. how many times you pay
+ *   over        — the count that the text went over to cost this many SMS
+ *                 (Cyrillic: 70, 134, 201…; Latin only: 160, 306…), or null
+ *                 for one SMS. The warning in the dashboard shows it.
  */
 export function measureSms(text) {
   const str = String(text ?? '');
@@ -47,7 +50,8 @@ export function measureSms(text) {
     chars: [...str].length,
     billedUnits: units,
     segments,
-    limit: segments === 1 ? single : multi
+    limit: segments === 1 ? single : multi,
+    over: segments === 1 ? null : (segments === 2 ? single : (segments - 1) * multi)
   };
 }
 

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { checkCustomer, checkHolidays, checkTemplate, TEMPLATE_MAX } from '../lib/validate.js';
+import {
+  checkCustomer, checkHolidays, checkTemplate, plateKey, samePlateCustomer, TEMPLATE_MAX,
+} from '../lib/validate.js';
 import { unknownTemplateNames } from '../public/sms-text.js';
 
 const TODAY = '2026-11-15';
@@ -93,4 +95,30 @@ test('template: a price that is not valid changes nothing', () => {
 
 test('unknownTemplateNames: all known names give an empty list', () => {
   assert.deepEqual(unknownTemplateNames('{{име}} {{модел}} {{номер}} {{дата}} {{телефон}} {{carPlate}}'), []);
+});
+
+// ─── One plate = one row (specs D28) ─────────────────────────────────────────
+
+test('plateKey: spaces, small letters and Cyrillic twins give the same key', () => {
+  assert.equal(plateKey('pb 1234 ab'), 'PB1234AB');
+  assert.equal(plateKey('РВ1234АВ'), 'PB1234AB');   // all Cyrillic
+  assert.equal(plateKey('рв1234ав'), 'PB1234AB');
+  assert.equal(plateKey('СА0001ХН'), 'CA0001XH');
+  assert.notEqual(plateKey('PB1234AB'), plateKey('PB1234AC'));
+});
+
+test('samePlateCustomer: finds the twin, not the row in edit', () => {
+  const saved = [{ id: 'c001', carPlate: 'PB0001TT' }, { id: 'c002', carPlate: 'PB0002TT' }];
+  assert.equal(samePlateCustomer(saved, 'рв 0001 тт').id, 'c001');
+  assert.equal(samePlateCustomer(saved, 'PB0001TT', 'c001'), null);
+  assert.equal(samePlateCustomer(saved, 'PB0003TT'), null);
+});
+
+test('checkCustomer: a plate of a saved customer is refused', () => {
+  const customers = [{ id: 'c001', name: 'Test Client', carPlate: 'PB0001TT' }];
+  const taken = checkCustomer(good(), { today: TODAY, customers });
+  assert.match(taken.error, /Вече има клиент с рег\. номер PB0001TT: Test Client/);
+  // The same row in edit keeps its plate.
+  const own = checkCustomer(good(), { existing: { id: 'c001', ...good() }, today: TODAY, customers });
+  assert.equal(own.error, undefined);
 });

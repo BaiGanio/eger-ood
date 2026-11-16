@@ -44,8 +44,8 @@ Rule from the owner (2026-11-14): show a proposal and get an OK before a layout 
 - [x] Text fix: the ГТП SMS note does not say "автоматично" (D4).
 - [x] Remove the wrong turnover number "€ 2 100 00" from the about block.
 - [x] Check at 1280 px and at 360 px: no side scroll on all three pages. No console error.
-- [ ] Owner looks at the three pages and says what to change.
-- [ ] Owner checks on a real phone and on the live URL after the push.
+- [x] Owner looks at the three pages and says what to change.
+- [x] Owner checks on a real phone and on the live URL after the push.
 
 ## Owner gives (not blocking)
 
