@@ -29,7 +29,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The same tests as "Staff tests" (test.yml), both time zones. Nothing
+  # below starts if one fails.
+  tests:
+    uses: ./.github/workflows/test.yml
+
   version:
+    needs: tests
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.next.outputs.version }}
@@ -69,6 +75,7 @@ jobs:
           cache: npm
           cache-dependency-path: staff/package-lock.json
       - run: npm ci
+      # Once more on each system: a Windows or Mac only bug stops the build too.
       - run: npm test
         env:
           TZ: Europe/Sofia
