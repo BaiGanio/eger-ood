@@ -1,0 +1,37 @@
+# Runs the staff app tests on each push to master that changes staff/.
+# Two time zones: a date bug made with UTC (toISOString) shows only when the
+# clock is not UTC. Sofia is the real zone; UTC is what most servers use.
+name: Staff tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'staff/**'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tz: [Europe/Sofia, UTC]
+    defaults:
+      run:
+        working-directory: staff
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: staff/package-lock.json
+      - run: npm ci
+      - run: npm test
+        env:
+          TZ: ${{ matrix.tz }}
