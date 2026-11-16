@@ -3,6 +3,8 @@
 // The file stores only what the staff or the app enter: `lastServiceDate`,
 // `smsSentAt`. All other values are computed here
 // on each read, so they can never go out of step with the file.
+// The store writes a copy of them into three grey columns for the staff to
+// read (specs D31). Nothing reads that copy back.
 
 import { addDays, addYears, workDayOnOrBefore } from './dates.js';
 import { officialDates } from './holidays.js';

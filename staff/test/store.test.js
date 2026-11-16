@@ -7,11 +7,12 @@ import os from 'node:os';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
 import {
-  DEFAULT_PRICE, DEFAULT_TEMPLATE, SHEETS, StoreError,
+  DEFAULT_PRICE, DEFAULT_TEMPLATE, SHEETS, STATUS_NAMES, StoreError,
   assertWritable, isLockError, isLocked, readData, storeErrorOf, writeData,
 } from '../lib/store.js';
 import { backupDir, backupFile, dataDir, dataFile, lockFile } from '../lib/paths.js';
-import { addDays, localDateText } from '../lib/dates.js';
+import { addDays, excelDateToText, localDateText, textToExcelDate } from '../lib/dates.js';
+import { withComputed } from '../lib/reminders.js';
 
 async function freshFolder(t) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'eger-store-'));
@@ -83,10 +84,11 @@ test('a missing file is created with all sheets and headers', async t => {
     [SHEETS.customers, SHEETS.settings, SHEETS.holidays, SHEETS.officialHolidays]);
   const headers = wb.getWorksheet(SHEETS.customers).getRow(1).values.slice(1);
   assert.deepEqual(headers, ['ID', 'Име', 'Телефон', 'Адрес', 'Автомобил', 'Рег. номер',
-    'Последен преглед', 'SMS изпратен на']);
+    'Последен преглед', 'SMS изпратен на', 'Следващ преглед', 'Напомняне на', 'Статус']);
 });
 
-test('the file does not hold computed values', async t => {
+// The computed columns are for the eyes of the staff only (specs D31).
+test('a read does not give the computed columns as data', async t => {
   await freshFolder(t);
   await writeData({ ...sample(), customers: [customer(1, {
     nextServiceDate: '2027-01-15', nextReminderDate: '2027-01-08', status: 'pending',
@@ -305,10 +307,10 @@ test('a delete moves a whole row, so a column added by the staff stays with its 
   await writeData(sample());
   await editInExcel(wb => {
     const ws = wb.getWorksheet(SHEETS.customers);
-    ws.getRow(1).getCell(10).value = 'Бележки';
-    ws.getRow(2).getCell(10).value = 'бележка 1';
-    ws.getRow(3).getCell(10).value = 'бележка 2';
-    ws.getRow(4).getCell(10).value = 'бележка 3';
+    ws.getRow(1).getCell(12).value = 'Бележки';
+    ws.getRow(2).getCell(12).value = 'бележка 1';
+    ws.getRow(3).getCell(12).value = 'бележка 2';
+    ws.getRow(4).getCell(12).value = 'бележка 3';
   });
   const data = await readData();
   data.customers = data.customers.filter(c => c.id !== 'c002');
@@ -317,8 +319,8 @@ test('a delete moves a whole row, so a column added by the staff stays with its 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(dataFile());
   const ws = wb.getWorksheet(SHEETS.customers);
-  assert.equal(ws.getRow(1).getCell(10).value, 'Бележки');
-  assert.deepEqual([2, 3].map(n => [ws.getRow(n).getCell(1).value, ws.getRow(n).getCell(10).value]),
+  assert.equal(ws.getRow(1).getCell(12).value, 'Бележки');
+  assert.deepEqual([2, 3].map(n => [ws.getRow(n).getCell(1).value, ws.getRow(n).getCell(12).value]),
     [['c001', 'бележка 1'], ['c003', 'бележка 3']]);
   assert.equal(ws.getRow(4).getCell(1).value, null);
   assert.equal((await readData()).customers.length, 2);
@@ -430,9 +432,9 @@ test('an old file with the column "Активен" loads: "Не" has no effect a
   await writeData(sample());
   await editInExcel(wb => {
     const ws = wb.getWorksheet(SHEETS.customers);
-    ws.getRow(1).getCell(9).value = 'Активен';
-    ws.getRow(2).getCell(9).value = 'Не';
-    ws.getRow(3).getCell(9).value = 'нещо друго';
+    ws.getRow(1).getCell(12).value = 'Активен';
+    ws.getRow(2).getCell(12).value = 'Не';
+    ws.getRow(3).getCell(12).value = 'нещо друго';
   });
   const data = await readData();
   assert.deepEqual(data.problems, []);
@@ -468,4 +470,177 @@ test('a second row with the same plate is a bad row; the first row loads and bot
   await wb.xlsx.readFile(dataFile());
   const ws = wb.getWorksheet(SHEETS.customers);
   assert.equal(ws.getRow(4).getCell(columnOf(ws, 'Име')).value, 'Тест Клиент 3');
+});
+
+// ─── Computed columns in the file (specs D31) ────────────────────────────────
+
+const COMPUTED_HEADERS = ['Следващ преглед', 'Напомняне на', 'Статус'];
+
+/** One customer for each status, with dates around today. */
+function statusSample() {
+  const today = localDateText();
+  return {
+    ...sample(),
+    holidays: [],
+    customers: [
+      customer(1, { lastServiceDate: addDays(today, -800) }),                                  // overdue
+      customer(2, { lastServiceDate: addDays(today, -200), smsSentAt: `${today}T10:00:00` }),  // sent
+      customer(3, { lastServiceDate: addDays(today, -362) }),                                  // due
+      customer(4, { lastServiceDate: addDays(today, -30) }),                                   // pending
+    ],
+  };
+}
+
+/** The computed cells of the file, row by row: [next, reminder, status]. */
+async function computedInFile() {
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(dataFile());
+  const ws = wb.getWorksheet(SHEETS.customers);
+  const [next, reminder, status] = COMPUTED_HEADERS.map(h => columnOf(ws, h));
+  const rows = [];
+  ws.eachRow((row, n) => {
+    if (n === 1) return;
+    const date = col => {
+      const v = row.getCell(col).value;
+      return v instanceof Date ? excelDateToText(v) : v;
+    };
+    rows.push([date(next), date(reminder), row.getCell(status).value]);
+  });
+  return rows;
+}
+
+function computedWanted(data) {
+  const today = localDateText();
+  return data.customers
+    .map(c => withComputed(c, data, today))
+    .map(c => [c.nextServiceDate, c.nextReminderDate, STATUS_NAMES[c.status]]);
+}
+
+test('a write puts the next inspection, the reminder day and the status into the file', async t => {
+  await freshFolder(t);
+  const data = statusSample();
+  await writeData(data);
+  const rows = await computedInFile();
+  assert.deepEqual(rows, computedWanted(data));
+  assert.deepEqual(rows.map(r => r[2]), ['Просрочен', 'Изпратен', 'За днес', 'Очаква']);
+
+  // Real date cells, grey like the other columns of the app.
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(dataFile());
+  const ws = wb.getWorksheet(SHEETS.customers);
+  const cell = ws.getRow(2).getCell(columnOf(ws, 'Напомняне на'));
+  assert.ok(cell.value instanceof Date);
+  assert.equal(cell.numFmt, 'dd.mm.yyyy');
+  assert.equal(cell.fill.fgColor.argb, 'FFE7E6E6');
+});
+
+test('a read with good computed columns does not write the file', async t => {
+  await freshFolder(t);
+  await writeData(statusSample());
+  const before = await fs.readFile(dataFile());
+  await readData();
+  await readData();
+  assert.deepEqual(await fs.readFile(dataFile()), before);
+});
+
+test('an old file with no computed columns gets them on the first read, after the staff columns', async t => {
+  await freshFolder(t);
+  const data = statusSample();
+  await writeData(data);
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.spliceColumns(columnOf(ws, 'Следващ преглед'), 3);
+    ws.getRow(1).getCell(9).value = 'Бележки';
+    ws.getRow(2).getCell(9).value = 'бележка 1';
+  });
+
+  const read = await readData();
+  assert.deepEqual(read.problems, []);
+  assert.deepEqual(withoutProblems(read), data);
+  assert.deepEqual(await computedInFile(), computedWanted(data));
+
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(dataFile());
+  const ws = wb.getWorksheet(SHEETS.customers);
+  assert.deepEqual(ws.getRow(1).values.slice(9), ['Бележки', ...COMPUTED_HEADERS]);
+  assert.equal(ws.getRow(2).getCell(9).value, 'бележка 1');
+});
+
+test('old computed values (a new day) are made right by the next read', async t => {
+  await freshFolder(t);
+  const data = statusSample();
+  await writeData(data);
+  // The file as it was left on a day before: other status, other reminder day.
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.getRow(4).getCell(columnOf(ws, 'Статус')).value = 'Очаква';
+    ws.getRow(5).getCell(columnOf(ws, 'Напомняне на')).value = textToExcelDate('2020-01-01');
+  });
+  assert.notDeepEqual(await computedInFile(), computedWanted(data));
+  await readData();
+  assert.deepEqual(await computedInFile(), computedWanted(data));
+});
+
+test('a new inspection date typed in Excel moves the computed columns on the next read', async t => {
+  await freshFolder(t);
+  const data = statusSample();
+  await writeData(data);
+  const today = localDateText();
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.getRow(2).getCell(columnOf(ws, 'Последен преглед')).value = textToExcelDate(today);
+  });
+  const read = await readData();
+  assert.equal(read.customers[0].lastServiceDate, today);
+  const rows = await computedInFile();
+  assert.deepEqual(rows, computedWanted(read));
+  assert.equal(rows[0][2], 'Очаква');
+});
+
+test('locked file: old computed columns stay, the read works and the file does not change', async t => {
+  await freshFolder(t);
+  await writeData(statusSample());
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.getRow(2).getCell(columnOf(ws, 'Статус')).value = 'Очаква';
+  });
+  const before = await fs.readFile(dataFile());
+  await fs.writeFile(lockFile(), '');
+
+  const data = await readData();
+  assert.equal(data.customers.length, 4);
+  assert.deepEqual(data.problems, []);
+  assert.deepEqual(await fs.readFile(dataFile()), before);
+
+  // Excel is closed: the next read repairs the column.
+  await fs.rm(lockFile());
+  await readData();
+  assert.equal((await computedInFile())[0][2], 'Просрочен');
+});
+
+test('a bad row keeps its computed cells as they are', async t => {
+  await freshFolder(t);
+  await writeData(statusSample());
+  await editInExcel(wb => {
+    const ws = wb.getWorksheet(SHEETS.customers);
+    ws.getRow(3).getCell(columnOf(ws, 'Телефон')).value = null;
+    ws.getRow(3).getCell(columnOf(ws, 'Статус')).value = 'на ръка';
+  });
+  const data = await readData();
+  assert.equal(data.problems.length, 1);
+  await writeData(data);
+  assert.equal((await computedInFile())[1][2], 'на ръка');
+});
+
+test('two saves at the same time: both end, and the file is good', async t => {
+  await freshFolder(t);
+  await writeData(statusSample());
+  const a = statusSample();
+  a.customers[0].name = 'Първи';
+  const b = statusSample();
+  b.customers[0].name = 'Втори';
+  await Promise.all([writeData(a), writeData(b)]);
+  const data = await readData();
+  assert.equal(data.customers[0].name, 'Втори');
+  assert.deepEqual(data.problems, []);
 });

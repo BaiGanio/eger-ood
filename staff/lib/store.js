@@ -5,7 +5,11 @@
 //  - a write changes the existing workbook in place. Rows that the app did
 //    not load (bad rows) and columns that the staff added stay as they are;
 //  - a write goes to a temp file first, then a rename puts it over the real
-//    file. A power cut cannot leave half a file.
+//    file. A power cut cannot leave half a file;
+//  - three grey columns show the computed values to the staff (specs D31):
+//    "Следващ преглед", "Напомняне на", "Статус". The app writes them on each
+//    save, and a read writes them again when they are old (a new day). The
+//    app never reads them as data.
 
 import ExcelJS from 'exceljs';
 import crypto from 'crypto';
@@ -21,6 +25,7 @@ import {
 import { normalizePlate } from '../public/sms-text.js';
 // One phone rule for a row of the Excel file and for a request.
 import { PHONE, plateKey } from './validate.js';
+import { withComputed } from './reminders.js';
 
 // ─── Defaults (their one home) ───────────────────────────────────────────────
 
@@ -54,7 +59,22 @@ const CUSTOMER_COLUMNS = [
   { field: 'carPlate',        header: 'Рег. номер',       width: 14 },
   { field: 'lastServiceDate', header: 'Последен преглед', width: 18, numFmt: 'dd.mm.yyyy' },
   { field: 'smsSentAt',       header: 'SMS изпратен на',  width: 20, numFmt: 'dd.mm.yyyy hh:mm', appOnly: true },
+  // Computed (specs D31): a copy of what the dashboard shows. The file can
+  // have none of them (an old file): the app adds them at the end.
+  { field: 'nextServiceDate',  header: 'Следващ преглед', width: 18, numFmt: 'dd.mm.yyyy', appOnly: true, computed: true },
+  { field: 'nextReminderDate', header: 'Напомняне на',    width: 18, numFmt: 'dd.mm.yyyy', appOnly: true, computed: true },
+  { field: 'status',           header: 'Статус',          width: 14, appOnly: true, computed: true },
 ];
+const STORED_COLUMNS = CUSTOMER_COLUMNS.filter(c => !c.computed);
+const COMPUTED_COLUMNS = CUSTOMER_COLUMNS.filter(c => c.computed);
+
+// The same words as the status badges of the dashboard.
+export const STATUS_NAMES = {
+  overdue: 'Просрочен',
+  sent: 'Изпратен',
+  due: 'За днес',
+  pending: 'Очаква',
+};
 
 const SETTING_KEYS = {
   smsTemplate: 'SMS шаблон',
@@ -237,7 +257,8 @@ function findCustomerColumns(ws) {
     const known = CUSTOMER_COLUMNS.find(c => sameText(c.header, header));
     if (known && !cols[known.field]) cols[known.field] = colNumber;
   });
-  const missing = CUSTOMER_COLUMNS.filter(c => !cols[c.field]).map(c => `„${c.header}“`);
+  // A computed column can be missing: the app adds it (addMissingComputedColumns).
+  const missing = STORED_COLUMNS.filter(c => !cols[c.field]).map(c => `„${c.header}“`);
   if (missing.length) {
     throw new StoreError('MISSING_COLUMN',
       `В лист „${SHEETS.customers}“ липсва колона ${missing.join(', ')}. ` +
@@ -284,6 +305,66 @@ function readCustomerRow(row, cols) {
   return reasons.length ? { reasons } : { customer };
 }
 
+// ─── Computed columns (specs D31) ────────────────────────────────────────────
+
+/** What the three computed cells of a customer must show. */
+function computedValues(customer, settings, today) {
+  const c = withComputed(customer, settings, today);
+  return {
+    nextServiceDate: c.nextServiceDate,
+    nextReminderDate: c.nextReminderDate,
+    status: STATUS_NAMES[c.status],
+  };
+}
+
+/** What the three computed cells of a row show now. */
+function readComputedCells(row, cols) {
+  const cell = field => (cols[field] ? row.getCell(cols[field]) : null);
+  const date = field => (cell(field) ? readDate(cell(field)) : null);
+  return {
+    nextServiceDate: date('nextServiceDate'),
+    nextReminderDate: date('nextReminderDate'),
+    status: cell('status') ? cellText(cell('status')) : '',
+  };
+}
+
+function writeComputedCells(ws, cols, rowNumber, values) {
+  const row = ws.getRow(rowNumber);
+  for (const { field, numFmt } of COMPUTED_COLUMNS) {
+    const cell = row.getCell(cols[field]);
+    cell.value = numFmt ? textToExcelDate(values[field]) : values[field];
+    if (numFmt) cell.numFmt = numFmt;
+    cell.fill = GREY;
+  }
+}
+
+/** An old file has no computed columns. They go after the last column in use. */
+function addMissingComputedColumns(ws, cols) {
+  let last = ws.columnCount;
+  ws.getRow(1).eachCell((cell, colNumber) => { last = Math.max(last, colNumber); });
+  for (const c of COMPUTED_COLUMNS) {
+    if (cols[c.field]) continue;
+    const n = ++last;
+    const header = ws.getRow(1).getCell(n);
+    header.value = c.header;
+    header.font = { bold: true };
+    header.fill = GREY;
+    ws.getColumn(n).width = c.width;
+    cols[c.field] = n;
+  }
+}
+
+/** True when a computed cell of the file shows another value than the app. */
+function computedIsOld(layout, data, today) {
+  const { cols, computedInFile } = layout;
+  if (COMPUTED_COLUMNS.some(c => !cols[c.field])) return true;
+  return data.customers.some(customer => {
+    const have = computedInFile.get(customer.id);
+    const want = computedValues(customer, data, today);
+    return !have || COMPUTED_COLUMNS.some(c => have[c.field] !== want[c.field]);
+  });
+}
+
 function readCustomers(wb, problems) {
   const ws = wb.getWorksheet(SHEETS.customers);
   if (!ws) {
@@ -296,11 +377,13 @@ function readCustomers(wb, problems) {
   const fileIds = new Set();   // ids that are really in the file
   const newIds = new Map();    // id made in this read → row number
   const rowByPlate = new Map(); // plate (compare form) → row number
+  const computedInFile = new Map(); // id → the computed cells of the row, as they are
   let lastRow = 1;
 
   ws.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
-    if (CUSTOMER_COLUMNS.every(c => isBlank(row.getCell(cols[c.field])))) return;
+    // A row with only computed cells is empty: the staff cleared the customer.
+    if (STORED_COLUMNS.every(c => isBlank(row.getCell(cols[c.field])))) return;
     lastRow = rowNumber;
 
     const { customer, reasons } = readCustomerRow(row, cols);
@@ -329,10 +412,11 @@ function readCustomers(wb, problems) {
       fileIds.add(customer.id);
     }
     rowById.set(customer.id, rowNumber);
+    computedInFile.set(customer.id, readComputedCells(row, cols));
     customers.push(customer);
   });
 
-  return { customers, layout: { ws, cols, rowById, fileIds, newIds, lastRow } };
+  return { customers, layout: { ws, cols, rowById, fileIds, newIds, computedInFile, lastRow } };
 }
 
 function parsePrice(value) {
@@ -486,8 +570,10 @@ function deleteRows(ws, rowNumbers) {
   [...rowNumbers].sort((a, b) => b - a).forEach(n => ws.spliceRows(n, 1));
 }
 
-function applyCustomers(layout, customers) {
+/** `settings`: the days off, for the computed cells. */
+function applyCustomers(layout, customers, settings, today) {
   const { ws, cols, rowById, fileIds } = layout;
+  addMissingComputedColumns(ws, cols);
   const taken = new Set(rowById.keys());
   const wanted = new Set();
   let lastRow = layout.lastRow;
@@ -498,6 +584,10 @@ function applyCustomers(layout, customers) {
     wanted.add(customer.id);
     const rowNumber = rowById.get(customer.id) ?? ++lastRow;
     writeCustomerRow(ws, cols, rowNumber, customer);
+    // A row that the next read will report (bad date) gets no computed cells.
+    if (isDateText(customer.lastServiceDate)) {
+      writeComputedCells(ws, cols, rowNumber, computedValues(customer, settings, today));
+    }
   }
   // Delete only a row whose ID was in the file. A row that got its ID in this
   // same read is new to the caller: it did not ask to delete it.
@@ -584,6 +674,15 @@ async function saveWorkbook(wb) {
     if (known) throw known;
     throw err;
   }
+}
+
+// One write at a time. Each write loads the file, changes it and saves it.
+// Two writes that run together can lose the change of the first one.
+let lastWrite = Promise.resolve();
+function oneAtATime(job) {
+  const run = lastWrite.then(job);
+  lastWrite = run.catch(() => {});
+  return run;
 }
 
 /** Before the first write of each day: copy the file to backups/. Keep 30. */
@@ -724,14 +823,50 @@ export async function readData() {
   // read, and a click in the dashboard does not find the customer.
   if (layout.customers.newIds.size) await persistNewIds(wb, layout, data.problems);
   await applyPendingSends(data);
+  if (computedIsOld(layout.customers, data, localDateText())) await refreshComputed();
   return data;
+}
+
+/**
+ * Writes the computed columns again (specs D31). A read calls it when they
+ * are old: the first read of a new day, a hand edit in Excel, a new day off.
+ *
+ * It loads the file fresh, inside the write queue. So it cannot put back an
+ * old customer list over a save that ran in the meantime.
+ * It never fails a read: the dashboard computes its own values. With the file
+ * open in Excel, the columns stay old until the next read with a free file.
+ */
+async function refreshComputed() {
+  try {
+    await oneAtATime(async () => {
+      await assertWritable();
+      const wb = await loadWorkbook();
+      const { data, layout } = parse(wb);
+      const { ws, cols, rowById } = layout.customers;
+      const today = localDateText();
+      // A save in the meantime did the work already.
+      if (!computedIsOld(layout.customers, data, today)) return;
+      addMissingComputedColumns(ws, cols);
+      for (const customer of data.customers) {
+        writeComputedCells(ws, cols, rowById.get(customer.id), computedValues(customer, data, today));
+      }
+      await backupOncePerDay();
+      await saveWorkbook(wb);
+    });
+  } catch (err) {
+    if (!(err instanceof StoreError)) console.error('[STORE] Cannot refresh the computed columns:', err);
+  }
 }
 
 /**
  * Writes `data` (same shape as `readData`) into the file.
  * Throws a `StoreError` with code `LOCKED` when Excel has the file open.
  */
-export async function writeData(data) {
+export function writeData(data) {
+  return oneAtATime(() => writeDataNow(data));
+}
+
+async function writeDataNow(data) {
   await ensureDataFile();
   await assertWritable();
   const wb = await loadWorkbook();
@@ -740,15 +875,19 @@ export async function writeData(data) {
   if (!wb.getWorksheet(SHEETS.officialHolidays)) addOfficialSheet(wb);
   const { data: parsed, layout } = parse(wb);
 
-  applyCustomers(layout.customers, data.customers ?? []);
+  const holidays = data.holidays ?? parsed.holidays;
+  const official = data.officialHolidays ?? parsed.officialHolidays;
+  const weeklyDaysOff = data.weeklyDaysOff ?? parsed.weeklyDaysOff;
+
+  applyCustomers(layout.customers, data.customers ?? [],
+    { weeklyDaysOff, holidays, officialHolidays: official }, localDateText());
   applySettings(layout.settings, parsed, {
     smsTemplate: data.smsTemplate ?? parsed.smsTemplate,
     smsPricePerSegment: data.smsPricePerSegment ?? parsed.smsPricePerSegment,
-    weeklyDaysOff: data.weeklyDaysOff ?? parsed.weeklyDaysOff,
+    weeklyDaysOff,
     holidayCheckDate: data.holidayCheckDate ?? parsed.holidayCheckDate,
   });
-  applyHolidays(layout.holidays, data.holidays ?? parsed.holidays);
-  const official = data.officialHolidays ?? parsed.officialHolidays;
+  applyHolidays(layout.holidays, holidays);
   if (JSON.stringify(official) !== JSON.stringify(parsed.officialHolidays)) {
     applyOfficialHolidays(wb, official);
   }
@@ -762,7 +901,11 @@ export async function writeData(data) {
  * of the check. The customers are not read and not written. So a check that
  * ran in the background cannot put back an old customer list.
  */
-export async function writeHolidayCheck({ officialHolidays, holidayCheckDate }) {
+export function writeHolidayCheck(result) {
+  return oneAtATime(() => writeHolidayCheckNow(result));
+}
+
+async function writeHolidayCheckNow({ officialHolidays, holidayCheckDate }) {
   await ensureDataFile();
   await assertWritable();
   const wb = await loadWorkbook();

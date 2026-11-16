@@ -22,9 +22,9 @@ const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'publ
 
 const NOT_FOUND = 'Клиентът не е намерен. Презаредете страницата.';
 
-// The Excel file holds only what the staff or the app enter. The next
-// inspection date, the reminder date and the status are computed on each read
-// (specs section 4). The rules are in lib/reminders.js.
+// The next inspection date, the reminder date and the status are computed on
+// each read (specs section 4). The rules are in lib/reminders.js. The Excel
+// file shows a copy of them to the staff (specs D31); the store writes it.
 async function loadData() {
   const data = await readData();
   const today = localDateText();

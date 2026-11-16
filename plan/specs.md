@@ -2,7 +2,7 @@
 
 This file is the law for development. If a chapter file and this file disagree, this file wins. Change this file first, then the code.
 
-Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папката"; D30: SMS sent, save later).
+Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папката"; D30: SMS sent, save later; D31: computed columns in the Excel file).
 
 ## 1. The product
 
@@ -49,6 +49,7 @@ Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папка
 | D28 | **Under question (O7): the owner asks the staff first.** One plate = one row. The app refuses a second customer with the same plate: "Добави" and edit give a message with the name of the customer who has it; in the Excel file the first row loads and a later row with the same plate is a bad row (banner, section 7). The same phone on two rows is allowed: one person can have two cars. For the compare only: no spaces, capital letters, and a Cyrillic letter counts as its Latin twin (`plateKey` in `lib/validate.js`). The saved plate stays as typed (owner, 2026-11-15). | 2026-11-16 |
 | D29 | "Настройки" has a card "Файл с данни" at the end: the full path of `клиенти.xlsx` and a button "Отвори папката" that opens the data folder in the file manager (Explorer, Finder). The request gives no path: the server opens only the data folder (`lib/folder.js`). Was O6 (owner, 2026-11-16). | 2026-11-16 |
 | D30 | An SMS that went out is never lost. After the send, the save is tried 4 times (1 second between). If the Excel file is still busy, the send is kept in `незаписани-sms.json` in the data folder. Each read puts it on the customer (the row shows "Изпратен", a second SMS is refused) and the first read with a free file writes it into Excel and removes the small file. The staff do nothing; the page says "затворете Excel". Only if the small file cannot be written does the old message "SMS е изпратен, но не е записан" show (owner, 2026-11-16). | 2026-11-16 |
+| D31 | The Excel file shows three computed columns to the staff: "Следващ преглед", "Напомняне на", "Статус" (grey, at the end of sheet "Клиенти"). They are a copy of what the dashboard shows. The app writes them on each save. A read writes them again when a value is old (a new day, a hand edit in Excel, a new day off): so the first page load of a day saves the file one time. The app never reads them as data: a value that the staff type there is overwritten. An old file with no such columns gets them after the last column in use. With the file open in Excel the columns stay old until the next page load with a free file; the dashboard is always right. The time of the SMS was in the file already ("SMS изпратен на"). This changes the rule of 2026-11-13 "no computed column" (staff request, owner, 2026-11-16). | 2026-11-16 |
 | D17 | The public site stays plain HTML (D10), also with more pages. No Angular or other app framework: a client-rendered app is worse for SEO and needs a build. If the copied navbar and footer become a pain (about 6+ pages), the next step is a static site generator, decided then. | 2026-11-14 |
 
 ## 3. Open questions
@@ -92,7 +93,7 @@ Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папка
 | `staff/public/sms-text.js` | SMS length, cost, template fill. Shared by engine and browser. |
 
 - A value has one home. No number or text is written two times (example: the SMS price).
-- Do not store what can be computed. `status`, `nextServiceDate`, `nextReminderDate` are computed on each read.
+- Do not store what can be computed. `status`, `nextServiceDate`, `nextReminderDate` are computed on each read. The Excel file shows a copy of them to the staff (D31); the app writes that copy and never reads it as data.
 
 ## 5. Date and reminder rules
 
@@ -133,7 +134,8 @@ Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папка
 - A bad row gives a report with sheet, row, and reason. Good rows still load. Never a crash. A bad value in the sheet "Настройки" is not a skipped row: the app uses the default value, and the banner says so (`usesDefault`).
 - `Телефон` is a text column.
 - A write changes the workbook in place. Rows that did not load (bad rows) and columns that the staff added stay in the file.
-- The file holds no computed column. "Следващ преглед" and "Напомняне на" show in the dashboard only (owner, 2026-11-13).
+- The file has three computed columns for the staff to read: "Следващ преглед", "Напомняне на", "Статус" (D31). Only the store writes them. They are not required: a file without them loads, and the store adds them. (Until 2026-11-16 the rule was "no computed column".)
+- One write at a time: the store runs its writes in a queue. A read that makes the computed columns right loads the file fresh inside that queue, so it cannot put back old customer data.
 
 ## 8. Code rules
 

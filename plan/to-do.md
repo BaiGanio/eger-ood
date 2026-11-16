@@ -10,6 +10,7 @@ Changes of the code that the help pages and other texts do not show yet. Do them
 - [ ] **Status option "Просрочени (всички)" (2026-11-16).** The option had the name "Просрочени". `overdue.html` (hint of the last step) names the old text, and `overdue-3-filter.png` shows it. Change the text and make the picture again (`tools/guide-shots.mjs`).
 - [ ] **"Отвори папката" (2026-11-16, D29).** `file.html` (task 9): the fast way to the file is now "Настройки" → "Файл с данни" → "Отвори папката". Add the steps and one picture. `errors.html`: add "Папката не може да се отвори …".
 - [ ] **SMS sent, save later (2026-11-16, D30).** `errors.html`: the message "SMS е изпратен, но не е записан" is now rare. Add the new yellow message "SMS изпратен до … Файлът е отворен в Excel: затворете го. Програмата ще запише изпращането сама." and say: close Excel, do nothing more. `file.html`: name the small file `незаписани-sms.json` and say "do not delete it".
+- [ ] **Computed columns in the file (2026-11-16, D31).** `file.html` (task 9): the file now has three more grey columns: "Следващ преглед", "Напомняне на", "Статус". Say: the program fills them, do not type there, they are right after the program was opened that day with Excel closed. Check the picture of the file. `staff/ИНСТРУКЦИЯ.md`: the same, where it lists the columns.
 
 ## Other texts
 
