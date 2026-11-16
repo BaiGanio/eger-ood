@@ -24,7 +24,7 @@ The repo is in the middle of a restructure. The split into `site/` and `staff/` 
 - No framework. No build step. Plain HTML, CSS, JavaScript.
 - Text for users is Bulgarian. Code and comments are English.
 - Do only the work of the present chapter. Put other findings in `plan/progress.md`.
-- **After any file or code change, end the reply with a commit message for that change.** The owner reviews it, then decides on the commit. Never commit or push without the owner's word.
+- **After any file or code change, end the reply with a commit message for that change.** The subject starts with a Conventional Commits word (`feat:`, `fix:`, `docs:`, `test:`, `chore:` …): in `staff/`, `feat:`/`fix:`/`perf:` make a public release (`plan/specs.md` D32). The owner reviews it, then decides on the commit. Never commit or push without the owner's word.
 
 ## After each session
 

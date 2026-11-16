@@ -3,24 +3,52 @@
 # builds on its own GitHub computer. setup-node gives the Node of nodejs.org
 # (one file, no libnode), so tools/build.mjs does not stop.
 #
-#   Push a tag "v*" (example: v1.0.1)  →  a GitHub Release with three zip files.
-#   "Run workflow" on the Actions tab  →  the same zip files as a run artifact.
+#   Push to master with a "feat:" / "fix:" / "perf:" / "...!:" commit that
+#   changes staff/  →  a new version tag and a GitHub Release with three zips.
+#   (Rules: staff/tools/next-version.mjs.) Other commits: no build.
+#   "Run workflow" on the Actions tab  →  a test build: the same zips as a run
+#   artifact, no tag, no Release.
 #
 # The built files never go into git. They have no data and no keys.
 name: Build staff app
 
 on:
   push:
-    tags: ['v*']
+    branches: [master]
+    paths:
+      - 'staff/**'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# One run at a time, so two quick pushes never get the same version number.
+concurrency:
+  group: build-staff
+  cancel-in-progress: false
+
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # all commits and tags
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - id: next
+        if: github.event_name == 'push'
+        run: node staff/tools/next-version.mjs
+
   build:
+    needs: version
+    if: needs.version.outputs.version != '' || github.event_name == 'workflow_dispatch'
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - os: windows-latest
@@ -57,10 +85,10 @@ jobs:
   # because GitHub changes the non-Latin letters in the name of a Release file.
   # In each zip the file keeps its name ЕГЕР-Сервиз(.exe) of ИНСТРУКЦИЯ.md.
   package:
-    needs: build
+    needs: [version, build]
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # only to make the Release
+      contents: write   # only to make the tag and the Release
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -73,14 +101,18 @@ jobs:
             (cd "in/build-$n" && zip -X "../../out/EGER-Servis-$n.zip" *)
           done
           ls -l out
-      - if: startsWith(github.ref, 'refs/tags/v')
-        name: Make the GitHub Release
+      - if: needs.version.outputs.version != ''
+        name: Make the tag and the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" out/*.zip --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
-      - if: "!startsWith(github.ref, 'refs/tags/v')"
+          VERSION: ${{ needs.version.outputs.version }}
+        run: >
+          gh release create "$VERSION" out/*.zip
+          --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA"
+          --title "$VERSION" --generate-notes
+      - if: needs.version.outputs.version == ''
         uses: actions/upload-artifact@v4
         with:
-          name: EGER-Servis
+          name: EGER-Servis-test
           path: out/
           retention-days: 30

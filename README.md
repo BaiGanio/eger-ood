@@ -87,7 +87,7 @@ npm install
 npm run build        # dist/ЕГЕР-Сервиз.exe on Windows, dist/ЕГЕР-Сервиз on a Mac
 ```
 
-- Easiest: let GitHub build it (`.github/workflows/build.yml`). Push a tag, for example `git tag v1.0.1 && git push origin v1.0.1`. The Release page then has `EGER-Servis-windows.zip`, `EGER-Servis-linux.zip`, `EGER-Servis-mac.zip`. Or click "Run workflow" on the Actions tab and download the zips from the run.
+- Easiest: let GitHub build it (`.github/workflows/build.yml`). A push to `master` with a commit in `staff/` that starts with `fix:`, `perf:` (1.0.1), `feat:` (1.1.0) or `feat!:` (2.0.0) makes a new version. The Release page then has `EGER-Servis-windows.zip`, `EGER-Servis-linux.zip`, `EGER-Servis-mac.zip`. `docs:`, `test:`, `chore:` make no release. "Run workflow" on the Actions tab makes a test build with no release.
 - caxa packs the Node that runs the build. So a build on a PC makes the file only for that system.
 - Use the Node from <https://nodejs.org> (LTS). Homebrew's Node needs an extra library file; the build stops with a message then. Run `/path/to/nodejs.org/node tools/build.mjs` in place of `npm run build`.
 - The built file has no data, no keys, no tests (`tools/build.mjs`, `EXCLUDE`). At start it unpacks into a temp folder. The data stays in `Documents/ЕГЕР-Сервиз/`, so a new build never touches it.

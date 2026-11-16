@@ -54,8 +54,8 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 - [x] "Отвори папката" in "Настройки" with the path of the data file. Built 2026-11-16 (owner OK; specs D29): card "Файл с данни" at the end of "Настройки", full path + button. Check the button on Windows in the Windows test.
 - [x] `start.bat`, `start.sh`, `check-node.bat` deleted (owner, 2026-11-15): `npm start` for developers, `npm run build` for the staff file.
 
-- [x] Build on GitHub (D32): `.github/workflows/build.yml` builds Windows, Linux and Mac. Tag `v*` → Release with three zips. 2026-11-16.
-- [ ] Owner: first run on GitHub (tag or "Run workflow"). Unzip each file. Windows: the name `ЕГЕР-Сервиз.exe` is readable after the unzip. Linux: the file starts with a double-click or `./ЕГЕР-Сервиз`.
+- [x] Build on GitHub (D32): `.github/workflows/build.yml` builds Windows, Linux and Mac. A `feat:`/`fix:`/`perf:` commit in `staff/` → tag and Release with three zips (`tools/next-version.mjs`, 5 tests). 2026-11-16.
+- [ ] Owner: first run on GitHub ("Run workflow" = test build). Unzip each file. Windows: the name `ЕГЕР-Сервиз.exe` is readable after the unzip. Linux: the file starts with a double-click or `./ЕГЕР-Сервиз`.
 
 ### Windows test (owner, on the real PC)
 
