@@ -55,6 +55,8 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 - [x] `start.bat`, `start.sh`, `check-node.bat` deleted (owner, 2026-11-15): `npm start` for developers, `npm run build` for the staff file.
 
 - [x] Build on GitHub (D32): `.github/workflows/build.yml` builds Windows, Linux and Mac. A `feat:`/`fix:`/`perf:` commit in `staff/` → tag and Release with three zips (`tools/next-version.mjs`, 5 tests). 2026-11-16.
+- [x] Linux data folder (specs O3): the documents folder of `user-dirs.dirs` (`~/Документи` on a Bulgarian desktop). An old file in `~/Documents/ЕГЕР-Сервиз` stays in use. 6 tests. 2026-11-17.
+- [ ] Owner, on the Linux PC: start the app. "Настройки" → "Файл с данни" shows the documents folder of the desktop (for example `~/Документи/ЕГЕР-Сервиз/клиенти.xlsx`). No second folder `~/Documents` is made.
 - [ ] Owner: first run on GitHub ("Run workflow" = test build). Unzip each file. Windows: the name `ЕГЕР-Сервиз.exe` is readable after the unzip. Linux: the file starts with a double-click or `./ЕГЕР-Сервиз`.
 
 ### Windows test (owner, on the real PC)
@@ -65,7 +67,9 @@ C:\Users\<name>\Documents\ЕГЕР-Сервиз\
 4. Follow `staff/ИНСТРУКЦИЯ.md`, part 1. Write down the exact SmartScreen text and buttons.
 5. Check the list above (browser opens, Bulgarian text in the black window, save, Excel open → clear message, stop and start → data stays).
 6. Double-click the icon a second time: no second server, the browser opens.
-7. `настройки.env` with keys: the yellow banner goes away. One real SMS to your own phone, short English words (specs §9).
+7. "Настройки" → "Файл с данни" → click "Отвори папката": Explorer shows the folder of `клиенти.xlsx`.
+8. OneDrive case: if "Документи" is in OneDrive on this PC, check that the card shows the true path of the file (the path where the app writes), and that the folder opens.
+9. `настройки.env` with keys: the yellow banner goes away. One real SMS to your own phone, short English words (specs §9).
 
 ## Later items (not in this plan)
 - Automatic daily send (needs the PC to be on, or a Windows scheduled task).

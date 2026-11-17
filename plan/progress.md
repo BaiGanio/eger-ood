@@ -2,11 +2,11 @@
 
 Update this file at the end of each work session. Rules are in `specs.md`.
 
-Last update: 2026-11-16.
+Last update: 2026-11-17.
 
 ## Where we are
 
-**Now:** chapter 17 (computed columns in the Excel file, D31) is done in code; it waits for the owner's checks. Chapter 16 (one plate = one row, D28) is done in code; it waits for the owner's checks. Chapters 04, 06, 10 and 14 are closed (owner, 2026-11-16). Three small dashboard fixes are done (SMS counter warning, bad-rows banner, status option name). The help pages do not show these changes yet: the list is in `plan/to-do.md`. The Windows test (chapters 09, 05, 15 B6) waits: no Windows PC for some days; only a Mac and a Linux machine. Chapter 07 waits for the owner's checks in the browser. "Отвори папката" (D29) and "SMS sent, save later" (D30) are built too. **Next:** the owner's checks in the browser (below). Then the docs session of `plan/to-do.md`. Then the Windows test.
+**Now:** chapter 17 (computed columns in the Excel file, D31) is done in code; it waits for the owner's checks. Chapter 16 (one plate = one row, D28) is done in code; it waits for the owner's checks. Chapters 04, 06, 10 and 14 are closed (owner, 2026-11-16). Three small dashboard fixes are done (SMS counter warning, bad-rows banner, status option name). The help pages and `staff/ИНСТРУКЦИЯ.md` show these changes now (docs session, 2026-11-17). Only the O7 texts wait (`plan/to-do.md`). The Windows test (chapters 09, 05, 15 B6) waits: no Windows PC for some days; only a Mac and a Linux machine. Chapter 07 waits for the owner's checks in the browser. "Отвори папката" (D29) and "SMS sent, save later" (D30) are built too. **Next:** the owner's checks in the browser (below) and a read of the new help texts. Then the Windows test.
 
 ## Chapters
 
@@ -58,7 +58,8 @@ Write here what you see but must not fix in the present chapter.
 - 2026-11-16 (ch09, D32, O7): a `feat:`/`fix:` commit in `staff/` is public at once. While O7 is open, the same-plate code is in `staff/`; the first such commit gives it to anyone who downloads.
 
 - 2026-11-16 (ch09, D32): the Release files have no signature. Windows shows SmartScreen. A Mac blocks the downloaded file the first time; right-click → "Open" does not work on new macOS (use "Open Anyway" or `xattr`, D32). Owner: no signature, keep the one-time click on Windows. Linux: the staff Linux must have glibc 2.28 or newer (the Node of nodejs.org needs it).
-- 2026-11-16 (ch09, D32): `staff/ИНСТРУКЦИЯ.md` and the help pages talk only about Windows and a copy of the `.exe`. A Linux staff PC and the download from GitHub are not in them yet. Add them in the docs session (`plan/to-do.md`).
+- ~~2026-11-17 (docs): on Linux the app used `~/Documents` also on a Bulgarian desktop (`~/Документи`).~~ Fixed 2026-11-17 (ch09, specs O3): `lib/paths.js` reads `user-dirs.dirs`. Check it on the Linux PC (`09-packaging.md`).
+- 2026-11-17 (docs): the help pages say "Документи\ЕГЕР-Сервиз" (Windows). The Linux staff have only `ИНСТРУКЦИЯ.md` part 8. If the staff use Linux every day, the help pages need a Linux note.
 
 - 2026-11-13: the built file `ЕГЕР-Сервиз` (17 MB) was in git. Chapter 03 removed it from the index. It stays in the git history (the repo is still big). The file is still on the disk, ignored.
 - 2026-11-13: `staff/server.js` still has `toISOString()` for dates, the `cors` package, and the cron job. Chapters 06 and 07 fix them.
@@ -139,6 +140,8 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-16 | New `.github/workflows/test.yml` (owner request): on a push to `master` that changes `staff/`, GitHub runs `npm test` with `TZ=Europe/Sofia` and `TZ=UTC` (Node LTS). It reports only; it does not block a push. Not run on GitHub yet. |
 | 2026-11-16 | Chapter 09: GitHub workflow `build.yml` builds the staff file for Windows, Linux and Mac (D32). A `feat:`/`fix:`/`perf:` commit in `staff/` makes the version tag and a Release with three zips (`tools/next-version.mjs`). Not run on GitHub yet. |
 | 2026-11-16 | Chapter 09: one pipeline `build.yml` ("Staff tests and build"): tests in two time zones, then the build only when a version is due. `test.yml` removed. Dependabot PRs #2–#4 are old (root `package-lock.json`, gone since chapter 03); `staff/` has newer versions. `npm update` + `npm audit fix` in `staff/`: 0 problems, 205 tests. |
+| 2026-11-17 | Docs session of `plan/to-do.md` (no O7 texts). Help: `template.html` (2 and 3 SMS, Latin 160), `overdue.html` ("Просрочени (всички)", new picture), `errors.html` (settings banner, yellow "SMS изпратен до …", "Папката не може да се отвори"), `file.html` ("Отвори папката" with picture `file-1-folder.png`, grey columns, `незаписани-sms.json`, steps renumbered). `guide-shots.mjs` makes the new picture with a fake Windows path. `ИНСТРУКЦИЯ.md`: download from GitHub, "Отвори папката", grey columns, `незаписани-sms.json`, part 8 Linux. `09-packaging.md`: Windows test steps for "Отвори папката" and OneDrive. |
+| 2026-11-17 | Ch09: Linux data folder. `lib/paths.js` takes the documents folder from `user-dirs.dirs` (`XDG_DOCUMENTS_DIR`, for example `~/Документи`). An old file in `~/Documents/ЕГЕР-Сервиз` stays in use. No setting = `~/Documents`. Windows and Mac do not change. 6 new tests (211). `specs.md` O3, `ИНСТРУКЦИЯ.md` part 8. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.

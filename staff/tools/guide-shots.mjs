@@ -238,7 +238,7 @@ await mark('[data-arg="expired:365"]', '3');
 await page.screenshot({ path: `${OUT}overdue-2-period.png` });
 await clearMarks();
 
-// Shot 3: the status filter "Просрочени": all overdue customers, also
+// Shot 3: the status filter "Просрочени (всички)": all overdue customers, also
 // those of more than 12 months. Nothing is clicked in the rows.
 await openDashboard();
 await page.selectOption('#filter-status', 'overdue');
@@ -305,6 +305,27 @@ await page.waitForTimeout(200); await page.mouse.move(0, 0);
 await mark('#f-price', '6');
 await mark('[data-action="saveTemplate"]', '7');
 await page.screenshot({ path: `${OUT}template-3-save.png` });
+await clearMarks();
+
+// ── Task 9 (file.html) ────────────────────────────────────────────────
+// The script never clicks "Отвори папката": it would open a folder on
+// this PC. The path in the card is the path of this PC; the shot shows the
+// usual Windows path, so no developer path goes into the public repo.
+await openDashboard();
+await page.click('#nav-settings');
+await page.waitForSelector('#data-file-path');
+await page.evaluate(() => {
+  document.getElementById('data-file-path').textContent =
+    'C:\\Users\\Сервиз\\Documents\\ЕГЕР-Сервиз\\клиенти.xlsx';
+  const card = document.getElementById('data-file-path').closest('.card');
+  card.id = 'guide-file-card';
+  card.scrollIntoView({ block: 'center' });
+});
+await page.waitForTimeout(300); await page.mouse.move(0, 0);
+await mark('#nav-settings .sidebar-label', '1');
+await mark('#guide-file-card', '2');
+await mark('[data-action="openDataFolder"]', '3');
+await page.screenshot({ path: `${OUT}file-1-folder.png` });
 await clearMarks();
 
 await browser.close();

@@ -15,9 +15,9 @@
 </head>
 <body class="bg-light">
 
-<!-- Staff guide, one task (specs D5, D27, section 7). Text only: no screen
-     of the dashboard shows the file (owner, 2026-11-15). Facts from
-     lib/paths.js and lib/store.js: the copy is made before the first save of
+<!-- Staff guide, one task (specs D5, D27, D29, D30, D31, section 7). One
+     picture: the card "Файл с данни" in "Настройки" (D29). No picture of the
+     Excel file. Facts from lib/paths.js and lib/store.js: the copy is made before the first save of
      a day, 30 are kept, the lock file stops saves and sends but not reads.
      The task number and the links at the bottom come from tasks.js
      (help-nav.js). Restore of a copy: grey box, only with help (owner). -->
@@ -44,17 +44,37 @@
       </div>
 
       <h2 class="step-group">Къде е файлът</h2>
+      <figure class="shot">
+        <img src="img/file-1-folder.png" width="1280" height="760"
+             alt="„Настройки“. Връзката „Настройки“ в менюто е отбелязана с 1. Картата „Файл с данни“ с пътя до файла е отбелязана с 2. Бутонът „Отвори папката“ е отбелязан с 3.">
+      </figure>
       <ol class="steps">
-        <li>Файлът е тук: <code>Документи\ЕГЕР-Сервиз\клиенти.xlsx</code>
+        <li>Щракнете <span class="ui-btn">Настройки</span> в менюто вляво. <span class="mark">1</span></li>
+        <li>Най-долу е картата <strong>„Файл с данни“</strong>. Тя показва пътя до файла. <span class="mark">2</span>
+          <div class="hint">Обикновено файлът е тук: <code>Документи\ЕГЕР-Сервиз\клиенти.xlsx</code>.</div>
           <div class="hint">Програмата чете и пише само този файл. Не го местете и не го преименувайте.</div>
         </li>
-        <li>Можете да го отворите в Excel с двоен клик.
+        <li>Щракнете <span class="ui-btn"><i class="bi bi-folder2-open"></i> Отвори папката</span>. <span class="mark">3</span>
+          <div class="hint">Отваря се папката с файла. Там е и папката <code>backups</code> с копията.</div>
+        </li>
+        <li>Можете да отворите файла в Excel с двоен клик.
           <div class="hint">Не трийте колони и не сменяйте имената им. Програмата ги търси по име.</div>
         </li>
       </ol>
 
+      <h2 class="step-group">Сивите колони</h2>
+      <ol class="steps" start="5">
+        <li>Последните три колони в лист „Клиенти“ са сиви: <strong>„Следващ преглед“</strong>, <strong>„Напомняне на“</strong>, <strong>„Статус“</strong>.
+          <div class="hint">Програмата ги попълва сама. В тях е същото, което показва таблото.</div>
+        </li>
+        <li>Не пишете в сивите колони.
+          <div class="hint">Програмата пише върху тях. Вашият текст се губи.</div>
+          <div class="hint">Стойностите са верни, когато таблото е отваряно днес при затворен Excel. Ако Excel е бил отворен, те може да са стари. Таблото е винаги вярно.</div>
+        </li>
+      </ol>
+
       <h2 class="step-group">Excel и програмата</h2>
-      <ol class="steps" start="3">
+      <ol class="steps" start="7">
         <li>Затворете Excel, преди да запазвате в програмата или да изпращате SMS.
           <div class="hint">Докато файлът е отворен в Excel, програмата не запазва и не изпраща. Тя казва:
             <span class="text-danger fw-semibold">Файлът „клиенти.xlsx“ е отворен в Excel. Затворете файла в Excel и опитайте отново.</span></div>
@@ -66,9 +86,9 @@
       <h2 class="step-group">„Затворете Excel“, а Excel е затворен</h2>
       <p>Когато Excel е отворен, той слага до файла малък файл <code>~$клиенти.xlsx</code>.
         Ако Excel се срине, този малък файл остава. Тогава програмата мисли, че Excel е още отворен.</p>
-      <ol class="steps" start="5">
+      <ol class="steps" start="9">
         <li>Проверете, че Excel е затворен. Вижте долната лента на Windows.</li>
-        <li>Отворете папката <code>Документи\ЕГЕР-Сервиз\</code>.</li>
+        <li>Отворете папката с файла (стъпки 1–3).</li>
         <li>Включете скритите файлове: горе в прозореца щракнете <span class="ui-btn">Изглед</span>, после <span class="ui-btn">Покажи</span>, после <span class="ui-btn">Скрити елементи</span>.
           <div class="hint">Малкият файл е скрит. Без тази стъпка няма да го видите. На Windows 10: щракнете <span class="ui-btn">Изглед</span> и сложете отметка на „Скрити елементи“.</div>
         </li>
@@ -78,8 +98,20 @@
         <li>В таблото опитайте отново.</li>
       </ol>
 
+      <h2 class="step-group">Малкият файл „незаписани-sms.json“</h2>
+      <p>Понякога до файла с клиентите има файл <code>незаписани-sms.json</code>.
+        Програмата го прави, когато изпрати SMS, а Excel е отворен. В него пише кои SMS още не са във файла с клиентите.</p>
+      <ol class="steps" start="14">
+        <li>Затворете Excel. Презаредете таблото (<kbd>F5</kbd>).
+          <div class="hint">Програмата записва тези SMS във файла с клиентите сама. После трие малкия файл.</div>
+        </li>
+        <li><strong>Не трийте</strong> <code>незаписани-sms.json</code>.
+          <div class="hint">Без него програмата не знае, че SMS е изпратен. Тогава клиентът може да получи второ SMS.</div>
+        </li>
+      </ol>
+
       <h2 class="step-group">Копията</h2>
-      <ol class="steps" start="10">
+      <ol class="steps" start="16">
         <li>Копията са в папката <code>Документи\ЕГЕР-Сервиз\backups\</code>.</li>
         <li>Името на всяко копие има датата, например <code>клиенти-2026-11-15.xlsx</code>.
           <div class="hint">Копието се прави преди първата промяна за деня. В копието от 15.11 няма промените от 15.11.</div>
@@ -116,11 +148,15 @@
       <h2 class="step-group">Ако нещо не стане</h2>
       <dl class="trouble">
         <dt>Програмата казва „отворен в Excel“, а Excel е затворен.</dt>
-        <dd>Изтрийте малкия файл <code>~$клиенти.xlsx</code> (стъпки 5–9).</dd>
+        <dd>Изтрийте малкия файл <code>~$клиенти.xlsx</code> (стъпки 9–13).</dd>
         <dt>Не виждате <code>~$клиенти.xlsx</code>.</dt>
-        <dd>Включете скритите файлове (стъпка 7). Пак го няма, а съобщението остава? Обадете се за помощ.</dd>
+        <dd>Включете скритите файлове (стъпка 11). Пак го няма, а съобщението остава? Обадете се за помощ.</dd>
         <dt>Няма папка <code>backups</code>.</dt>
         <dd>Тя се появява при първата промяна в програмата. Ако сте правили промени, а папката я няма, обадете се за помощ.</dd>
+        <dt>Бутонът „Отвори папката“ не отваря папката.</dt>
+        <dd>Прочетете пътя в картата „Файл с данни“ (стъпка 2). Отворете папките по този път сами. Пак не става? Обадете се за помощ.</dd>
+        <dt>Написали сте нещо в сива колона.</dt>
+        <dd>Нищо лошо. Програмата пише върху него вярната стойност. Запишете промяната в другите колони.</dd>
         <dt>Таблото казва, че файлът не може да се прочете.</dt>
         <dd>Не пипайте файла. Обадете се за помощ. Човекът, който помага, връща копие.</dd>
       </dl>

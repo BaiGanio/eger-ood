@@ -58,7 +58,7 @@ Last update: 2026-11-16 (D28: one plate = one row; D29: "Отвори папка
 | # | Question | Default until answered |
 |---|---|---|
 | O2 | "Send to all due today" button? | No. One SMS at a time. |
-| O3 | Where is the Excel file on the staff PC? | `Documents\ЕГЕР-Сервиз\клиенти.xlsx`. `EGER_DATA_DIR` overrides it. |
+| O3 | Where is the Excel file on the staff PC? | `Documents\ЕГЕР-Сервиз\клиенти.xlsx`. `EGER_DATA_DIR` overrides it. Linux: the documents folder of the desktop (`XDG_DOCUMENTS_DIR` in `user-dirs.dirs`, for example `~/Документи`); an old file in `~/Documents/ЕГЕР-Сервиз` stays in use; no setting = `~/Documents` (2026-11-17). |
 | O5 | Extra pages that the staff want. | Wait for the talks with the staff. |
 | O7 | Can two rows have the same plate in real work (example: a plate that moved to a different car, a new owner of the car)? The owner asks the staff (2026-11-16). | D28 stays in the code as built. Do not give this version to the staff before the answer. No help text for D28 before the answer. |
 

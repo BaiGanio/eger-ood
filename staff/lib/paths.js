@@ -3,6 +3,7 @@
 // Every function reads the environment at call time. So a value from `.env`
 // (loaded by server.js at start) and a value set by a test both work.
 
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,11 +25,64 @@ export function envFiles() {
   return [path.join(dataDir(), SETTINGS_ENV_NAME), path.join(STAFF_DIR, '.env')];
 }
 
+const DATA_DIR_NAME = 'ЕГЕР-Сервиз';
+
+/**
+ * The documents folder that `user-dirs.dirs` names (Linux, XDG), or null.
+ * A Bulgarian desktop names it "Документи". The value is `$HOME/...` or an
+ * absolute path. A value equal to the home folder means "no documents
+ * folder": null then.
+ */
+export function xdgDocumentsDir(home, configText) {
+  const line = String(configText ?? '').split('\n')
+    .map(l => l.trim())
+    .find(l => l.startsWith('XDG_DOCUMENTS_DIR='));
+  if (!line) return null;
+  let value = line.slice('XDG_DOCUMENTS_DIR='.length).trim();
+  if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+  if (value === '$HOME' || value.startsWith('$HOME/')) value = home + value.slice('$HOME'.length);
+  if (!path.isAbsolute(value)) return null;
+  value = path.resolve(value);   // also drops a trailing "/"
+  if (value === path.resolve(home)) return null;
+  return value;
+}
+
+/**
+ * The parent of the data folder. Windows and Mac: `Documents`. Linux: the
+ * documents folder of the desktop (specs O3), but an old data file in
+ * `~/Documents` stays in use, so an update never hides the data.
+ * `platform`, `home`, `env`, `exists` and `readText` are for the tests.
+ */
+export function documentsDir({
+  platform = process.platform,
+  home = os.homedir(),
+  env = process.env,
+  exists = fs.existsSync,
+  readText = file => fs.readFileSync(file, 'utf8'),
+} = {}) {
+  const usual = path.join(home, 'Documents');
+  if (platform !== 'linux') return usual;
+  if (exists(path.join(usual, DATA_DIR_NAME, DATA_FILE_NAME))) return usual;
+  const configHome = env.XDG_CONFIG_HOME && path.isAbsolute(env.XDG_CONFIG_HOME)
+    ? env.XDG_CONFIG_HOME : path.join(home, '.config');
+  let text;
+  try {
+    text = readText(path.join(configHome, 'user-dirs.dirs'));
+  } catch {
+    return usual;
+  }
+  return xdgDocumentsDir(home, text) ?? usual;
+}
+
+// The documents folder does not change while the app runs. Found one time.
+let documentsDirCache = null;
+
 /** Folder of the Excel file. `EGER_DATA_DIR` overrides the default (specs O3). */
 export function dataDir() {
   const override = process.env.EGER_DATA_DIR;
   if (override && override.trim()) return path.resolve(override.trim());
-  return path.join(os.homedir(), 'Documents', 'ЕГЕР-Сервиз');
+  documentsDirCache ??= documentsDir();
+  return path.join(documentsDirCache, DATA_DIR_NAME);
 }
 
 export function dataFile() {
