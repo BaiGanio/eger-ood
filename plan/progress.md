@@ -2,7 +2,7 @@
 
 Update this file at the end of each work session. Rules are in `specs.md`.
 
-Last update: 2026-11-17.
+Last update: 2026-11-18.
 
 ## Where we are
 
@@ -32,6 +32,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 15 | Manual tests and staff practice | 🟨 | 2026-11-15. Two lists in `15-manual-tests.md`: A (staff practice, real file, fake customer "ТЕСТ", 2 real SMS at most) and B (owner tests). List A is the page "Упражнения", task 11 under "Помощ" (`help/practice.html`). 178 tests. Waits for: the owner's read of the page and of list B, the runs of both lists. |
 | 16 | One plate, one row | 🟨 | 2026-11-16. Code and tests are done (D28). The rule is under question (O7): the owner asks the staff. The code stays as built until the answer. |
 | 17 | Computed columns in the Excel file | 🟨 | 2026-11-16. Code and tests are done (D31, 200 tests). "Следващ преглед", "Напомняне на", "Статус" are in the file. Owner checks are in `17-computed-columns.md`. |
+| 18 | SMS through SMSAPI.bg, not Twilio | ⬜ | 2026-11-18. Plan only (`18-smsapi.md`). Waits for the owner's yes and the SMSAPI account (sender, token). Price ≈ half of Twilio. No delivery-status request in the SMSAPI docs. |
 
 ## Later (not planned yet)
 
@@ -40,7 +41,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 - English version of the public site.
 - More images on the public site (owner sends them).
 - Extra staff pages after the talks with the staff.
-- Bulk send. Automatic daily send. Twilio delivery status. Sender name "EGER".
+- Bulk send. Automatic daily send. SMS delivery status in the app (ch18: SMSAPI has only a callback, no status request in the docs). Sender name "EGER" (ch18: SMSAPI can verify `EGER-OOD` or a company phone).
 
 ## Waiting for an answer
 
@@ -142,6 +143,7 @@ Write here what you see but must not fix in the present chapter.
 | 2026-11-16 | Chapter 09: one pipeline `build.yml` ("Staff tests and build"): tests in two time zones, then the build only when a version is due. `test.yml` removed. Dependabot PRs #2–#4 are old (root `package-lock.json`, gone since chapter 03); `staff/` has newer versions. `npm update` + `npm audit fix` in `staff/`: 0 problems, 205 tests. |
 | 2026-11-17 | Docs session of `plan/to-do.md` (no O7 texts). Help: `template.html` (2 and 3 SMS, Latin 160), `overdue.html` ("Просрочени (всички)", new picture), `errors.html` (settings banner, yellow "SMS изпратен до …", "Папката не може да се отвори"), `file.html` ("Отвори папката" with picture `file-1-folder.png`, grey columns, `незаписани-sms.json`, steps renumbered). `guide-shots.mjs` makes the new picture with a fake Windows path. `ИНСТРУКЦИЯ.md`: download from GitHub, "Отвори папката", grey columns, `незаписани-sms.json`, part 8 Linux. `09-packaging.md`: Windows test steps for "Отвори папката" and OneDrive. |
 | 2026-11-17 | Ch09: Linux data folder. `lib/paths.js` takes the documents folder from `user-dirs.dirs` (`XDG_DOCUMENTS_DIR`, for example `~/Документи`). An old file in `~/Documents/ЕГЕР-Сервиз` stays in use. No setting = `~/Documents`. Windows and Mac do not change. 6 new tests (211). `specs.md` O3, `ИНСТРУКЦИЯ.md` part 8. |
+| 2026-11-18 | Chapter 18 written (plan only): send the SMS through SMSAPI.bg. Checked the SMSAPI docs: send by `POST /sms.do`, delivery only by callback (no status request), sender = verified name or company phone. Twilio facts: no Bulgarian number for SMS; a US number is replaced by a generic sender in Bulgaria. |
 - 2026-11-14 (ch14): redesign done. Two "found" items above are closed by it: the ГТП text has no "автоматично"; the turnover "€ 2 100 00" is removed from the page (put it back when the owner gives the right number).
 - 2026-11-14 (ch14): the navbar and footer are now the same block in all three pages. A change must still be made three times (D17).
 - 2026-11-14 (ch14): the station sign on `images/station.jpg` says "0/24" and shows A98. The site says 06:00 – 22:00 and A95 only. Owner says which is right. The photo also shows old prices in leva.
