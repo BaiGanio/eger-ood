@@ -1,6 +1,6 @@
 # 18 — Send the SMS through SMSAPI.bg, not Twilio
 
-Status: plan only. No code yet. The owner reads this file and says yes or no.
+Status: plan only. On hold: built only if the client needs it (owner, 2026-11-18). Twilio stays until then.
 
 Rule to add first: `specs.md` D33 (text below, in "Step 1").
 

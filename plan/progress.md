@@ -32,7 +32,7 @@ Status: ⬜ not started · 🟨 in work · ✅ done
 | 15 | Manual tests and staff practice | 🟨 | 2026-11-15. Two lists in `15-manual-tests.md`: A (staff practice, real file, fake customer "ТЕСТ", 2 real SMS at most) and B (owner tests). List A is the page "Упражнения", task 11 under "Помощ" (`help/practice.html`). 178 tests. Waits for: the owner's read of the page and of list B, the runs of both lists. |
 | 16 | One plate, one row | 🟨 | 2026-11-16. Code and tests are done (D28). The rule is under question (O7): the owner asks the staff. The code stays as built until the answer. |
 | 17 | Computed columns in the Excel file | 🟨 | 2026-11-16. Code and tests are done (D31, 200 tests). "Следващ преглед", "Напомняне на", "Статус" are in the file. Owner checks are in `17-computed-columns.md`. |
-| 18 | SMS through SMSAPI.bg, not Twilio | ⬜ | 2026-11-18. Plan only (`18-smsapi.md`). Waits for the owner's yes and the SMSAPI account (sender, token). Price ≈ half of Twilio. No delivery-status request in the SMSAPI docs. |
+| 18 | SMS through SMSAPI.bg, not Twilio | ⬜ | 2026-11-18. Plan only (`18-smsapi.md`). On hold: built only if the client needs it (owner, 2026-11-18). Twilio stays. Price ≈ half of Twilio. No delivery-status request in the SMSAPI docs. |
 
 ## Later (not planned yet)
 
